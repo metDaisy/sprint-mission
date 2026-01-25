@@ -1,14 +1,14 @@
 package com.sprint.mission.service.jcf;
 
 import com.sprint.mission.entity.Entity;
-import com.sprint.mission.service.BaseService;
+import com.sprint.mission.service.BaseTemplateService;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class JCFBaseService<T extends Entity<T>> extends BaseService<T> {
+public abstract class JCFBaseService<T extends Entity<T>> extends BaseTemplateService<T> {
     protected final Map<UUID, T> data;
 
     protected JCFBaseService() {

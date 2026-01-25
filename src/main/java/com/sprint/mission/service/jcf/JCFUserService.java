@@ -5,7 +5,6 @@ import com.sprint.mission.entity.Channel;
 import com.sprint.mission.entity.User;
 import com.sprint.mission.service.UserService;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class JCFUserService extends JCFBaseService<User> implements UserService {
@@ -17,10 +16,6 @@ public class JCFUserService extends JCFBaseService<User> implements UserService 
 
     public static UserService getInstance() {
         return instance;
-    }
-
-    public JCFUserService(Map<UUID, User> data) {
-        super(data);
     }
 
     @Override
