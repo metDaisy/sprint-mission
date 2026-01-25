@@ -1,7 +1,13 @@
 package com.sprint.mission.service;
 
+import com.sprint.mission.dto.UserServiceRequest.*;
+import com.sprint.mission.entity.Channel;
 import com.sprint.mission.entity.User;
 
-public interface UserService extends BaseService<User> {
-    User create(String userName);
+import java.util.UUID;
+
+public interface UserService {
+    User create(UserCreation model);
+    void updateName(UserNameUpdate model);
+    void registerChannel(UUID userId, Channel channel);
 }

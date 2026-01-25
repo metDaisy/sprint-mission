@@ -1,5 +1,7 @@
 package com.sprint.mission.service.jcf;
 
+import com.sprint.mission.dto.UserServiceRequest.*;
+import com.sprint.mission.entity.Channel;
 import com.sprint.mission.entity.User;
 import com.sprint.mission.service.UserService;
 
@@ -22,9 +24,18 @@ public class JCFUserService extends JCFBaseService<User> implements UserService 
     }
 
     @Override
-    public User create(String userName) {
-        User user = new User(userName);
-        getData().put(user.getId(), user);
+    public User create(UserCreation model) {
+        User user = new User(model.userName());
+        data.put(user.getId(), user);
         return user;
+    }
+
+    @Override
+    public void updateName(UserNameUpdate model) {
+        doAction(model.userId(), user -> user.update(model.newUserName()));
+    }
+
+    public void registerChannel(UUID userId, Channel channel) {
+        doAction(userId, user -> user.addChannel(channel));
     }
 }

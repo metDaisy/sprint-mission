@@ -3,12 +3,13 @@ package com.sprint.mission.service.jcf;
 import com.sprint.mission.entity.Entity;
 import com.sprint.mission.service.BaseService;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
-public abstract class JCFBaseService<T extends Entity<T>> implements BaseService<T> {
-    private final Map<UUID, T> data;
-    private final String idNotExistMessage = "don't exist, %s";
+public abstract class JCFBaseService<T extends Entity<T>> extends BaseService<T> {
+    protected final Map<UUID, T> data;
 
     protected JCFBaseService() {
         this.data = new HashMap<>();
@@ -18,44 +19,33 @@ public abstract class JCFBaseService<T extends Entity<T>> implements BaseService
         this.data = data;
     }
 
-    protected Map<UUID, T> getData() {
-        return data;
+    @Override
+    protected boolean hasId(UUID id) {
+        return data.containsKey(Objects.requireNonNull(id));
     }
 
     @Override
     public T get(UUID id) {
-        if (hasId(id)) {
-            return data.get(id);
+        if (!hasId(id)) {
+            throw new IllegalArgumentException(ID_NOT_FOUND.formatted(id));
         }
-        throw new IllegalArgumentException(String.format(idNotExistMessage, id));
+        return data.get(id);
     }
 
-    @Override
-    public <U extends Collection<UUID>> Map<UUID, T> getAll(U ids) {
-        U notNullIds = Objects.requireNonNull(ids);
-        return notNullIds.stream()
-                .map(this::get)
-                .collect(Collectors.toMap(T::getId, entity -> entity));
-    }
-
-    @Override
-    public void update(UUID id, String newValue) {
-        T entity = get(id);
-        entity.update(newValue);
-    }
+//    @Override
+//    public <U extends Collection<UUID>> Map<UUID, T> getAll(U ids) {
+//        U notNullIds = Objects.requireNonNull(ids);
+//        return notNullIds.stream()
+//                .map(this::get)
+//                .collect(Collectors.toMap(T::getId, entity -> entity));
+//    }
 
     @Override
     public void delete(UUID id) {
-        if (hasId(id)) {
-            data.remove(id);
-            return;
+        if (!hasId(id)) {
+            throw new IllegalArgumentException(String.format(ID_NOT_FOUND.formatted(id)));
         }
-        throw new IllegalArgumentException(String.format(idNotExistMessage, id));
+        data.remove(id);
     }
 
-    @Override
-    public boolean hasId(UUID id) {
-        UUID notNullId = Objects.requireNonNull(id);
-        return data.containsKey(notNullId);
-    }
 }
