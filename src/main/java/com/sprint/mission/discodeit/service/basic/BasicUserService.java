@@ -30,7 +30,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     private final IdGenerator idGenerator;
 
     @Override
-    public UserResponse find(LoginRequest request) throws IOException {
+    public UserResponse find(LoginRequest request) {
         User user = userRepository.filter(user1 -> user1.matchUsername(request.username()))
                 .filter(user1 -> user1.matchPassword(request.password()))
                 .findFirst()
@@ -40,7 +40,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
 
     @Override
-    public UserResponse find(UUID userId) throws IOException, ClassNotFoundException {
+    public UserResponse find(UUID userId) {
         User user = findById(userId);
         UserStatus userStatus = findUserStatusByUserId(user.getId());
         return user.toResponse(userStatus.isActive());
@@ -54,7 +54,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
 
     @Override
-    public UserResponse create(UserCreateRequest request) throws IOException {
+    public UserResponse create(UserCreateRequest request) {
         validateUserUniqueness(request);
 
         BinaryContent profileImage = registerProfileImage(request);
@@ -68,7 +68,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
 
     @Override
-    public UserResponse update(UserUpdateRequest request) throws IOException, ClassNotFoundException {
+    public UserResponse update(UserUpdateRequest request) {
         User user = findById(request.userId());
         user.update(request);
         userRepository.save(user);
@@ -77,7 +77,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
 
     @Override
-    public void delete(UUID userId) throws IOException, ClassNotFoundException {
+    public void delete(UUID userId) {
         User user = findById(userId);
         UserStatus status = findUserStatusByUserId(userId);
         UserResponse userResponse = user.toResponse(status.isActive());
@@ -87,7 +87,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
 
     @Override
-    public UserResponse updateActiveAt(UUID id) throws IOException, ClassNotFoundException {
+    public UserResponse updateActiveAt(UUID id) {
         UserStatus status = findUserStatusByUserId(id);
         status.update();
         userStatusRepository.save(status);
@@ -95,11 +95,11 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
 
     @Override
-    protected User findById(UUID id) throws IOException, ClassNotFoundException {
+    protected User findById(UUID id) {
         return findEntityById(id, "User", userRepository);
     }
 
-    private void validateUserUniqueness(UserCreateRequest model) throws IOException {
+    private void validateUserUniqueness(UserCreateRequest model) {
         if (userRepository.existsByUsername(model.username())) {
             throw new IllegalArgumentException("username, %s, exist already.".formatted(model.username()));
         }
@@ -108,7 +108,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
         }
     }
 
-    private BinaryContent registerProfileImage(UserCreateRequest model) throws IOException {
+    private BinaryContent registerProfileImage(UserCreateRequest model) {
         if (model.profileImage() == null) {
             return null;
         }
@@ -116,12 +116,12 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
         return profileRepository.save(profileImage);
     }
 
-    private UserStatus findUserStatusByUserId(UUID userId) throws IOException {
+    private UserStatus findUserStatusByUserId(UUID userId) {
         return userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND.formatted("User", userId)));
     }
 
-    private UserResponse getUserResponse(User user) throws IOException {
+    private UserResponse getUserResponse(User user) {
         UserStatus userStatus = findUserStatusByUserId(user.getId());
         return user.toResponse(userStatus.isActive());
     }

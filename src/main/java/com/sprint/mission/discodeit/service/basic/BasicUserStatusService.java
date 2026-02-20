@@ -11,7 +11,6 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -24,7 +23,7 @@ public class BasicUserStatusService extends BasicDomainService<UserStatus> imple
     private final UserRepository userRepository;
 
     @Override
-    public UserStatusResponse create(UserStatusCreateRequest model) throws IOException, ClassNotFoundException {
+    public UserStatusResponse create(UserStatusCreateRequest model) {
         User user = findUser(model.userId());
         if (userStatusRepository.existsByUserId(user.getId())) {
             throw new IllegalArgumentException("UserStatus already exist");
@@ -35,18 +34,18 @@ public class BasicUserStatusService extends BasicDomainService<UserStatus> imple
     }
 
     @Override
-    public UserStatusResponse find(UUID id) throws IOException, ClassNotFoundException {
+    public UserStatusResponse find(UUID id) {
         return findById(id).toResponse();
     }
 
     @Override
-    public List<UserStatusResponse> findAll() throws IOException {
+    public List<UserStatusResponse> findAll() {
         return userStatusRepository.streamAll(stream -> stream.map(UserStatus::toResponse))
                 .toList();
     }
 
     @Override
-    public UserStatusResponse update(UserStatusUpdateRequest model) throws IOException, ClassNotFoundException {
+    public UserStatusResponse update(UserStatusUpdateRequest model) {
         UserStatus status;
         if (model.id() == null) {
             status = findByUserId(Objects.requireNonNull(model.userId()));
@@ -59,7 +58,7 @@ public class BasicUserStatusService extends BasicDomainService<UserStatus> imple
     }
 
     @Override
-    public void delete(UUID id) throws IOException {
+    public void delete(UUID id) {
         if (!userStatusRepository.existsById(id)) {
             throw new NoSuchElementException(
                     ID_NOT_FOUND.formatted("User Profile", id));
@@ -68,17 +67,17 @@ public class BasicUserStatusService extends BasicDomainService<UserStatus> imple
     }
 
     @Override
-    protected UserStatus findById(UUID id) throws IOException, ClassNotFoundException {
+    protected UserStatus findById(UUID id) {
         return findEntityById(id, "UserStatus", userStatusRepository);
     }
 
-    private UserStatus findByUserId(UUID userId) throws IOException {
+    private UserStatus findByUserId(UUID userId) {
         return userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new NoSuchElementException(
                         ID_NOT_FOUND.formatted("User Profile", userId)));
     }
 
-    private User findUser(UUID userId) throws IOException, ClassNotFoundException {
+    private User findUser(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException(
                         ID_NOT_FOUND.formatted("User", userId)));

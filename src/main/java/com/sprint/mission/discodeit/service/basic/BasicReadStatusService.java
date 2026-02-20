@@ -11,7 +11,6 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -24,14 +23,14 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     private final ChannelRepository channelRepository;
 
     @Override
-    public List<ReadStatusResponse> findAllByUserId(UUID userId) throws IOException {
+    public List<ReadStatusResponse> findAllByUserId(UUID userId) {
         return readStatusRepository.filter(status -> status.matchUserId(userId))
                 .map(ReadStatus::toResponse)
                 .toList();
     }
 
     @Override
-    public ReadStatusResponse create(ReadStatusCreateRequest model) throws IOException {
+    public ReadStatusResponse create(ReadStatusCreateRequest model) {
         // todo: refactoring
         if (!userRepository.existsById(model.userId())) {
             throw new NoSuchElementException(ID_NOT_FOUND.formatted("User", model.userId()));
@@ -49,12 +48,12 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     }
 
     @Override
-    public ReadStatusResponse find(UUID id) throws IOException, ClassNotFoundException {
+    public ReadStatusResponse find(UUID id) {
         return findById(id).toResponse();
     }
 
     @Override
-    public ReadStatusResponse update(ReadStatusUpdateRequest model) throws IOException, ClassNotFoundException {
+    public ReadStatusResponse update(ReadStatusUpdateRequest model) {
         ReadStatus status = findByChannelAndUser(model.channelId(), model.userId());
         status.update(model.type());
         readStatusRepository.save(status);
@@ -62,7 +61,7 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     }
 
     @Override
-    public void delete(UUID id) throws IOException {
+    public void delete(UUID id) {
         if (readStatusRepository.existsById(id)) {
             readStatusRepository.deleteById(id);
             return;
@@ -71,16 +70,16 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     }
 
     @Override
-    protected ReadStatus findById(UUID id) throws IOException, ClassNotFoundException {
+    protected ReadStatus findById(UUID id) {
         return findEntityById(id, "ReadStatus", readStatusRepository);
     }
 
     @Override
-    public ReadStatusResponse find(UUID channelId, UUID userId) throws IOException {
+    public ReadStatusResponse find(UUID channelId, UUID userId) {
         return findByChannelAndUser(channelId, userId).toResponse();
     }
 
-    private ReadStatus findByChannelAndUser(UUID channelId, UUID userId) throws IOException {
+    private ReadStatus findByChannelAndUser(UUID channelId, UUID userId) {
         return readStatusRepository.filter(readStatus -> readStatus.matchChannelId(channelId))
                 .filter(readStatus -> readStatus.matchUserId(userId))
                 .findFirst()

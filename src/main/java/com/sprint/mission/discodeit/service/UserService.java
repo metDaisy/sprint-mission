@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService extends DomainService<UserResponse, UserCreateRequest, UserUpdateRequest> {
-    UserResponse find(LoginRequest dto) throws IOException;
+    UserResponse find(LoginRequest dto);
 
     List<UserResponse> findAll() throws IOException, ClassNotFoundException;
 
-    UserResponse updateActiveAt(UUID id) throws IOException, ClassNotFoundException;
+    UserResponse updateActiveAt(UUID id);
 }

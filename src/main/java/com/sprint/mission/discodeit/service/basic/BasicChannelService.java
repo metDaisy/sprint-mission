@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.IdGenerator;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -30,7 +29,7 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     private final IdGenerator idGenerator;
 
     @Override
-    public ChannelResponse create(ChannelCreateRequest model) throws IOException {
+    public ChannelResponse create(ChannelCreateRequest model) {
         if (model.type() == ChannelType.PUBLIC) {
             return createPublicChannel(
                     new PublicChannelCreateRequest(model.channelName(), model.description()));
@@ -40,14 +39,14 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     }
 
     @Override
-    public ChannelResponse find(UUID channelId) throws IOException, ClassNotFoundException {
+    public ChannelResponse find(UUID channelId) {
         Channel channel = findById(channelId);
         MessageResponse lastMessageResponse = getLastMessageResponse(channelId);
         return channel.toResponse(lastMessageResponse.createdAt());
     }
 
     @Override
-    public List<ChannelResponse> findAllByUserId(UUID userId) throws IOException {
+    public List<ChannelResponse> findAllByUserId(UUID userId) {
         return channelRepository.filter(channel -> isVisibleTo(channel, userId))
                 .map(ThrowingFunction.unchecked(channel -> {
                     MessageResponse lastMessageResponse = getLastMessageResponse(channel.getId());
@@ -57,7 +56,7 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     }
 
     @Override
-    public ChannelResponse update(PublicChannelUpdateRequest model) throws IOException, ClassNotFoundException {
+    public ChannelResponse update(PublicChannelUpdateRequest model) {
         // todo refactoring
         Channel channel = findById(model.channelId());
         MessageResponse lastMsgResp = getLastMessageResponse(channel.getId());
@@ -71,7 +70,7 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     }
 
     @Override
-    public void delete(UUID channelId) throws IOException {
+    public void delete(UUID channelId) {
         if (!channelRepository.existsById(channelId)) {
             throw new NoSuchElementException(ID_NOT_FOUND.formatted("Channel", channelId));
         }
@@ -89,11 +88,11 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     }
 
     @Override
-    protected Channel findById(UUID id) throws IOException, ClassNotFoundException {
+    protected Channel findById(UUID id) {
         return findEntityById(id, "Channel", channelRepository);
     }
 
-    private ChannelResponse createPrivateChannel(PrivateChannelCreateRequest model) throws IOException {
+    private ChannelResponse createPrivateChannel(PrivateChannelCreateRequest model) {
         Channel channel = new Channel(idGenerator.generateId(), model.userIdsInPrivateChannel());
         channelRepository.save(channel);
         ChannelResponse response = channel.toResponse();
@@ -104,13 +103,13 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
         return response;
     }
 
-    private ChannelResponse createPublicChannel(PublicChannelCreateRequest model) throws IOException {
+    private ChannelResponse createPublicChannel(PublicChannelCreateRequest model) {
         Channel channel = new Channel(idGenerator.generateId(), model.channelName(), model.description());
         channelRepository.save(channel);
         return channel.toResponse();
     }
 
-    private MessageResponse getLastMessageResponse(UUID channelId) throws IOException {
+    private MessageResponse getLastMessageResponse(UUID channelId) {
         return messageRepository.filter(message -> message.isInChannel(channelId))
                 .max(Message::compareTo)
                 .orElseThrow(() -> new NoSuchElementException("this channel have no message"))

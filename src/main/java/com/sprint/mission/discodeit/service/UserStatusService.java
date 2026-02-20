@@ -4,9 +4,8 @@ import com.sprint.mission.discodeit.dto.UserStatusServiceDTO.UserStatusCreateReq
 import com.sprint.mission.discodeit.dto.UserStatusServiceDTO.UserStatusResponse;
 import com.sprint.mission.discodeit.dto.UserStatusServiceDTO.UserStatusUpdateRequest;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface UserStatusService extends DomainService<UserStatusResponse, UserStatusCreateRequest, UserStatusUpdateRequest> {
-    List<UserStatusResponse> findAll() throws IOException;
+    List<UserStatusResponse> findAll();
 }
