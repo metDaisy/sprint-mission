@@ -21,6 +21,9 @@ public class UserFixture {
                         .with(EN_UPPERCASE, 2)
                         .with(DIGITS, 3)
                         .build());
-        return new UserCreateRequest(username, faker.internet().emailAddress(username), password, null);
+        return new UserCreateRequest(username,
+                faker.internet().emailAddress(username),
+                password,
+            BinaryContentFixture.getBinaryContentCreateRequest());
     }
 }
