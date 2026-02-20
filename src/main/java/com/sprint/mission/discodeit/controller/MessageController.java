@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -17,13 +16,13 @@ public class MessageController {
 
     @RequestMapping(value = "/{messageId}", method = RequestMethod.PUT)
     public ResponseEntity<?> update(@PathVariable UUID messageId,
-                                    @RequestBody MessageUpdateRequest request) throws IOException, ClassNotFoundException {
+                                    @RequestBody MessageUpdateRequest request) {
         messageService.update(request);
         return ResponseEntity.status(204).build();
     }
 
     @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> delete(@PathVariable UUID messageId) throws IOException, ClassNotFoundException {
+    public ResponseEntity<?> delete(@PathVariable UUID messageId) {
         messageService.delete(messageId);
         return ResponseEntity.status(204).build();
     }
