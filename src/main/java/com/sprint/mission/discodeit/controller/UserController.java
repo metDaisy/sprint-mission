@@ -33,7 +33,7 @@ public class UserController {
         return ResponseEntity.status(201).body(userService.create(request));
     }
 
-    @RequestMapping(method = RequestMethod.PATCH)
+    @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<UserResponse> update(@RequestBody UserUpdateRequest request) throws IOException, ClassNotFoundException {
         return ResponseEntity.ok(userService.update(request));
     }
@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{id}/active", method = RequestMethod.PATCH)
     public ResponseEntity<UserResponse> updateActiveStatus(@PathVariable UUID id) throws IOException, ClassNotFoundException {
         return ResponseEntity.ok(userService.updateActiveAt(id));
     }
