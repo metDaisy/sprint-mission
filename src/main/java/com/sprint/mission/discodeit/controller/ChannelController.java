@@ -3,7 +3,10 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelResponse;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChannelController {
     private final ChannelService channelService;
+    private final MessageService messageService;
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<ChannelResponse> create(@RequestBody ChannelCreateRequest request)
@@ -44,5 +48,16 @@ public class ChannelController {
     public ResponseEntity<?> delete(@PathVariable UUID id) throws IOException, ClassNotFoundException {
         channelService.delete(id);
         return ResponseEntity.status(204).body("Channel is removed");
+    }
+
+    @RequestMapping(value = "/{channelId}/messages", method = RequestMethod.GET)
+    public ResponseEntity<List<MessageResponse>> findMessagesByChannelId(@PathVariable UUID channelId) throws IOException {
+        return ResponseEntity.ok(messageService.findAllByChannelId(channelId));
+    }
+
+    @RequestMapping(value = "/{channelId}/messages", method = RequestMethod.POST)
+    public ResponseEntity<MessageResponse> sendMessage(@PathVariable UUID channelId,
+                                                       @RequestBody MessageCreateRequest request) throws IOException {
+        return ResponseEntity.ok(messageService.create(request));
     }
 }

@@ -19,7 +19,7 @@ public class Message implements Serializable, Comparable<Message> {
     private static final long serialVersionUID = 1L;
 
     @Getter
-    private final UUID id = UUID.randomUUID();
+    private final UUID id;
     private final long createdAt = Instant.now().getEpochSecond();
     private long updatedAt = createdAt;
     //
@@ -30,8 +30,9 @@ public class Message implements Serializable, Comparable<Message> {
     @ToString.Exclude
     private final Set<UUID> attachmentIds = new HashSet<>();
 
-    public Message(@Nonnull String content, @Nonnull UUID channelId, @Nonnull UUID authorId,
+    public Message(@Nonnull UUID id, @Nonnull String content, @Nonnull UUID channelId, @Nonnull UUID authorId,
                    @Nonnull List<UUID> attachmentIds) {
+        this.id = id;
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;

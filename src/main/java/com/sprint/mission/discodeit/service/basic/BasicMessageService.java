@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.IdGenerator;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,11 +23,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService extends BasicDomainService<Message> implements MessageService {
+    // todo: refactoring
     private final String ID_NOT_FOUND = "Message with id, %s, not found";
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository attachmentRepository;
+    private final IdGenerator idGenerator;
 
     @Override
     public MessageResponse create(MessageCreateRequest model) throws IOException {
@@ -43,7 +46,8 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
                 .map(ThrowingFunction.unchecked(attachmentRepository::save))
                 .map(BinaryContent::getId)
                 .toList();
-        Message message = new Message(model.content(), model.channelId(), model.authorId(), attachmentIds);
+        Message message = new Message(idGenerator.generateId(), model.content(), model.channelId(),
+                model.authorId(), attachmentIds);
         messageRepository.save(message);
         return message.toResponse();
     }
