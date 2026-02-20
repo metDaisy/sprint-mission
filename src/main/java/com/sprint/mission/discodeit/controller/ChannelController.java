@@ -5,8 +5,13 @@ import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelResponse;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
+import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusResponse;
+import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.ReadType;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +26,7 @@ import java.util.UUID;
 public class ChannelController {
     private final ChannelService channelService;
     private final MessageService messageService;
+    private final ReadStatusService readStatusService;
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<ChannelResponse> create(@RequestBody ChannelCreateRequest request)
@@ -59,5 +65,24 @@ public class ChannelController {
     public ResponseEntity<MessageResponse> sendMessage(@PathVariable UUID channelId,
                                                        @RequestBody MessageCreateRequest request) throws IOException {
         return ResponseEntity.ok(messageService.create(request));
+    }
+
+    @RequestMapping(value = "/{channelId}/users/{userId}/read-status", method = RequestMethod.POST)
+    public ResponseEntity<ReadStatusResponse> createReadStatus(@PathVariable ReadStatusCreateRequest request) throws IOException, ClassNotFoundException {
+        return ResponseEntity.ok(readStatusService.create(request));
+    }
+
+    @RequestMapping(value = "/{channelId}/users/{userId}/read-status", method = RequestMethod.PATCH)
+    public ResponseEntity<?> updateReadStatus(@PathVariable UUID channelId,
+                                              @PathVariable UUID userId,
+                                              @RequestBody ReadType type) throws IOException, ClassNotFoundException {
+        readStatusService.update(new ReadStatusUpdateRequest(channelId, userId, type));
+        return ResponseEntity.status(201).build();
+    }
+
+    @RequestMapping(value = "/{channelId}/users/{userId}/read-status")
+    public ResponseEntity<ReadStatusResponse> findReadStatus(@PathVariable UUID channelId,
+                                                             @PathVariable UUID userId) throws IOException {
+        return ResponseEntity.ok(readStatusService.find(channelId, userId));
     }
 }

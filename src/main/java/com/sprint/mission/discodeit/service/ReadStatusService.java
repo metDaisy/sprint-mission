@@ -10,4 +10,6 @@ import java.util.UUID;
 
 public interface ReadStatusService extends DomainService<ReadStatusResponse, ReadStatusCreateRequest, ReadStatusUpdateRequest> {
     List<ReadStatusResponse> findAllByUserId(UUID userId) throws IOException;
+
+    ReadStatusResponse find(UUID channelId, UUID userId) throws IOException;
 }

@@ -55,7 +55,7 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
 
     @Override
     public ReadStatusResponse update(ReadStatusUpdateRequest model) throws IOException, ClassNotFoundException {
-        ReadStatus status = findById(model.id());
+        ReadStatus status = findByChannelAndUser(model.channelId(), model.userId());
         status.update(model.type());
         readStatusRepository.save(status);
         return status.toResponse();
@@ -73,5 +73,17 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     @Override
     protected ReadStatus findById(UUID id) throws IOException, ClassNotFoundException {
         return findEntityById(id, "ReadStatus", readStatusRepository);
+    }
+
+    @Override
+    public ReadStatusResponse find(UUID channelId, UUID userId) throws IOException {
+        return findByChannelAndUser(channelId, userId).toResponse();
+    }
+
+    private ReadStatus findByChannelAndUser(UUID channelId, UUID userId) throws IOException {
+        return readStatusRepository.filter(readStatus -> readStatus.matchChannelId(channelId))
+                .filter(readStatus -> readStatus.matchUserId(userId))
+                .findFirst()
+                .get();
     }
 }
