@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.function.ThrowingFunction;
 import com.sprint.mission.discodeit.dto.AuthServiceDTO.LoginRequest;
 import com.sprint.mission.discodeit.dto.UserServiceDTO.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.UserServiceDTO.UserResponse;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.IdGenerator;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -47,9 +45,9 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
 
     @Override
-    public List<UserResponse> findAll() throws IOException {
+    public List<UserResponse> findAll() {
         return userRepository.streamAll(stream ->
-                        stream.map(ThrowingFunction.unchecked(this::getUserResponse)))
+                        stream.map(this::getUserResponse))
                 .toList();
     }
 

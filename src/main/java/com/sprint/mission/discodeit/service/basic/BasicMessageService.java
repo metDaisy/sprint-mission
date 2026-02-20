@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.function.ThrowingFunction;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
@@ -42,7 +41,7 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
         List<UUID> attachmentIds = model.attachments()
                 .stream()
                 .map(BinaryContent::new)
-                .map(ThrowingFunction.unchecked(attachmentRepository::save))
+                .map(attachmentRepository::save)
                 .map(BinaryContent::getId)
                 .toList();
         Message message = new Message(idGenerator.generateId(), model.content(), model.channelId(),

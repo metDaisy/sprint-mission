@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.function.ThrowingConsumer;
-import com.sprint.mission.discodeit.common.function.ThrowingFunction;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.*;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
 import com.sprint.mission.discodeit.entity.Channel;
@@ -48,10 +46,10 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
         return channelRepository.filter(channel -> isVisibleTo(channel, userId))
-                .map(ThrowingFunction.unchecked(channel -> {
+                .map(channel -> {
                     MessageResponse lastMessageResponse = getLastMessageResponse(channel.getId());
                     return channel.toResponse(lastMessageResponse.createdAt());
-                }))
+                })
                 .toList();
     }
 
@@ -77,12 +75,12 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
         List<UUID> msgToDelete = messageRepository.filter(message -> message.isInChannel(channelId))
                 .map(Message::getId)
                 .toList();
-        msgToDelete.forEach(ThrowingConsumer.unchecked(messageRepository::deleteById));
+        msgToDelete.forEach(messageRepository::deleteById);
 
         List<UUID> readStatusToDelete = readStatusRepository.filter(readStatus -> readStatus.matchChannelId(channelId))
                 .map(ReadStatus::getId)
                 .toList();
-        readStatusToDelete.forEach(ThrowingConsumer.unchecked(readStatusRepository::deleteById));
+        readStatusToDelete.forEach(readStatusRepository::deleteById);
 
         channelRepository.deleteById(channelId);
     }
@@ -99,7 +97,7 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
         response.userIdsInPrivateChannel()
                 .stream()
                 .map(userId -> new ReadStatus(userId, response.channelId()))
-                .forEach(ThrowingConsumer.unchecked(readStatusRepository::save));
+                .forEach(readStatusRepository::save);
         return response;
     }
 

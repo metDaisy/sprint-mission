@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.function.ThrowingFunction;
 import com.sprint.mission.discodeit.dto.BinaryContentServiceDTO.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.BinaryContentServiceDTO.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -22,7 +21,7 @@ public class BasicBinaryContentService extends BasicDomainService<BinaryContent>
     public List<BinaryContentResponse> findAllByIdIn(List<UUID> ids) {
         return ids.stream()
                 .filter(binaryContentRepository::existsById)
-                .map(ThrowingFunction.unchecked(this::find))
+                .map(this::find)
                 .toList();
     }
 
