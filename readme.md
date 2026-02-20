@@ -1,10 +1,15 @@
-# 10-spring-mission-3
+# 10-spring-mission-4
 
-mission-3 start!
+mission-4 start!
 
 # 구현
 
 - 기능별로 package 를 구성했다.
+- `controller`
+  - `UserController`
+  - `AuthController`
+  - `ChannelController`
+  - `MessageController`
 - `service`
     - `AuthService`
     - `BinaryContentService`
@@ -39,7 +44,13 @@ mission-3 start!
     - `MessageServiceDTO`
     - `ReadStatusServiceDTO`
     - `UserStatusServiceDTO`
-
+- `test`
+  - `controller`
+    - `BaseControllerTest`
+    - `UserControllerTest`
+  - `fixture`
+    - `UserFixture`
+    - `BinaryContentFixture`
 - Todo
     - toJson
     - encryption, decryption
