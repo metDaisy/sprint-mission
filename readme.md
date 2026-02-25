@@ -1,6 +1,8 @@
-# 10-spring-mission-4
+# 10-spring-mission
 
-mission-4 start!
+- mission-5
+  - 주어진 api specification 을 보고 다시 구현하기
+  - 배포 해보기
 
 # 구현
 
@@ -51,6 +53,7 @@ mission-4 start!
   - `fixture`
     - `UserFixture`
     - `BinaryContentFixture`
-- Todo
-    - toJson
-    - encryption, decryption
+
+### Todo
+- toJson
+- encryption, decryption
