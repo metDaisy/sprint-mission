@@ -12,8 +12,8 @@ public enum ErrorCode {
     // error related to user
     USERID_NOT_FOUND(404, "U001", "User id not found"),
     USERNAME_OR_PASSWORD_INCORRECT(404, "U002", "Username or password incorrect"),
-    USERNAME_DUPLICATED(400, "U003", "Duplicated Username"),
-    EMAIL_DUPLICATED(400, "U004", "Duplicated Email"),
+    USERNAME_ALREADY_EXIST(400, "U003", "Username already exists"),
+    EMAIL_ALREADY_EXIST(400, "U004", "Email already exists"),
 
     // channel
     CHANNELID_NOT_FOUND(404, "C001", "Channel id not found"),
@@ -24,7 +24,8 @@ public enum ErrorCode {
 
     // UserStatus(User Profile)
     USERSTATUSID_NOT_FOUND(404, "US001", "UserStatus id not found"),
-    USERSTATUS_DUPLICATED(400, "US002", "Duplicated UserStatus"),
+    USERSTATUS_ALREADY_EXIST(400, "US002", "UserStatus already exists"),
+    USERSTATUS_NOT_FOUND_BY_USERID(404, "US003", "User have no UserStatus"),
 
     // ReadStatus
     READSTATUSID_NOT_FOUND(404, "RS001", "ReadStatus id not found"),
