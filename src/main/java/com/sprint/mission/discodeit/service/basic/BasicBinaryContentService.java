@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.BinaryContentServiceDTO.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.BinaryContentServiceDTO.BinaryContentResponse;
+import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
+import com.sprint.mission.discodeit.common.exception.custom.APIException;
+import com.sprint.mission.discodeit.dto.binarycontent.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -26,8 +28,8 @@ public class BasicBinaryContentService extends BasicDomainService<BinaryContent>
     }
 
     @Override
-    public BinaryContentResponse create(BinaryContentCreateRequest model) {
-        BinaryContent content = new BinaryContent(model.fileName(), model.fileType(), model.data());
+    public BinaryContentResponse create(BinaryContentCreateRequest request) {
+        BinaryContent content = new BinaryContent(request.fileName(), request.data());
         binaryContentRepository.save(content);
         return content.toResponse();
     }
@@ -47,6 +49,7 @@ public class BasicBinaryContentService extends BasicDomainService<BinaryContent>
 
     @Override
     protected BinaryContent findById(UUID id) {
-        return findEntityById(id, "BinaryContent", binaryContentRepository);
+        return findEntityById(id, binaryContentRepository,
+                () -> new APIException(ErrorCode.BINARYCONTENTID_NOT_FOUND, id));
     }
 }
