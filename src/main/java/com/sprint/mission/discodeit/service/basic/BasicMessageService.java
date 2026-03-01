@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
+import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
+import com.sprint.mission.discodeit.common.exception.custom.APIException;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -30,22 +32,16 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
     private final IdGenerator idGenerator;
 
     @Override
-    public MessageResponse create(MessageCreateRequest model) {
-        // todo: extract validate
-        if (!channelRepository.existsById(model.channelId())) {
-            throw new NoSuchElementException("Channel not found with id " + model.channelId());
-        }
-        if (!userRepository.existsById(model.authorId())) {
-            throw new NoSuchElementException("Author not found with id " + model.authorId());
-        }
-        List<UUID> attachmentIds = model.attachments()
-                .stream()
+    public MessageResponse create(MessageCreateCommand command) {
+        validateUserAndChannelExist(command);
+
+        List<UUID> attachmentIds = command.attachments().stream()
                 .map(BinaryContent::new)
                 .map(attachmentRepository::save)
                 .map(BinaryContent::getId)
                 .toList();
-        Message message = new Message(idGenerator.generateId(), model.content(), model.channelId(),
-                model.authorId(), attachmentIds);
+        Message message = new Message(idGenerator.generateId(), command.content(), command.channelId(),
+                command.authorId(), attachmentIds);
         messageRepository.save(message);
         return message.toResponse();
     }
@@ -82,6 +78,16 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
 
     @Override
     protected Message findById(UUID id) {
-        return findEntityById(id, "Message", messageRepository);
+        return findEntityById(id, messageRepository,
+                () -> new APIException(ErrorCode.MESSAGEID_NOT_FOUND, id));
+    }
+
+    private void validateUserAndChannelExist(MessageCreateCommand command) {
+        if (!channelRepository.existsById(command.channelId())) {
+            throw new APIException(ErrorCode.CHANNELID_NOT_FOUND, command.channelId());
+        }
+        if (!userRepository.existsById(command.authorId())) {
+            throw new APIException(ErrorCode.USERID_NOT_FOUND, command.authorId());
+        }
     }
 }

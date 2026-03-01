@@ -67,12 +67,6 @@ public class ChannelController {
         return ResponseEntity.ok(messageService.findAllByChannelId(channelId));
     }
 
-    @RequestMapping(value = "/{channelId}/messages", method = RequestMethod.POST)
-    public ResponseEntity<MessageResponse> sendMessage(@PathVariable UUID channelId,
-                                                       @RequestBody MessageCreateRequest request) {
-        return ResponseEntity.ok(messageService.create(request));
-    }
-
     @RequestMapping(value = "/{channelId}/users/{userId}/read-status", method = RequestMethod.POST)
     public ResponseEntity<ReadStatusResponse> createReadStatus(@PathVariable ReadStatusCreateRequest request) {
         return ResponseEntity.ok(readStatusService.create(request));

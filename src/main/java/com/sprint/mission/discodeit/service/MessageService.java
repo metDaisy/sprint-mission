@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface MessageService {
     List<MessageResponse> findAllByChannelId(UUID channelId);
 
-    MessageResponse create(MessageCreateRequest model);
+    MessageResponse create(MessageCreateCommand command);
 
     MessageResponse update(MessageUpdateRequest model);
 
