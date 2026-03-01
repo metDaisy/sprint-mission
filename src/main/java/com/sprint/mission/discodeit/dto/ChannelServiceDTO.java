@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.dto;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import jakarta.annotation.Nonnull;
 import lombok.Builder;
-import lombok.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +17,10 @@ public interface ChannelServiceDTO {
     record PrivateChannelCreateRequest(@Nonnull List<UUID> participantIds) {
     }
 
-    record PublicChannelUpdateRequest(@NonNull UUID channelId, String newName, String newDescription) {
+    record PublicChannelUpdateRequest(String newName, String newDescription) {
+    }
+
+    record PublicChannelUpdateCommand(UUID id, String name, String description) {
     }
 
     // todo: error log

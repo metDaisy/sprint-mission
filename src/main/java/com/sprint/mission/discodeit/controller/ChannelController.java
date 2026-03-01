@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelResponse;
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.*;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
 import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusCreateRequest;
@@ -40,19 +38,22 @@ public class ChannelController {
         return ResponseEntity.status(HttpStatus.CREATED).body(channelService.createPrivate(request));
     }
 
+    // deprecated ?
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<ChannelResponse> find(@PathVariable UUID id) {
         return ResponseEntity.ok(channelService.find(id));
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<List<ChannelResponse>> findByUserId(@RequestParam UUID userId) {
-        return ResponseEntity.ok(channelService.findAllByUserId(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(channelService.findAllByUserId(userId));
     }
 
-    @RequestMapping(method = RequestMethod.PATCH)
-    public ResponseEntity<ChannelResponse> update(@RequestBody PublicChannelUpdateRequest request) {
-        return ResponseEntity.ok(channelService.update(request));
+    @PatchMapping(value = "/{id}")
+    public ResponseEntity<ChannelResponse> update(@PathVariable UUID id,
+                                                  @RequestBody PublicChannelUpdateRequest request) {
+        PublicChannelUpdateCommand command = new PublicChannelUpdateCommand(id, request.newName(), request.newDescription());
+        return ResponseEntity.status(HttpStatus.OK).body(channelService.update(command));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

@@ -18,6 +18,7 @@ public enum ErrorCode {
     // channel
     CHANNELID_NOT_FOUND(404, "C001", "Channel id not found"),
     NO_MESSAGE_IN_CHANNEL(404, "C002", "channel have no messages"),
+    PRIVATE_CHANNEL_NOT_UPDATE(400, "C003", "Private Channel can`t be updated"),
 
     // message
     MESSAGEID_NOT_FOUND(404, "M001", "Message id not found"),

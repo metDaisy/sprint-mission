@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.common.exception.custom.APIException;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelResponse;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelUpdateCommand;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -62,35 +62,33 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     }
 
     @Override
-    public ChannelResponse update(PublicChannelUpdateRequest model) {
-        // todo refactoring
-        Channel channel = findById(model.channelId());
-        MessageResponse lastMsgResp = getLastMessageResponse(channel.getId());
+    public ChannelResponse update(PublicChannelUpdateCommand command) {
+        Channel channel = findById(command.id());
+//        MessageResponse lastMsgResp = getLastMessageResponse(channel.getId());
         if (channel.matchChannelType(ChannelType.PRIVATE)) {
-            // private channel can't be modified
-            return channel.toResponse();
+            throw new APIException(ErrorCode.PRIVATE_CHANNEL_NOT_UPDATE, command.id());
         }
-        channel.update(model.newName(), model.newDescription());
+        channel.update(command.name(), command.description());
         channelRepository.save(channel);
         return channel.toResponse();
     }
 
     @Override
-    public void delete(UUID channelId) {
-        if (!channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException(ID_NOT_FOUND.formatted("Channel", channelId));
+    public void delete(UUID id) {
+        if (!channelRepository.existsById(id)) {
+            throw new APIException(ErrorCode.CHANNELID_NOT_FOUND, id);
         }
-        List<UUID> msgToDelete = messageRepository.filter(message -> message.isInChannel(channelId))
+        List<UUID> msgToDelete = messageRepository.filter(message -> message.isInChannel(id))
                 .map(Message::getId)
                 .toList();
         msgToDelete.forEach(messageRepository::deleteById);
 
-        List<UUID> readStatusToDelete = readStatusRepository.filter(readStatus -> readStatus.matchChannelId(channelId))
+        List<UUID> readStatusToDelete = readStatusRepository.filter(readStatus -> readStatus.matchChannelId(id))
                 .map(ReadStatus::getId)
                 .toList();
         readStatusToDelete.forEach(readStatusRepository::deleteById);
 
-        channelRepository.deleteById(channelId);
+        channelRepository.deleteById(id);
     }
 
     @Override
