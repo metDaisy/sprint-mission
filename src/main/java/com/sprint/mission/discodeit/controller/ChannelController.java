@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.*;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
 import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusResponse;
 import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusUpdateRequest;
@@ -60,11 +57,6 @@ public class ChannelController {
     public ResponseEntity<?> delete(@PathVariable UUID id) {
         channelService.delete(id);
         return ResponseEntity.status(204).body("Channel is removed");
-    }
-
-    @RequestMapping(value = "/{channelId}/messages", method = RequestMethod.GET)
-    public ResponseEntity<List<MessageResponse>> findMessagesByChannelId(@PathVariable UUID channelId) {
-        return ResponseEntity.ok(messageService.findAllByChannelId(channelId));
     }
 
     @RequestMapping(value = "/{channelId}/users/{userId}/read-status", method = RequestMethod.POST)

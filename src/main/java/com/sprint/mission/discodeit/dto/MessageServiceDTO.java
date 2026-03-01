@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprint.mission.discodeit.dto.binarycontent.request.BinaryContentCreateRequest;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
-import lombok.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,13 @@ public interface MessageServiceDTO {
         }
     }
 
-    record MessageUpdateRequest(@NonNull UUID messageId, String newContent, List<UUID> attachmentIds) {
+    record MessageUpdateRequest(@JsonProperty("newContent") @Nullable String content) {
+    }
+
+    record MessageUpdateCommand(UUID id, String content) {
+        public MessageUpdateCommand(UUID id, MessageUpdateRequest request) {
+            this(id, request.content());
+        }
     }
 
     // todo: error log

@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateCommand;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.*;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
@@ -33,16 +30,21 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.CREATED).body(messageService.create(command));
     }
 
-    @RequestMapping(value = "/{messageId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> update(@PathVariable UUID messageId,
-                                    @RequestBody MessageUpdateRequest request) {
-        messageService.update(request);
-        return ResponseEntity.status(204).build();
+    @GetMapping
+    public ResponseEntity<List<MessageResponse>> findInChannel(@RequestParam UUID channelId) {
+        return ResponseEntity.status(HttpStatus.OK).body(messageService.findAllByChannelId(channelId));
     }
 
-    @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
+    @PatchMapping(value = "/{messageId}")
+    public ResponseEntity<MessageResponse> update(@PathVariable UUID messageId,
+                                                  @RequestBody MessageUpdateRequest request) {
+        MessageUpdateCommand command = new MessageUpdateCommand(messageId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(messageService.update(command));
+    }
+
+    @DeleteMapping(value = "/{messageId}")
     public ResponseEntity<?> delete(@PathVariable UUID messageId) {
         messageService.delete(messageId);
-        return ResponseEntity.status(204).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
 import com.sprint.mission.discodeit.common.exception.custom.APIException;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageUpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -17,14 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.IdGenerator;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService extends BasicDomainService<Message> implements MessageService {
-    // todo: refactoring
-    private final String ID_NOT_FOUND = "Message with id, %s, not found";
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
@@ -54,25 +51,18 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
     }
 
     @Override
-    public MessageResponse update(MessageUpdateRequest model) {
-        // todo: refactoring
-        Message message = findById(model.messageId());
-        message.update(model.newContent(), model.attachmentIds());
+    public MessageResponse update(MessageUpdateCommand command) {
+        Message message = findById(command.id());
+        message.update(command.content(), List.of());
         messageRepository.save(message);
         return message.toResponse();
     }
 
     @Override
     public void delete(UUID messageId) {
-        if (!messageRepository.existsById(messageId)) {
-            throw new NoSuchElementException(ID_NOT_FOUND.formatted(messageId));
-        }
-        List<UUID> attachmentIds = findById(messageId)
-                .toResponse()
-                .attachmentIds();
-        for (UUID id : attachmentIds) {
-            attachmentRepository.deleteById(id);
-        }
+        findById(messageId).toResponse()
+                .attachmentIds()
+                .forEach(attachmentRepository::deleteById);
         messageRepository.deleteById(messageId);
     }
 

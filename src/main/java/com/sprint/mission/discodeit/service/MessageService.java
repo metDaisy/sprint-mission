@@ -10,7 +10,7 @@ public interface MessageService {
 
     MessageResponse create(MessageCreateCommand command);
 
-    MessageResponse update(MessageUpdateRequest model);
+    MessageResponse update(MessageUpdateCommand command);
 
     void delete(UUID id);
 }
