@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public abstract class BasicDomainService<T> {
-    protected final String ID_NOT_FOUND = "%s with id %s not found";
 
     protected <R> R findEntityById(UUID id, DomainRepository<R> repository, Supplier<? extends APIException> exception) {
         return repository.findById(id).orElseThrow(exception);
@@ -21,6 +20,12 @@ public abstract class BasicDomainService<T> {
             throw exception.get();
         }
         repository.deleteById(id);
+    }
+
+    protected void ensure(Supplier<Boolean> condition, Supplier<? extends APIException> exception) {
+        if (!condition.get()) {
+            throw exception.get();
+        }
     }
 
     protected abstract T findById(UUID id);

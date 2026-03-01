@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
+import com.sprint.mission.discodeit.common.exception.custom.APIException;
+import com.sprint.mission.discodeit.common.util.TimeConverter;
 import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusResponse;
-import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.ReadStatusServiceDTO.ReadStatusUpdateCommand;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -12,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,19 +33,11 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     }
 
     @Override
-    public ReadStatusResponse create(ReadStatusCreateRequest model) {
-        // todo: refactoring
-        if (!userRepository.existsById(model.userId())) {
-            throw new NoSuchElementException(ID_NOT_FOUND.formatted("User", model.userId()));
-        }
-        if (!channelRepository.existsById(model.channelId())) {
-            throw new NoSuchElementException(ID_NOT_FOUND.formatted("Channel", model.channelId()));
-        }
-        if (readStatusRepository.existsByUserAndChannelId(model.userId(), model.channelId())) {
-            throw new IllegalStateException(
-                    "read status entity exist already containing (user id: %s, channel id: %s)".formatted(model.userId(), model.channelId()));
-        }
-        ReadStatus status = new ReadStatus(model.userId(), model.channelId());
+    public ReadStatusResponse create(ReadStatusCreateRequest request) {
+        verifyCreatable(request);
+
+        ReadStatus status = new ReadStatus(request.userId(), request.channelId(),
+                TimeConverter.toInstant(request.lastReadAt()));
         readStatusRepository.save(status);
         return status.toResponse();
     }
@@ -53,25 +48,21 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     }
 
     @Override
-    public ReadStatusResponse update(ReadStatusUpdateRequest model) {
-        ReadStatus status = findByChannelAndUser(model.channelId(), model.userId());
-        status.update(model.type());
+    public ReadStatusResponse update(ReadStatusUpdateCommand command) {
+        ReadStatus status = findById(command.id());
+        status.update(command.datetime());
         readStatusRepository.save(status);
         return status.toResponse();
     }
 
     @Override
     public void delete(UUID id) {
-        if (readStatusRepository.existsById(id)) {
-            readStatusRepository.deleteById(id);
-            return;
-        }
-        throw new NoSuchElementException(ID_NOT_FOUND.formatted("ReadStatus", id));
+        deleteIfExist(id, readStatusRepository, () -> new APIException(ErrorCode.READSTATUSID_NOT_FOUND, id));
     }
 
     @Override
     protected ReadStatus findById(UUID id) {
-        return findEntityById(id, "ReadStatus", readStatusRepository);
+        return findEntityById(id, readStatusRepository, () -> new APIException(ErrorCode.READSTATUSID_NOT_FOUND, id));
     }
 
     @Override
@@ -83,6 +74,16 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
         return readStatusRepository.filter(readStatus -> readStatus.matchChannelId(channelId))
                 .filter(readStatus -> readStatus.matchUserId(userId))
                 .findFirst()
-                .get();
+                .orElseThrow(() -> new APIException(ErrorCode.READSTATUSID_NOT_FOUND, Map.of("userId", userId, "channelId", channelId)));
     }
+
+    private void verifyCreatable(ReadStatusCreateRequest request) {
+        ensure(() -> userRepository.existsById(request.userId()),
+                () -> new APIException(ErrorCode.USERID_NOT_FOUND, request.userId()));
+        ensure(() -> channelRepository.existsById(request.channelId()),
+                () -> new APIException(ErrorCode.CHANNELID_NOT_FOUND, request.channelId()));
+        ensure(() -> readStatusRepository.existsByUserAndChannelId(request.userId(), request.channelId()),
+                () -> new APIException(ErrorCode.READSTATUS_ALREADY_EXIST, Map.of("userId", request.userId(), "channelId", request.channelId())));
+    }
+
 }

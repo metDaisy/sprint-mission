@@ -58,23 +58,4 @@ public class ChannelController {
         channelService.delete(id);
         return ResponseEntity.status(204).body("Channel is removed");
     }
-
-    @RequestMapping(value = "/{channelId}/users/{userId}/read-status", method = RequestMethod.POST)
-    public ResponseEntity<ReadStatusResponse> createReadStatus(@PathVariable ReadStatusCreateRequest request) {
-        return ResponseEntity.ok(readStatusService.create(request));
-    }
-
-    @RequestMapping(value = "/{channelId}/users/{userId}/read-status", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateReadStatus(@PathVariable UUID channelId,
-                                              @PathVariable UUID userId,
-                                              @RequestBody ReadType type) {
-        readStatusService.update(new ReadStatusUpdateRequest(channelId, userId, type));
-        return ResponseEntity.status(201).build();
-    }
-
-    @RequestMapping(value = "/{channelId}/users/{userId}/read-status")
-    public ResponseEntity<ReadStatusResponse> findReadStatus(@PathVariable UUID channelId,
-                                                             @PathVariable UUID userId) {
-        return ResponseEntity.ok(readStatusService.find(channelId, userId));
-    }
 }

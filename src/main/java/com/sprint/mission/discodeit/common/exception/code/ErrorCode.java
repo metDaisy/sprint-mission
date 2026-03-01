@@ -30,7 +30,7 @@ public enum ErrorCode {
 
     // ReadStatus
     READSTATUSID_NOT_FOUND(404, "RS001", "ReadStatus id not found"),
-    READSTATUS_DUPLICATED(400, "RS002", "Duplicated ReadStatus"),
+    READSTATUS_ALREADY_EXIST(400, "RS002", "ReadStatus already exists"),
 
     // BinaryContent(profile image, message attachment, ...)
     BINARYCONTENTID_NOT_FOUND(404, "BC001", "BinaryContent id not found"),
