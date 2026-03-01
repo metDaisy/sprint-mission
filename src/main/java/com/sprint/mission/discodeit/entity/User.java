@@ -9,9 +9,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
-import java.util.function.Consumer;
 
-public class User implements Serializable {
+public class User extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @Getter
@@ -67,13 +66,5 @@ public class User implements Serializable {
                 .createdAt(TimeConverter.toDateTime(createdAt))
                 .updatedAt(TimeConverter.toDateTime(updatedAt))
                 .build();
-    }
-
-    private <T> boolean updateIfChanged(T current, T next, Consumer<T> action) {
-        if (current == null || current.equals(next)) {
-            return false;
-        }
-        action.accept(next);
-        return true;
     }
 }
