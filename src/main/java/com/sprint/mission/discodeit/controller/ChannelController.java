@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelResponse;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
@@ -12,7 +13,9 @@ import com.sprint.mission.discodeit.entity.ReadType;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +30,14 @@ public class ChannelController {
     private final MessageService messageService;
     private final ReadStatusService readStatusService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<ChannelResponse> create(@RequestBody ChannelCreateRequest request) {
-        return ResponseEntity.status(201).body(channelService.create(request));
+    @PostMapping(value = "/public")
+    public ResponseEntity<ChannelResponse> createPublic(@RequestBody @Valid PublicChannelCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(channelService.createPublic(request));
+    }
+
+    @PostMapping(value = "/private")
+    public ResponseEntity<ChannelResponse> createPrivate(@RequestBody @Valid PrivateChannelCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(channelService.createPrivate(request));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

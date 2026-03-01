@@ -1,6 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ChannelServiceDTO.*;
+import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
+import com.sprint.mission.discodeit.common.exception.custom.APIException;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.ChannelResponse;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.ChannelServiceDTO.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -27,29 +32,32 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
     private final IdGenerator idGenerator;
 
     @Override
-    public ChannelResponse create(ChannelCreateRequest model) {
-        if (model.type() == ChannelType.PUBLIC) {
-            return createPublicChannel(
-                    new PublicChannelCreateRequest(model.channelName(), model.description()));
-        }
-        return createPrivateChannel(
-                new PrivateChannelCreateRequest(model.userIdsInChannel()));
+    public ChannelResponse createPublic(PublicChannelCreateRequest request) {
+        Channel channel = new Channel(idGenerator.generateId(), request.name(), request.description());
+        channelRepository.save(channel);
+        return channel.toResponse();
+    }
+
+    @Override
+    public ChannelResponse createPrivate(PrivateChannelCreateRequest request) {
+        Channel channel = new Channel(idGenerator.generateId(), request.participantIds());
+        channelRepository.save(channel);
+        request.participantIds()
+                .stream()
+                .map(userId -> new ReadStatus(userId, channel.getId()))
+                .forEach(readStatusRepository::save);
+        return channel.toResponse();
     }
 
     @Override
     public ChannelResponse find(UUID channelId) {
-        Channel channel = findById(channelId);
-        MessageResponse lastMessageResponse = getLastMessageResponse(channelId);
-        return channel.toResponse(lastMessageResponse.createdAt());
+        return findById(channelId).toResponse();
     }
 
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
-        return channelRepository.filter(channel -> isVisibleTo(channel, userId))
-                .map(channel -> {
-                    MessageResponse lastMessageResponse = getLastMessageResponse(channel.getId());
-                    return channel.toResponse(lastMessageResponse.createdAt());
-                })
+        return channelRepository.filter(channel -> channel.isVisibleTo(userId))
+                .map(Channel::toResponse)
                 .toList();
     }
 
@@ -60,11 +68,11 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
         MessageResponse lastMsgResp = getLastMessageResponse(channel.getId());
         if (channel.matchChannelType(ChannelType.PRIVATE)) {
             // private channel can't be modified
-            return channel.toResponse(lastMsgResp.createdAt());
+            return channel.toResponse();
         }
         channel.update(model.newName(), model.newDescription());
         channelRepository.save(channel);
-        return channel.toResponse(lastMsgResp.createdAt());
+        return channel.toResponse();
     }
 
     @Override
@@ -87,35 +95,15 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
 
     @Override
     protected Channel findById(UUID id) {
-        return findEntityById(id, "Channel", channelRepository);
+        return findEntityById(id, channelRepository,
+                () -> new APIException(ErrorCode.CHANNELID_NOT_FOUND, id));
     }
 
-    private ChannelResponse createPrivateChannel(PrivateChannelCreateRequest model) {
-        Channel channel = new Channel(idGenerator.generateId(), model.userIdsInPrivateChannel());
-        channelRepository.save(channel);
-        ChannelResponse response = channel.toResponse();
-        response.userIdsInPrivateChannel()
-                .stream()
-                .map(userId -> new ReadStatus(userId, response.channelId()))
-                .forEach(readStatusRepository::save);
-        return response;
-    }
-
-    private ChannelResponse createPublicChannel(PublicChannelCreateRequest model) {
-        Channel channel = new Channel(idGenerator.generateId(), model.channelName(), model.description());
-        channelRepository.save(channel);
-        return channel.toResponse();
-    }
-
+    // deprecated ?
     private MessageResponse getLastMessageResponse(UUID channelId) {
         return messageRepository.filter(message -> message.isInChannel(channelId))
                 .max(Message::compareTo)
                 .orElseThrow(() -> new NoSuchElementException("this channel have no message"))
                 .toResponse();
-    }
-
-    private boolean isVisibleTo(Channel channel, UUID userId) {
-        return channel.matchChannelType(ChannelType.PUBLIC)
-                || channel.isPrivateMember(userId);
     }
 }
