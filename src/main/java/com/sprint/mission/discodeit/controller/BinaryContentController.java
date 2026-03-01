@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentServiceDTO.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentResponse;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,18 +11,18 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/binary-contents")
+@RequestMapping("/binaryContents")
 @RequiredArgsConstructor
 class BinaryContentController {
     private final BinaryContentService binaryContentService;
 
-    @RequestMapping(value = "/{id}",method = RequestMethod.GET)
-    public ResponseEntity<BinaryContentResponse> find(@PathVariable UUID id) {
-        return ResponseEntity.ok(binaryContentService.find(id));
+    @GetMapping(value = "/{binaryContentId}")
+    public ResponseEntity<BinaryContentResponse> find(@PathVariable UUID binaryContentId) {
+        return ResponseEntity.status(HttpStatus.OK).body(binaryContentService.find(binaryContentId));
     }
-    
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<BinaryContentResponse>> findMany(@RequestBody List<UUID> ids) {
-        return ResponseEntity.ok(binaryContentService.findAllByIdIn(ids));
+
+    @GetMapping
+    public ResponseEntity<List<BinaryContentResponse>> findMany(@RequestParam List<UUID> binaryContentIds) {
+        return ResponseEntity.status(HttpStatus.OK).body(binaryContentService.findAllByIdIn(binaryContentIds));
     }
 }

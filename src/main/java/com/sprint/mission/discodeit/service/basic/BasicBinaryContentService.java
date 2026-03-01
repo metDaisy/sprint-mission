@@ -41,10 +41,7 @@ public class BasicBinaryContentService extends BasicDomainService<BinaryContent>
 
     @Override
     public void delete(UUID id) {
-        if (!binaryContentRepository.existsById(id)) {
-            throw new NoSuchElementException("Binary Content with id, %s, not found".formatted(id));
-        }
-        binaryContentRepository.deleteById(id);
+        deleteIfExist(id, binaryContentRepository, () -> new APIException(ErrorCode.BINARYCONTENTID_NOT_FOUND, id));
     }
 
     @Override
