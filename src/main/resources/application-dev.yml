@@ -4,3 +4,18 @@ discodeit:
     file-directory: .discodeit
   uuid:
     type: dev # dev / prod
+
+springdoc:
+  swagger-ui:
+    url: /api-docs_1.1.json
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: jonas
+    password: jonas
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database: PostgreSQL
