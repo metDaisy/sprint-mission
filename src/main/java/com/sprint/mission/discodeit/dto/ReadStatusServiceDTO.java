@@ -21,7 +21,6 @@ public interface ReadStatusServiceDTO {
 
     // todo: error log
     @Builder
-    record ReadStatusResponse(UUID id, UUID userId, UUID channelId,
-                              LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime lastReadAt) {
+    record ReadStatusDto(UUID id, UUID userId, UUID channelId, LocalDateTime lastReadAt) {
     }
 }

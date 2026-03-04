@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserDto;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import jakarta.annotation.Nonnull;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public interface ChannelServiceDTO {
@@ -17,7 +18,8 @@ public interface ChannelServiceDTO {
     record PrivateChannelCreateRequest(@Nonnull List<UUID> participantIds) {
     }
 
-    record PublicChannelUpdateRequest(String newName, String newDescription) {
+    record PublicChannelUpdateRequest(@JsonProperty("newName") String name,
+                                      @JsonProperty("newDescription") String description) {
     }
 
     record PublicChannelUpdateCommand(UUID id, String name, String description) {
@@ -25,13 +27,7 @@ public interface ChannelServiceDTO {
 
     // todo: error log
     @Builder
-    record ChannelResponse(UUID id, String name, String description, ChannelType type,
-                           List<UUID> participantIds, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        public ChannelResponse {
-            if (type == ChannelType.PUBLIC) {
-                Objects.requireNonNull(name);
-                Objects.requireNonNull(description);
-            }
-        }
+    record ChannelDto(UUID id, String name, String description, ChannelType type,
+                      List<UserDto> participants, LocalDateTime lastMessageAt) {
     }
 }

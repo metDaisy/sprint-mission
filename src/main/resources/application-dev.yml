@@ -7,7 +7,7 @@ discodeit:
 
 springdoc:
   swagger-ui:
-    url: /api-docs_1.1.json
+    url: /api/api-docs_1.1.json
 
 spring:
   datasource:

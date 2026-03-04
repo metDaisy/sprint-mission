@@ -4,8 +4,8 @@ services:
     container_name: discodeit-A
     restart: always
     environment:
-      POSTGRES_USER: jonas
-      POSTGRES_PASSWORD: jonas
+      POSTGRES_USER: discodeit_user
+      POSTGRES_PASSWORD: discodeit1234
       POSTGRES_DB: discodeit
     ports:
       - "5432:5432"

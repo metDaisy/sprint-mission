@@ -1,10 +1,9 @@
 package com.sprint.mission.discodeit.dto.user;
 
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
 import lombok.Builder;
-import lombok.NonNull;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,7 +18,6 @@ public interface UserServiceDTO {
 
     // todo: error log
     @Builder
-    record UserResponse(@NonNull UUID id, @NonNull String username, @NonNull String email,
-                        boolean online, UUID profileId, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    record UserDto(UUID id, String username, String email, BinaryContentDto profile, boolean online) {
     }
 }

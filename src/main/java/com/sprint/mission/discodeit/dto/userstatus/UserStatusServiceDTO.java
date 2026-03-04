@@ -8,7 +8,6 @@ import java.util.UUID;
 public interface UserStatusServiceDTO {
 
     @Builder
-    record UserStatusResponse(UUID id, UUID userId, boolean online, LocalDateTime createdAt, LocalDateTime updatedAt,
-                              LocalDateTime lastActiveAt) {
+    record UserStatusDto(UUID id, UUID userId, LocalDateTime lastActiveAt) {
     }
 }

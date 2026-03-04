@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.dto;
 
-import lombok.NonNull;
+import jakarta.annotation.Nonnull;
 
 public interface AuthServiceDTO {
-    record LoginRequest(@NonNull String username, @NonNull String password) {
+    record LoginRequest(@Nonnull String username, @Nonnull String password) {
     }
 }

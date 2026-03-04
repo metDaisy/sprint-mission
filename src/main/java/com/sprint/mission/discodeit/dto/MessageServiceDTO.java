@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.binarycontent.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserDto;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
@@ -15,14 +17,15 @@ public interface MessageServiceDTO {
     record MessageCreateRequest(@Nonnull UUID authorId, @Nonnull UUID channelId, @Nonnull String content) {
     }
 
-    record MessageCreateCommand(UUID authorId, UUID channelId, String content, List<BinaryContentCreateRequest> attachments) {
+    record MessageCreateCommand(UUID authorId, UUID channelId, String content,
+                                List<BinaryContentCreateRequest> attachments) {
         public MessageCreateCommand(MessageCreateRequest request, List<MultipartFile> attachments) {
             this(request.authorId(), request.channelId(), request.content(),
                     attachments.stream().map(BinaryContentCreateRequest::from).toList());
         }
     }
 
-    record MessageUpdateRequest(@JsonProperty("newContent") @Nullable String content) {
+    record MessageUpdateRequest(@JsonProperty("newContent") String content) {
     }
 
     record MessageUpdateCommand(UUID id, String content) {
@@ -33,8 +36,8 @@ public interface MessageServiceDTO {
 
     // todo: error log
     @Builder
-    record MessageResponse(UUID id, UUID authorId, UUID channelId, String content,
-                           List<UUID> attachmentIds, LocalDateTime createdAt,
-                           LocalDateTime updatedAt) {
+    record MessageDto(UUID id, UserDto author, UUID channelId, String content,
+                      List<BinaryContentDto> attachments, LocalDateTime createdAt,
+                      LocalDateTime updatedAt) {
     }
 }
