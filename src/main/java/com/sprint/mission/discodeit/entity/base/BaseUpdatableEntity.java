@@ -8,7 +8,7 @@ import java.time.Instant;
 
 @Getter
 @MappedSuperclass
-public abstract class BaseUpdatableEntity extends BaseEntityV2 {
+public abstract class BaseUpdatableEntity extends BaseEntity {
     @Column
     private Instant updatedAt;
 }
