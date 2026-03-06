@@ -1,23 +1,35 @@
 package com.sprint.mission.discodeit.dto.user;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
-import lombok.Builder;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface UserServiceDTO {
-    record UserUniquenessDto(String username, String email) {
+    // todo: error log
+    record UserResponse(UUID id, String username, String email, boolean online) {
     }
 
-    @Builder
-    record UserUpdateDto(String username, String email, String password, UUID profileId) {}
+    record UserDto(UUID id, String username, String email, String password,
+                   BinaryContentDto profile, boolean online) implements UserUpdateDto, UserCreateDto {
+    }
 
-    record UserProfileImageDto(String fileName, byte[] data) {}
+    interface UserUpdateDto extends UserUniquenessDto {
+        UUID id();
 
-    // todo: error log
-    @Builder
-    record UserDto(UUID id, String username, String email, BinaryContentDto profile, boolean online) {
+        String password();
+
+        BinaryContentDto profile();
+    }
+
+    interface UserCreateDto extends UserUniquenessDto {
+        String password();
+
+        BinaryContentDto profile();
+    }
+
+    interface UserUniquenessDto {
+        String username();
+
+        String email();
     }
 }
