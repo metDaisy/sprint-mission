@@ -12,9 +12,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,8 +26,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserService extends BasicDomainService<User> implements UserService {
     private final UserRepository userRepository;
-    private final BinaryContentRepository profileRepository;
-    private final UserStatusRepository userStatusRepository;
     private final UserMapper userMapper;
 
     // deprecated ?
@@ -55,10 +51,9 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     @Override
     public UserResponse create(UserCreateDto dto) {
         validateUserUniqueness(dto);
-        BinaryContent profileImage = registerProfile(dto.profile());
         UserStatus status = new UserStatus();
-        User user = userMapper.toEntity(dto, profileImage, status);
-        userStatusRepository.save(status);
+        BinaryContent profile = registerProfile(dto.profile());
+        User user = userMapper.toEntity(dto, profile, status);
         userRepository.save(user);
         return userMapper.toResponse(user);
     }
@@ -72,8 +67,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     public UserResponse update(UserUpdateDto dto) {
         validateUserUniqueness(dto);
         User user = findById(dto.id());
-        BinaryContent newProfileImage = registerProfile(dto.profile());
-        user.update(newProfileImage);
+        user.update(dto);
         userRepository.save(user);
         return userMapper.toResponse(user);
     }
@@ -81,31 +75,26 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     // todo: delete cascade ?
     @Override
     public void delete(UUID id) {
-        User user = findById(id);
-        profileRepository.delete(user.getProfile());
-        userStatusRepository.delete(user.getStatus());
-        userRepository.delete(user);
+        deleteByIdOrThrow(id, userRepository, new APIException(ErrorCode.USERID_NOT_FOUND, id));
     }
 
     @Override
     protected User findById(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new APIException(ErrorCode.USERID_NOT_FOUND, id));
+        return getOrThrow(id, userRepository::findById, () -> new APIException(ErrorCode.USERID_NOT_FOUND, id));
     }
 
     private void validateUserUniqueness(UserUniquenessDto dto) {
-        if (userRepository.existsByUsername(dto.username())) {
-            throw new APIException(ErrorCode.USERNAME_ALREADY_EXIST, dto.username());
-        }
-        if (userRepository.existsByEmail(dto.email())) {
-            throw new APIException(ErrorCode.EMAIL_ALREADY_EXIST, dto.email());
-        }
+        ensure(dto.username(),
+                userRepository::existsByUsername,
+                value -> new APIException(ErrorCode.USERNAME_ALREADY_EXIST, value));
+        ensure(dto.email(),
+                userRepository::existsByEmail,
+                value -> new APIException(ErrorCode.EMAIL_ALREADY_EXIST, value));
     }
 
     private BinaryContent registerProfile(BinaryContentDto profile) {
         return Optional.ofNullable(profile)
                 .map(UserMapper.profileImageMapper::toEntity)
-                .map(profileRepository::save)
                 .orElse(null);
     }
 }

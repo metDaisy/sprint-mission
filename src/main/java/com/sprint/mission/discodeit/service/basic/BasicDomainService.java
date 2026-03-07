@@ -1,31 +1,32 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.common.exception.custom.APIException;
-import com.sprint.mission.discodeit.repository.DomainRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class BasicDomainService<T> {
 
-    protected <R> R findEntityById(UUID id, DomainRepository<R> repository, Supplier<? extends APIException> exception) {
-        return repository.findById(id).orElseThrow(exception);
+    protected <R> T getOrThrow(R value, Function<R, Optional<T>> action, Supplier<? extends APIException> exception) {
+        return action.apply(value).orElseThrow(exception);
     }
 
-    protected void deleteIfExist(UUID id, DomainRepository<?> repository, Supplier<? extends APIException> exception) {
-        if (id == null) {
+    protected void deleteByIdOrThrow(UUID id, JpaRepository<T, UUID> repository, APIException exception) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return;
         }
-        if (!repository.existsById(id)) {
-            throw exception.get();
-        }
-        repository.deleteById(id);
+        throw exception;
     }
 
-    protected void ensure(Supplier<Boolean> condition, Supplier<? extends APIException> exception) {
-        if (!condition.get()) {
-            throw exception.get();
+    protected <R> void ensure(R value, Function<R, Boolean> condition, Function<R, APIException> exception) {
+        if (condition.apply(value)) {
+            return;
         }
+        throw exception.apply(value);
     }
 
     protected abstract T findById(UUID id);

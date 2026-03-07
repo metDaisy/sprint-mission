@@ -17,16 +17,14 @@ import org.mapstruct.factory.Mappers;
 import java.util.UUID;
 
 @Mapper(config = GlobalMapperConfig.class)
-public interface UserMapper extends BaseMapper<UserDto, User> {
+public interface UserMapper extends BaseMapper<UserDto, User, UserResponse> {
     BinaryContentMapper profileImageMapper = Mappers.getMapper(BinaryContentMapper.class);
 
     @Override
-    @Mapping(source = "isOnline", target = "online")
+    @Mapping(source = "online", target = "online")
     UserDto toDto(User entity);
 
     User toEntity(UserCreateDto createDto, BinaryContent profile, UserStatus status);
-
-    UserResponse toResponse(User entity);
 
     UserDto toDtoFromCreateRequest(UserCreateRequest request, BinaryContentDto profile);
 

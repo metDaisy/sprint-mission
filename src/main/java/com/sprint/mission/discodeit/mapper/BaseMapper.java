@@ -1,11 +1,9 @@
 package com.sprint.mission.discodeit.mapper;
 
-import org.mapstruct.MappingTarget;
-
-public interface BaseMapper<D, E> {
+public interface BaseMapper<D, E, R> {
     D toDto(E entity);
 
     E toEntity(D dto);
 
-    void updateFromDto(@MappingTarget E entity, D dto);
+    R toResponse(E entity);
 }
