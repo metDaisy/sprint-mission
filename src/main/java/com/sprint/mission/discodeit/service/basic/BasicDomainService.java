@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public abstract class BasicDomainService<T> {
 
-    protected <R> T getOrThrow(R value, Function<R, Optional<T>> action, Supplier<? extends APIException> exception) {
+    protected <R, U> U getOrThrow(R value, Function<R, Optional<U>> action, Supplier<? extends APIException> exception) {
         return action.apply(value).orElseThrow(exception);
     }
 
