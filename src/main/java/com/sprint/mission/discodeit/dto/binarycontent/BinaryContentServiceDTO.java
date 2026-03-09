@@ -5,8 +5,10 @@ import lombok.Builder;
 import java.util.UUID;
 
 public interface BinaryContentServiceDTO {
+    record BinaryContentResponse(UUID id, String fileName, Long size, String contentType) {
+    }
 
     @Builder
-    record BinaryContentDto(UUID id, String fileName, int size, String contentType) {
+    record BinaryContentDto(UUID id, String fileName, Long size, String contentType, byte[] bytes) {
     }
 }
