@@ -1,9 +1,8 @@
 discodeit:
-  repository:
-    type: jcf # jcf | file
-    file-directory: .discodeit
-  uuid:
-    type: dev # dev / prod
+  storage:
+    type: local # local or db
+    local:
+      root-path: /binary-contents
 
 springdoc:
   swagger-ui:
@@ -26,3 +25,16 @@ spring:
     show-sql: true
     database: PostgreSQL
     defer-datasource-initialization: false
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        orm:
+          jdbc:
+            bind: trace
+            extract: trace

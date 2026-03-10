@@ -8,6 +8,11 @@ import lombok.Getter;
 public enum ErrorCode {
     // common error
     INTERNAL_SERVER_ERROR(500, "C001", "Internal server error"),
+    FILE_CANT_READ(500, "C002", "Failed to read file"),
+    ROOT_DIRECTORY_FAILED_TO_CREATE(500, "C003", "Failed to create root directories"),
+    FILE_CANT_WRITE(500, "C004", "Failed to save file"),
+    FILE_ALREADY_EXIST(500, "C005", "File already exists"),
+    FILE_NOT_FOUND(500, "C006", "File not found"),
 
     // error related to user
     USERID_NOT_FOUND(404, "U001", "User id not found"),
