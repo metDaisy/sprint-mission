@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserCreateDto;
 import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserUpdateDto;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
@@ -23,12 +24,12 @@ public class User extends BaseUpdatableEntity<UserUpdateDto> {
     @Column(nullable = false, length = 60)
     private String password;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_id")
     private BinaryContent profile;
 
     @Setter
-    @OneToOne(mappedBy = "users")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserStatus status;
 
     public User(String username, String email, String password,
@@ -39,6 +40,10 @@ public class User extends BaseUpdatableEntity<UserUpdateDto> {
         this.profile = profile;
         this.status = status;
         this.status.setUser(this);
+    }
+
+    public User(UserCreateDto dto, BinaryContent profile, UserStatus status) {
+        this(dto.username(), dto.email(), dto.password(), profile, status);
     }
 
     public boolean isOnline() {

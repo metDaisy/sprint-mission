@@ -1,20 +1,14 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserCreateDto;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentResponse;
 import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserResponse;
-import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.config.GlobalMapperConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
-
-import java.util.UUID;
 
 @Mapper(config = GlobalMapperConfig.class)
 public interface UserMapper extends BaseMapper<UserDto, User, UserResponse> {
@@ -24,9 +18,15 @@ public interface UserMapper extends BaseMapper<UserDto, User, UserResponse> {
     @Mapping(source = "online", target = "online")
     UserDto toDto(User entity);
 
-    User toEntity(UserCreateDto createDto, BinaryContent profile, UserStatus status);
+    @Override
+    @Mapping(target = "online", source = "online")
+    @Mapping(target = "profile", source = "user", qualifiedByName = "profileToResponse")
+    UserResponse toResponse(User user);
 
-    UserDto toDtoFromCreateRequest(UserCreateRequest request, BinaryContentDto profile);
+    @Named("profileToResponse")
+    default BinaryContentResponse profileToResponse(User user) {
+        return profileImageMapper.toResponse(user.getProfile());
+    }
 
-    UserDto toDtoFromUpdateRequest(UUID id, UserUpdateRequest request, BinaryContentDto profile);
+    User toEntity(UserResponse response);
 }

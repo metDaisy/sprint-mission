@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.dto.user.request;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
-public record UserCreateRequest(@Nonnull String username,
-                                @Nonnull @Email String email,
-                                @Nonnull String password) {
+public record UserCreateRequest(@NotNull String username,
+                                @NotNull @Email String email,
+                                @NotNull String password) {
 }

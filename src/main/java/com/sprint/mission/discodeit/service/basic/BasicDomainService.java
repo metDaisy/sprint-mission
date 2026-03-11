@@ -23,7 +23,7 @@ public abstract class BasicDomainService<T> {
     }
 
     protected <R> void ensure(R value, Function<R, Boolean> condition, Function<R, APIException> exception) {
-        if (condition.apply(value)) {
+        if (!condition.apply(value)) {
             return;
         }
         throw exception.apply(value);

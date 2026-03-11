@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.common.util.TimeConverter;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserResponse;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusServiceDTO.UserStatusDto;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusServiceDTO.UserStatusResponse;
 import com.sprint.mission.discodeit.dto.userstatus.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.annotation.Nullable;
@@ -30,8 +30,6 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
-    private final UserMapper userMapper;
-    private final UserStatusMapper statusMapper;
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<UserResponse> find(@PathVariable UUID id) {
@@ -46,9 +44,9 @@ public class UserController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> create(
             @RequestPart @Valid UserCreateRequest userCreateRequest,
-            @RequestPart @Nullable MultipartFile profile) {
-        BinaryContentDto profileImageDto = getBinaryContentCreateDto(profile);
-        UserDto userDto = userMapper.toDtoFromCreateRequest(userCreateRequest, profileImageDto);
+            @RequestPart(name = "profile") @Nullable MultipartFile file) {
+        BinaryContentDto profile = getBinaryContentCreateDto(file);
+        UserDto userDto = new UserDto(userCreateRequest, profile);
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(userDto));
     }
 
@@ -58,7 +56,7 @@ public class UserController {
             @RequestPart @Valid UserUpdateRequest userUpdateRequest,
             @RequestPart @Nullable MultipartFile profile) {
         BinaryContentDto profileImageDto = getBinaryContentCreateDto(profile);
-        UserDto userDto = userMapper.toDtoFromUpdateRequest(id, userUpdateRequest, profileImageDto);
+        UserDto userDto = new UserDto(id, userUpdateRequest, profileImageDto);
         return ResponseEntity.status(HttpStatus.OK).body(userService.update(userDto));
     }
 
@@ -69,16 +67,16 @@ public class UserController {
     }
 
     @PatchMapping(value = "/{id}/userStatus")
-    public ResponseEntity<UserStatusDto> updateUserStatus(
+    public ResponseEntity<UserStatusResponse> updateUserStatus(
             @PathVariable UUID id,
             @RequestBody UserStatusUpdateRequest request) {
-        UserStatusDto statusDto = statusMapper.toEntity(id, request);
+        UserStatusDto statusDto = new UserStatusDto(null, id, TimeConverter.toInstant(request.datetime()));
         return ResponseEntity.status(HttpStatus.OK).body(userStatusService.update(statusDto));
     }
 
     private BinaryContentDto getBinaryContentCreateDto(MultipartFile profile) {
         return Optional.ofNullable(profile)
-                .map(UserMapper.profileImageMapper::toDtoFromFile)
+                .map(BinaryContentDto::from)
                 .orElse(null);
     }
 }
