@@ -15,7 +15,7 @@ spring:
       schema-locations: classpath:db/schema.sql
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
+    url: jdbc:postgresql://localhost:5433/discodeit
     username: discodeit_user
     password: discodeit1234
 
@@ -28,6 +28,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc.batch_size: 100
+        order_inserts: true
+        order_updates: true
 
 logging:
   level:

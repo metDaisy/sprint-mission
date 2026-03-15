@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Getter
@@ -19,7 +20,7 @@ public abstract class BaseUpdatableEntity<U> extends BaseEntity {
     private Instant updatedAt;
 
     protected <T> void updateIfChanged(T before, T after, Consumer<T> action) {
-        if (after == null || before.equals(after)) {
+        if (after == null || Objects.equals(before, after)) {
             return;
         }
         action.accept(after);

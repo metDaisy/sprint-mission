@@ -5,9 +5,7 @@ import com.sprint.mission.discodeit.dto.channel.ChannelServiceDTO.ChannelRespons
 import com.sprint.mission.discodeit.dto.channel.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +20,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChannelController {
     private final ChannelService channelService;
-    private final UserService userService;
 
     @PostMapping(value = "/public")
     public ResponseEntity<ChannelResponse> create(@RequestBody @Valid PublicChannelCreateRequest request) {
@@ -37,12 +34,8 @@ public class ChannelController {
 
     @PostMapping(value = "/private")
     public ResponseEntity<ChannelResponse> create(@RequestBody @Valid PrivateChannelCreateRequest request) {
-        List<UserResponse> participants = request.participantIds()
-                .stream()
-                .map(userService::find)
-                .toList();
         ChannelDto dto = ChannelDto.builder()
-                .participants(participants)
+                .participantIds(request.participantIds())
                 .type(request.type())
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED)

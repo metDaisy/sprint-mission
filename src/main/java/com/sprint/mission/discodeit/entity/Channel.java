@@ -1,17 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.dto.channel.ChannelServiceDTO.ChannelDto;
-import com.sprint.mission.discodeit.dto.channel.ChannelServiceDTO.PrivateChannelCreateDto;
-import com.sprint.mission.discodeit.dto.channel.ChannelServiceDTO.PublicChannelCreateDto;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserResponse;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor
@@ -28,31 +25,20 @@ public class Channel extends BaseUpdatableEntity<ChannelDto> {
     @Column(nullable = false)
     private String description;
 
-    private List<UserResponse> participants = new ArrayList<>();
+    @Setter
+    @Transient
+    private Instant lastMessageAt;
 
-    public Channel(PublicChannelCreateDto dto) {
-        this.name = dto.name();
-        this.description = dto.description();
-        this.type = dto.type();
-    }
-
-    public Channel(PrivateChannelCreateDto dto) {
-        participants = dto.participants();
-        this.type = dto.type();
+    @Builder
+    public Channel(ChannelType type, String name, String description) {
+        this.type = type;
+        this.name = name;
+        this.description = description;
     }
 
     @Override
     public void update(ChannelDto dto) {
         updateIfChanged(name, dto.name(), val -> name = val);
         updateIfChanged(description, dto.description(), val -> description = val);
-    }
-
-    public boolean matchChannelType(ChannelType type) {
-        return this.type == type;
-    }
-
-    public boolean isVisibleTo(UUID userId) {
-        return type == ChannelType.PUBLIC ||
-                participants.stream().anyMatch(u -> u.id().equals(userId));
     }
 }

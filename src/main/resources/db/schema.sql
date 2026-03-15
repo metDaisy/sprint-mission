@@ -39,6 +39,7 @@ create table messages
     channel_id uuid not null,
     author_id  uuid not null
 );
+create index idx_messages on messages (channel_id, created_at);
 
 create table binary_contents
 (
