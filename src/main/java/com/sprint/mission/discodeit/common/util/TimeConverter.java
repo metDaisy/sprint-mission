@@ -1,15 +1,15 @@
 package com.sprint.mission.discodeit.common.util;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
 
 public interface TimeConverter {
-    static LocalDateTime toDateTime(Instant time) {
-        return LocalDateTime.ofInstant(time, ZoneId.systemDefault());
+    static LocalDate toDateTime(Instant time) {
+        return LocalDate.ofInstant(time, ZoneId.systemDefault());
     }
 
-    static Instant toInstant(LocalDateTime datetime) {
-        return datetime.atZone(ZoneId.systemDefault()).toInstant();
+    static Instant toInstant(LocalDate datetime) {
+        return datetime.atStartOfDay(ZoneId.systemDefault()).toInstant();
     }
 }
