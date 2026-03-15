@@ -21,15 +21,15 @@ public class BasicUserStatusService extends BasicDomainService<UserStatus> imple
 
     @Override
     public UserStatusResponse update(UserStatusDto dto) {
-        UserStatus status = findById(dto.id());
+        UserStatus status = findById(dto.userId());
         status.update(dto);
         userStatusRepository.save(status);
         return userStatusMapper.toResponse(status);
     }
 
     @Override
-    protected UserStatus findById(UUID id) {
-        return getOrThrow(id, userStatusRepository::findById,
-                () -> new APIException(ErrorCode.USERSTATUSID_NOT_FOUND, id));
+    protected UserStatus findById(UUID userId) {
+        return getOrThrow(userId, userStatusRepository::findByUserId,
+                () -> new APIException(ErrorCode.USERSTATUSID_NOT_FOUND, userId));
     }
 }
