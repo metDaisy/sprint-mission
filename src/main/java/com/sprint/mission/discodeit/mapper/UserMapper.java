@@ -23,10 +23,10 @@ public interface UserMapper extends BaseMapper<UserDto, User, UserResponse> {
     @Mapping(target = "profile", source = "user", qualifiedByName = "profileToResponse")
     UserResponse toResponse(User user);
 
+    User toEntity(UserResponse response);
+
     @Named("profileToResponse")
     default BinaryContentResponse profileToResponse(User user) {
         return profileImageMapper.toResponse(user.getProfile());
     }
-
-    User toEntity(UserResponse response);
 }
