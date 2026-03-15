@@ -8,4 +8,4 @@ services:
       POSTGRES_PASSWORD: discodeit1234
       POSTGRES_DB: discodeit
     ports:
-      - "5432:5432"
+      - "5433:5432"
