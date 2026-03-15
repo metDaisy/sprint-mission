@@ -6,14 +6,17 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Duration;
 import java.time.Instant;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "user_statuses")
+@EntityListeners(AuditingEntityListener.class)
 public class UserStatus extends BaseUpdatableEntity<UserStatusDto> {
     private static final Long ACTIVE_THRESHOLD = 300L;
 
@@ -22,7 +25,8 @@ public class UserStatus extends BaseUpdatableEntity<UserStatusDto> {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column
+    @CreatedDate
+    @Column(nullable = false)
     private Instant lastActiveAt;
 
     public UserStatus(User user, Instant lastActiveAt) {

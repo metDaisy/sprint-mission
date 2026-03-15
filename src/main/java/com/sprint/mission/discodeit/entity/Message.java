@@ -26,7 +26,7 @@ public class Message extends BaseUpdatableEntity<MessageUpdateDto> {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @OneToMany
+    @OneToMany(mappedBy = "messages")
     private List<BinaryContent> attachments = new ArrayList<>();
 
     @Builder

@@ -22,22 +22,26 @@ public interface MessageServiceDTO {
     @Builder
     record MessageDto(UUID id, UUID authorId, UUID channelId, String content,
                       List<BinaryContentDto> attachments)
-            implements MessageCreateDto, MessageUpdateDto  {
+            implements MessageCreateDto, MessageUpdateDto {
     }
 
     interface MessageCreateDto extends AuthorAndChannelId {
         String content();
+
         List<BinaryContentDto> attachments();
     }
 
     interface MessageUpdateDto extends AuthorAndChannelId {
         UUID id();
+
         String content();
+
         List<BinaryContentDto> attachments();
     }
 
     interface AuthorAndChannelId {
         UUID authorId();
+
         UUID channelId();
     }
 }

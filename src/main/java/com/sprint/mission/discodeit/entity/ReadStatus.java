@@ -3,10 +3,12 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusServiceDTO.ReadStatusUpdateDto;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+@Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "read_statuses")
