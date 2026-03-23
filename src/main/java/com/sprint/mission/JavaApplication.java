@@ -1,57 +1,42 @@
 package com.sprint.mission;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Entity;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.model.Model;
-import com.sprint.mission.discodeit.model.RelationModel;
-import com.sprint.mission.discodeit.service.*;
-import com.sprint.mission.discodeit.service.jcf.*;
+import com.sprint.mission.entity.User;
+import com.sprint.mission.repository.file.FileUserRepository;
+import com.sprint.mission.service.UserService;
+import com.sprint.mission.service.basic.BasicUserService;
+import com.sprint.mission.service.jcf.JCFServiceFactory;
+import com.sprint.mission.service.jcf.JCFUserService;
+
+import java.util.UUID;
 
 public class JavaApplication {
-    public static ChatService discord;
+    public static void testUserService(UserService service) {
+        User user1 = service.create("jonas");
+        System.out.printf("user id: %s, name: %s%n", user1.getId(), user1.getUserName());
 
-    public static void init() {
-        Model<User> userModel = new Model<>();
-        Model<Channel> channelModel = new Model<>();
-        Model<Message> messageModel = new Model<>();
+        if (user1.equals(service.get(user1.getId()))) {
+            System.out.println("same user");
+        }
+        User user2 = service.create("lee");
+        if (!user1.equals(user2)) {
+            System.out.println("different user");
+        }
+        UUID userid1 = user1.getId();
+        service.update(userid1, "jonas in dark");
+        System.out.printf("user id: %s, name: %s%n", user1.getId(), user1.getUserName());
 
-        RelationModel<User, Channel> userChannelRelationModel = new RelationModel<>();
-        RelationModel<User, Message> userMessageRelationModel = new RelationModel<>();
-        RelationModel<Channel, User> channelUserRelationModel = new RelationModel<>();
-        RelationModel<Channel, Message> channelMessageRelationModel = new RelationModel<>();
-
-        ModelManager<User> userManager = new JCFModelManager<>(userModel);
-        ModelManager<Channel> channelManager = new JCFModelManager<>(channelModel);
-        ModelManager<Message> messageManager = new JCFModelManager<>(messageModel);
-
-        RelationManager<User, Channel> userChannelRelationManager = new JCFRelationManager<>(userChannelRelationModel);
-        RelationManager<User, Message> userMessageJCFRelationManager = new JCFRelationManager<>(userMessageRelationModel);
-        RelationManager<Channel, User> channelUserRelationManager = new JCFRelationManager<>(channelUserRelationModel);
-        RelationManager<Channel, Message> channelMessageRelationManager = new JCFRelationManager<>(channelMessageRelationModel);
-
-        UserService userService = new JCFUserService(userManager, userMessageJCFRelationManager, userChannelRelationManager);
-        ChannelService channelService = new JCFChannelService(channelManager, channelMessageRelationManager, channelUserRelationManager);
-        MessageService messageService = new JCFMessageService(messageManager);
-        ChatService discord = new JCFDiscordService(userService, channelService, messageService);
-    }
-
-    public static void test1() {
-        User user1 = Entity.from("jonas", User::new);
-        Channel channel1 = Entity.from("code-it", Channel::new);
-        Message message1 = Entity.from("hello world!", Message::new);
-        discord.createUser(user1);
-        discord.createChannel(channel1);
-        discord.sendMessageToChannel(user1, channel1, message1);
-    }
-
-    public static void test2() {
-
+        service.delete(userid1);
+        System.out.println("delete user1");
+        try {
+            service.get(userid1);
+        } catch (IllegalArgumentException error) {
+            System.out.println(error.getMessage());
+        }
     }
 
     public static void main(String[] args) {
-        init();
-        test1();
+        testUserService(JCFServiceFactory.getUserService());
+        System.out.println("#####################");
+        testUserService(new BasicUserService(new FileUserRepository()));
     }
 }
