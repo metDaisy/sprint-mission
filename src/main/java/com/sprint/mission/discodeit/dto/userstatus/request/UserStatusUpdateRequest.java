@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.dto.userstatus.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-public record UserStatusUpdateRequest(@JsonProperty("newLastActiveAt") @DateTimeFormat LocalDateTime datetime) {
+public record UserStatusUpdateRequest(@JsonProperty("newLastActiveAt") @DateTimeFormat LocalDate datetime) {
 }

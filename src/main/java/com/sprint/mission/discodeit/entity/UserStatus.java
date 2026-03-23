@@ -1,50 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.common.util.TimeConverter;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusServiceDTO.UserStatusResponse;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusServiceDTO.UserStatusDto;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
-@RequiredArgsConstructor
-public class UserStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private final int ACTIVE_THRESHOLD = 300;
-    @Getter
-    private final UUID id = UUID.randomUUID();
-    private final UUID userId;
-    private final Instant createdAt = Instant.now();
-    private Instant updatedAt = Instant.now();
-    private Instant lastActiveAt = Instant.now();
+@Getter
+@NoArgsConstructor
+@Entity
+@Table(name = "user_statuses")
+@EntityListeners(AuditingEntityListener.class)
+public class UserStatus extends BaseUpdatableEntity<UserStatusDto> {
+    private static final Long ACTIVE_THRESHOLD = 300L;
 
-    public boolean matchUserId(UUID userId) {
-        return this.userId.equals(userId);
+    @Setter
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @CreatedDate
+    @Column(nullable = false)
+    private Instant lastActiveAt;
+
+    public UserStatus(User user, Instant lastActiveAt) {
+        this.user = user;
+        this.lastActiveAt = lastActiveAt;
+        user.setStatus(this);
     }
 
-    public void update(LocalDateTime datetime) {
-        lastActiveAt = TimeConverter.toInstant(datetime);
-        updatedAt = Instant.now();
-    }
-
-    public boolean isActive() {
+    public boolean isOnline() {
         return Duration.between(lastActiveAt, Instant.now()).getSeconds() < ACTIVE_THRESHOLD;
     }
 
-    public UserStatusResponse toResponse() {
-        return UserStatusResponse.builder()
-                .id(id)
-                .userId(userId)
-                .createdAt(TimeConverter.toDateTime(createdAt))
-                .updatedAt(TimeConverter.toDateTime(updatedAt))
-                .lastActiveAt(TimeConverter.toDateTime(lastActiveAt))
-                .online(isActive())
-                .build();
+    @Override
+    public void update(UserStatusDto updateDto) {
+        updateIfChanged(lastActiveAt, updateDto.lastActiveAt(), val -> lastActiveAt = val);
     }
 }

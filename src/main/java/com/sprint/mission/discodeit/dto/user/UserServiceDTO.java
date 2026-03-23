@@ -1,25 +1,48 @@
 package com.sprint.mission.discodeit.dto.user;
 
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import lombok.Builder;
-import lombok.NonNull;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface UserServiceDTO {
-    record UserUniquenessDto(String username, String email) {
-    }
-
-    @Builder
-    record UserUpdateDto(String username, String email, String password, UUID profileId) {}
-
-    record UserProfileImageDto(String fileName, byte[] data) {}
-
     // todo: error log
     @Builder
-    record UserResponse(@NonNull UUID id, @NonNull String username, @NonNull String email,
-                        boolean online, UUID profileId, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    record UserResponse(UUID id, String username, String email, boolean online,
+                        BinaryContentResponse profile) {
+    }
+
+    record UserDto(UUID id, String username, String email, String password,
+                   BinaryContentDto profile, boolean online) implements UserUpdateDto, UserCreateDto {
+        public UserDto(UserCreateRequest request, BinaryContentDto profileDto) {
+            this(null, request.username(), request.email(), request.password(), profileDto, false);
+        }
+
+        public UserDto(UUID id, UserUpdateRequest request, BinaryContentDto profileDto) {
+            this(id, request.username(), request.email(), request.password(), profileDto, false);
+        }
+    }
+
+    interface UserUpdateDto extends UserUniquenessDto {
+        UUID id();
+
+        String password();
+
+        BinaryContentDto profile();
+    }
+
+    interface UserCreateDto extends UserUniquenessDto {
+        String password();
+
+        BinaryContentDto profile();
+    }
+
+    interface UserUniquenessDto {
+        String username();
+
+        String email();
     }
 }

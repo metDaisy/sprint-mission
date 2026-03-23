@@ -8,6 +8,11 @@ import lombok.Getter;
 public enum ErrorCode {
     // common error
     INTERNAL_SERVER_ERROR(500, "C001", "Internal server error"),
+    FILE_CANT_READ(500, "C002", "Failed to read file"),
+    ROOT_DIRECTORY_FAILED_TO_CREATE(500, "C003", "Failed to create root directories"),
+    FILE_CANT_WRITE(500, "C004", "Failed to save file"),
+    FILE_ALREADY_EXIST(500, "C005", "File already exists"),
+    FILE_NOT_FOUND(500, "C006", "File not found"),
 
     // error related to user
     USERID_NOT_FOUND(404, "U001", "User id not found"),
@@ -18,7 +23,7 @@ public enum ErrorCode {
     // channel
     CHANNELID_NOT_FOUND(404, "C001", "Channel id not found"),
     NO_MESSAGE_IN_CHANNEL(404, "C002", "channel have no messages"),
-    PRIVATE_CHANNEL_NOT_UPDATE(400, "C003", "Private Channel can`t be updated"),
+    PRIVATE_CHANNEL_CANT_BE_UPDATED(400, "C003", "Private Channel can`t be updated"),
 
     // message
     MESSAGEID_NOT_FOUND(404, "M001", "Message id not found"),

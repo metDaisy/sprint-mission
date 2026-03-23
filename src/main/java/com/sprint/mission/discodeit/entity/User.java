@@ -1,70 +1,65 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.common.util.TimeConverter;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserCreateDto;
 import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserUpdateDto;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+import java.util.Optional;
 
-public class User extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    @Getter
-    private final UUID id;
-    private final Instant createdAt = Instant.now();
-    private Instant updatedAt = Instant.now();
+@Getter
+@NoArgsConstructor
+@Entity
+@Table(name = "users")
+public class User extends BaseUpdatableEntity<UserUpdateDto> {
+    @Column(unique = true, nullable = false, length = 50)
     private String username;
-    private String email;
-    private String password;
-    private UUID profileId;
-    // todo: add message, channel id list
-    // todo: add parameters of update, which is messageId, channelId
 
-    public User(UUID id, String username, String email,
-                String password, UUID profileId) {
-        this.id = id;
+    @Column(unique = true, nullable = false, length = 100)
+    private String email;
+
+    @Column(nullable = false, length = 60)
+    private String password;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_id")
+    private BinaryContent profile;
+
+    @Setter
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserStatus status;
+
+    public User(String username, String email, String password,
+                BinaryContent profile, UserStatus status) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.profileId = profileId;
+        this.profile = profile;
+        this.status = status;
+        this.status.setUser(this);
     }
 
-    public boolean matchPassword(String password) {
-        return this.password.equals(password);
+    public User(UserCreateDto dto, BinaryContent profile, UserStatus status) {
+        this(dto.username(), dto.email(), dto.password(), profile, status);
     }
 
-    public boolean matchUsername(String username) {
-        return this.username.equals(username);
+    public boolean isOnline() {
+        return status.isOnline();
     }
 
-    public boolean matchEmail(String email) {
-        return this.email.equals(email);
-    }
-
+    @Override
     public void update(UserUpdateDto dto) {
-        boolean hasUpdated = false;
-        hasUpdated |= updateIfChanged(this.username, dto.username(), val -> this.username = val);
-        hasUpdated |= updateIfChanged(this.email, dto.email(), val -> this.email = val);
-        hasUpdated |= updateIfChanged(this.password, dto.password(), val -> this.password = val);
-        hasUpdated |= updateIfChanged(this.profileId, dto.profileId(), val -> this.profileId = val);
-        if (hasUpdated) {
-            this.updatedAt = Instant.now();
-        }
-    }
-
-    public UserResponse toResponse(boolean isActive) {
-        return UserResponse.builder()
-                .id(id)
-                .username(username)
-                .email(email)
-                .online(isActive)
-                .profileId(profileId)
-                .createdAt(TimeConverter.toDateTime(createdAt))
-                .updatedAt(TimeConverter.toDateTime(updatedAt))
-                .build();
+        updateIfChanged(username, dto.username(), val -> username = val);
+        updateIfChanged(email, dto.email(), val -> email = val);
+        updateIfChanged(password, dto.password(), val -> password = val);
+        updateIfChanged(
+                profile,
+                Optional.ofNullable(dto.profile())
+                        .map(BinaryContent::new)
+                        .orElse(null),
+                val -> profile = val);
     }
 }

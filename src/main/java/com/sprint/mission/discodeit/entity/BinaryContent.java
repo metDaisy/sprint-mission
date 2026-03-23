@@ -1,37 +1,40 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.common.util.TimeConverter;
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentResponse;
-import com.sprint.mission.discodeit.dto.binarycontent.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+@Getter
+@NoArgsConstructor
+@Entity
+@Table(name = "binary_contents")
+public class BinaryContent extends BaseEntity {
+    @Column(nullable = false)
+    private String fileName;
 
-@RequiredArgsConstructor
-public class BinaryContent implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Column(nullable = false)
+    private Long size;
 
-    @Getter
-    private final UUID id = UUID.randomUUID();
-    private final Instant createdAt = Instant.now();
-    private final String fileName;
-    private final byte[] data;
+    @Column(nullable = false, length = 100)
+    private String contentType;
 
-    public BinaryContent(BinaryContentCreateRequest model) {
-        this(model.fileName(), model.data());
+    @Column(nullable = false)
+    private byte[] bytes;
+
+    @Builder
+    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
+        this.fileName = fileName;
+        this.size = size;
+        this.contentType = contentType;
+        this.bytes = bytes;
     }
 
-    public BinaryContentResponse toResponse() {
-        return BinaryContentResponse.builder()
-                .id(id)
-                .fileName(fileName)
-                .data(data)
-                .createdAt(TimeConverter.toDateTime(createdAt))
-                .build();
+    public BinaryContent(BinaryContentDto dto) {
+        this(dto.fileName(), dto.size(), dto.contentType(), dto.bytes());
     }
 }
