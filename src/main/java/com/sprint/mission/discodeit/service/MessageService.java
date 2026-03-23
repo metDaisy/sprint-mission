@@ -1,18 +1,17 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    void createMessage(Message message);
+    List<MessageResponse> findAllByChannelId(UUID channelId) throws IOException;
 
-    void changeMessage(Message oldMessage, Message newMessage);
+    MessageResponse create(MessageCreation model) throws IOException;
 
-    void deleteMessage(Message message);
+    MessageResponse update(MessageContentUpdate model) throws IOException, ClassNotFoundException;
 
-    List<Message> getMessages(List<UUID> uuids);
-
-    void deleteMessages(List<UUID> messageUUIDs);
+    void delete(UUID id) throws IOException, ClassNotFoundException;
 }
