@@ -1,14 +1,26 @@
-# 10-spring-mission-4
+# 10-spring-mission
 
-mission-4 start!
+- mission-5
+  - 주어진 api specification 을 보고 다시 구현하기
+  - 배포 해보기
 
 # 구현
 
 - 기능별로 package 를 구성했다.
+- `controller`
+  - `UserController`
+  - `AuthController`
+  - `ChannelController`
+  - `MessageController`
 - `service`
+    - `AuthService`
+    - `BinaryContentService`
+    - `DomainService`
     - `UserService`
     - `ChannelService`
     - `MessageService`
+    - `ReadStatusService`
+    - `UserStatusService`
 - `repository`
     - `DomainRepository`
     - `UserRepository`
@@ -20,7 +32,6 @@ mission-4 start!
 - `entity`
     - `User`
     - `UserStatus`
-    - `UserPresence`
     - `Channel`
     - `ChannelType`
     - `ReadStatus`
@@ -29,5 +40,20 @@ mission-4 start!
     - `BinaryContent`
 - `dto`
     - `UserServiceDTO`
+    - `AuthServiceDTO`
+    - `BinaryContentServiceDTO`
     - `ChannelServiceDTO`
     - `MessageServiceDTO`
+    - `ReadStatusServiceDTO`
+    - `UserStatusServiceDTO`
+- `test`
+  - `controller`
+    - `BaseControllerTest`
+    - `UserControllerTest`
+  - `fixture`
+    - `UserFixture`
+    - `BinaryContentFixture`
+
+### Todo
+- toJson
+- encryption, decryption
