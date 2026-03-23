@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.function.ThrowingFunction;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageContentUpdate;
-import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreation;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageServiceDTO.MessageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
@@ -13,8 +12,8 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.IdGenerator;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -22,14 +21,16 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService extends BasicDomainService<Message> implements MessageService {
+    // todo: refactoring
     private final String ID_NOT_FOUND = "Message with id, %s, not found";
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository attachmentRepository;
+    private final IdGenerator idGenerator;
 
     @Override
-    public MessageResponse create(MessageCreation model) throws IOException {
+    public MessageResponse create(MessageCreateRequest model) {
         // todo: extract validate
         if (!channelRepository.existsById(model.channelId())) {
             throw new NoSuchElementException("Channel not found with id " + model.channelId());
@@ -40,23 +41,24 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
         List<UUID> attachmentIds = model.attachments()
                 .stream()
                 .map(BinaryContent::new)
-                .map(ThrowingFunction.unchecked(attachmentRepository::save))
+                .map(attachmentRepository::save)
                 .map(BinaryContent::getId)
                 .toList();
-        Message message = new Message(model.content(), model.channelId(), model.authorId(), attachmentIds);
+        Message message = new Message(idGenerator.generateId(), model.content(), model.channelId(),
+                model.authorId(), attachmentIds);
         messageRepository.save(message);
         return message.toResponse();
     }
 
     @Override
-    public List<MessageResponse> findAllByChannelId(UUID channelId) throws IOException {
+    public List<MessageResponse> findAllByChannelId(UUID channelId) {
         return messageRepository.filter(message -> message.isInChannel(channelId))
                 .map(Message::toResponse)
                 .toList();
     }
 
     @Override
-    public MessageResponse update(MessageContentUpdate model) throws IOException, ClassNotFoundException {
+    public MessageResponse update(MessageUpdateRequest model) {
         // todo: refactoring
         Message message = findById(model.messageId());
         message.update(model.newContent(), model.attachmentIds());
@@ -65,7 +67,7 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
     }
 
     @Override
-    public void delete(UUID messageId) throws IOException, ClassNotFoundException {
+    public void delete(UUID messageId) {
         if (!messageRepository.existsById(messageId)) {
             throw new NoSuchElementException(ID_NOT_FOUND.formatted(messageId));
         }
@@ -79,7 +81,7 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
     }
 
     @Override
-    protected Message findById(UUID id) throws IOException, ClassNotFoundException {
+    protected Message findById(UUID id) {
         return findEntityById(id, "Message", messageRepository);
     }
 }

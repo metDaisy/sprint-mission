@@ -1,4 +1,3 @@
-discodeit:
-  repository:
-    type: jcf # jcf | file
-    file-directory: .discodeit
+spring:
+  profiles:
+    active: dev # dev | prod
