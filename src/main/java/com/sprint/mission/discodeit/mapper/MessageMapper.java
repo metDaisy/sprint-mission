@@ -1,33 +1,21 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.message.MessageServiceDTO.MessageDto;
-import com.sprint.mission.discodeit.dto.message.MessageServiceDTO.MessageResponse;
-import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.mapper.config.GlobalMapperConfig;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-import org.springframework.web.multipart.MultipartFile;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import java.util.List;
-import java.util.UUID;
+@Mapper(config = GlobalMapperConfig.class,
+    uses = {ChannelMapper.class, UserMapper.class, BinaryContentMapper.class})
+public interface MessageMapper {
 
-@Mapper(config = GlobalMapperConfig.class)
-public interface MessageMapper extends BaseMapper<MessageDto, Message, MessageResponse> {
-    UserMapper userMapper = Mappers.getMapper(UserMapper.class);
-    BinaryContentMapper attachmentMapper = Mappers.getMapper(BinaryContentMapper.class);
+  Message toEntity(MessageDto messageDto);
 
-    default MessageDto toDtoFromRequest(MessageCreateRequest request, List<MultipartFile> attachments) {
-        List<BinaryContentDto> attachmentDto = attachments.stream().map(attachmentMapper::toDtoFromFile).toList();
-        return MessageDto.builder()
-                .authorId(request.authorId())
-                .channelId(request.channelId())
-                .content(request.content())
-                .attachments(attachmentDto)
-                .build();
-    }
+  MessageDto toDto(Message message);
 
-    MessageDto toDtoFromRequest(UUID messageId, MessageUpdateRequest request);
+  Message partialUpdate(
+      MessageDto messageDto, @MappingTarget Message message);
 }

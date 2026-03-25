@@ -1,32 +1,33 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentResponse;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserResponse;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.config.GlobalMapperConfig;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingConstants.ComponentModel;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(config = GlobalMapperConfig.class)
-public interface UserMapper extends BaseMapper<UserDto, User, UserResponse> {
-    BinaryContentMapper profileImageMapper = Mappers.getMapper(BinaryContentMapper.class);
+@Mapper(config = GlobalMapperConfig.class,
+    uses = {BinaryContentMapper.class, UserStatusMapper.class})
+public interface UserMapper {
 
-    @Override
-    @Mapping(source = "online", target = "online")
-    UserDto toDto(User entity);
+  User toEntity(UserDto userDto);
 
-    @Override
-    @Mapping(target = "online", source = "online")
-    @Mapping(target = "profile", source = "user", qualifiedByName = "profileToResponse")
-    UserResponse toResponse(User user);
-
-    User toEntity(UserResponse response);
-
-    @Named("profileToResponse")
-    default BinaryContentResponse profileToResponse(User user) {
-        return profileImageMapper.toResponse(user.getProfile());
+  @AfterMapping
+  default void linkStatus(@MappingTarget User user) {
+    UserStatus status = user.getStatus();
+    if (status != null) {
+      status.setUser(user);
     }
+  }
+
+  UserDto toDto(User user);
+
+  User partialUpdate(
+      UserDto userDto, @MappingTarget User user);
 }

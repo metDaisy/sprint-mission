@@ -1,44 +1,50 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelServiceDTO.ChannelDto;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
-
 @Getter
-@NoArgsConstructor
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "channels")
-public class Channel extends BaseUpdatableEntity<ChannelDto> {
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ChannelType type;
+public class Channel extends BaseUpdatableEntity {
 
-    @Column(nullable = false)
-    private String name;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ChannelType type;
 
-    @Column(nullable = false)
-    private String description;
+  @Column(nullable = false)
+  private String name;
 
-    @Setter
-    @Transient
-    private Instant lastMessageAt;
+  @Column(nullable = false)
+  private String description;
 
-    @Builder
-    public Channel(ChannelType type, String name, String description) {
-        this.type = type;
-        this.name = name;
-        this.description = description;
-    }
+  @Transient
+  private Instant lastMessageAt;
 
-    @Override
-    public void update(ChannelDto dto) {
-        updateIfChanged(name, dto.name(), val -> name = val);
-        updateIfChanged(description, dto.description(), val -> description = val);
-    }
+  @OneToMany(mappedBy = "channel", orphanRemoval = true)
+  private Set<ReadStatus> readStatuses = new LinkedHashSet<>();
+
+  @Builder
+  public Channel(ChannelType type, String name, String description) {
+    this.type = type;
+    this.name = name;
+    this.description = description;
+  }
+
 }

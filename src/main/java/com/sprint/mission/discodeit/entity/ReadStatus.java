@@ -1,37 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusServiceDTO.ReadStatusUpdateDto;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
+import lombok.Setter;
 
 @Getter
-@NoArgsConstructor
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "read_statuses")
-public class ReadStatus extends BaseUpdatableEntity<ReadStatusUpdateDto> {
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+public class ReadStatus extends BaseUpdatableEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "channel_id")
-    private Channel channel;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
-    @Column
-    private Instant lastReadAt;
+  @ManyToOne
+  @JoinColumn(name = "channel_id")
+  private Channel channel;
 
-    public ReadStatus(User user, Channel channel, Instant lastReadAt) {
-        this.user = user;
-        this.channel = channel;
-        this.lastReadAt = lastReadAt;
-    }
+  @Column
+  private Instant lastReadAt;
 
-    @Override
-    public void update(ReadStatusUpdateDto dto) {
-        updateIfChanged(lastReadAt, dto.lastReadAt(), val -> lastReadAt = val);
-    }
+  @Builder
+  public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+    this.user = user;
+    this.channel = channel;
+    this.lastReadAt = lastReadAt;
+  }
+
 }
