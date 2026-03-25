@@ -20,11 +20,6 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 @Component
-@ConditionalOnProperty(
-        prefix = "discodeit.storage",
-        name = "type",
-        havingValue = "local"
-)
 @EnableConfigurationProperties(LocalBCStorageProperties.class)
 public class LocalBinaryContentStorage implements BinaryContentStorage {
     private final Path root;
