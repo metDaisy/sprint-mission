@@ -40,27 +40,10 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:1.18.42")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
     testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('com.h2database:h2')
     testImplementation('net.datafaker:datafaker:2.5.4')
 }
 
-def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
-
-sourceSets {
-    main.java.srcDirs += [ querydslDir ]
+test {
+    useJUnitPlatform()
 }
-
-tasks.withType(JavaCompile).configureEach {
-    options.getGeneratedSourceOutputDirectory().set(querydslDir)
-}
-
-clean {
-    delete file(querydslDir)
-}
-
-jar {
-    enabled = false
-}
-
-//test {
-//    useJUnitPlatform()
-//}
