@@ -1,3 +1,8 @@
 spring:
   profiles:
     active: dev # dev | prod
+
+discodeit:
+  storage:
+    local:
+      root-path: .discodeit/storage

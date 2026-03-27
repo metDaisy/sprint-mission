@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity.base;
 
 import jakarta.persistence.*;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,18 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private Instant createdAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BaseEntity that = (BaseEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

@@ -7,10 +7,12 @@ import lombok.Getter;
 public class APIException extends RuntimeException {
     private final ErrorCode errorCode;
     private final String detail;
+    private final String message;
 
     public APIException(ErrorCode errorCode, Object source) {
         this.errorCode = errorCode;
         this.detail = String.join(", ", errorCode.getMessage(), source.toString());
+        this.message = detail;
     }
 
     public APIException(ErrorCode errorCode) {

@@ -15,11 +15,8 @@ public abstract class BasicDomainService<T> {
     }
 
     protected void deleteByIdOrThrow(UUID id, JpaRepository<T, UUID> repository, APIException exception) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return;
-        }
-        throw exception;
+        T entity = repository.findById(id).orElseThrow(() -> exception);
+        repository.delete(entity);
     }
 
     protected <R> void ensure(R value, Function<R, Boolean> condition, Function<R, APIException> exception) {

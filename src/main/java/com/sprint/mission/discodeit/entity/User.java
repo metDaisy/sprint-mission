@@ -29,11 +29,16 @@ public class User extends BaseUpdatableEntity {
   @Column(nullable = false, length = 60)
   private String password;
 
-  @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+  @OneToOne(
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+      orphanRemoval = true)
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST)
+  @OneToOne(
+      mappedBy = "user",
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+      orphanRemoval = true)
   private UserStatus status;
 
   @Builder
