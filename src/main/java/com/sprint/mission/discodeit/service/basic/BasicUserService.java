@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
-import com.sprint.mission.discodeit.common.exception.custom.APIException;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
+import com.sprint.mission.discodeit.exception.common.CommonException;
+import com.sprint.mission.discodeit.exception.user.UserErrorCode;
+import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
@@ -14,6 +16,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,13 +57,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     validateUserUniqueness(request.username(), request.email());
     log.debug("[USER] Unique: username={}, email={}",
         request.username(), request.email());
-    BinaryContent binaryContent = null;
-    try {
-      binaryContent = binaryContentMapper.toEntityFrom(profile);
-    } catch (IOException e) {
-      log.error("[USER] profile image can't be loaded");
-      throw new RuntimeException(e);
-    }
+    BinaryContent binaryContent = getBinaryContent(profile);
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
     userRepository.save(user);
     return userMapper.toDto(user);
@@ -75,35 +72,40 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   public UserDto update(UUID id, UserUpdateRequest request, MultipartFile profile) {
     validateUserUniqueness(request.username(), request.email());
     User user = findById(id);
-    BinaryContent binaryContent = null;
-    try {
-      binaryContent = binaryContentMapper.toEntityFrom(profile);
-    } catch (IOException e) {
-      log.error("[USER] profile image can't be loaded");
-      throw new RuntimeException(e);
-    }
+    BinaryContent binaryContent = getBinaryContent(profile);
     userMapper.partialUpdate(request, binaryContent, user);
     return userMapper.toDto(user);
   }
 
   @Override
   public void delete(UUID id) {
-    deleteByIdOrThrow(id, userRepository, new APIException(ErrorCode.USERID_NOT_FOUND, id));
+    deleteByIdOrThrow(id, userRepository, new UserException(UserErrorCode.USERID_NOT_FOUND, id));
   }
 
   @Override
   protected User findById(UUID id) {
     return getOrThrow(id, userRepository::findById,
-        () -> new APIException(ErrorCode.USERID_NOT_FOUND, id));
+        new UserException(UserErrorCode.USERID_NOT_FOUND, id));
   }
 
+  // todo: distinguish create and update
   private void validateUserUniqueness(String username, String email) {
-    ensure(username,
-        userRepository::existsByUsername,
-        value -> new APIException(ErrorCode.USERNAME_ALREADY_EXIST, value));
-    ensure(email,
-        userRepository::existsByEmail,
-        value -> new APIException(ErrorCode.EMAIL_ALREADY_EXIST, value));
+    if (username != null) {
+      ensure(username, userRepository::existsByUsername,
+          new UserException(UserErrorCode.USERNAME_ALREADY_EXIST, Map.of("username", username)));
+    }
+    if (email != null) {
+      ensure(email, userRepository::existsByEmail,
+          new UserException(UserErrorCode.EMAIL_ALREADY_EXIST, Map.of("email", email)));
+    }
   }
 
+  private BinaryContent getBinaryContent(MultipartFile profile) {
+    try {
+      return binaryContentMapper.toEntityFrom(profile);
+    } catch (IOException e) {
+      log.error("[USER] profile image can't be loaded");
+      throw new CommonException(CommonErrorCode.FILE_CANT_READ, profile);
+    }
+  }
 }
