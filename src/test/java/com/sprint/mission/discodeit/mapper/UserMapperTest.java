@@ -8,8 +8,10 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
 import com.sprint.mission.discodeit.fixture.UserFixture;
+import com.sprint.mission.discodeit.fixture.UserStatusFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,19 +25,10 @@ class UserMapperTest {
   @BeforeEach
   void setup() {
     BinaryContentMapper binaryContentMapper = new BinaryContentMapperImpl();
-    UserStatusMapper userStatusMapper = new UserStatusMapperImpl();
-    userMapper = new UserMapperImpl(binaryContentMapper, userStatusMapper);
+    userMapper = new UserMapperImpl(binaryContentMapper);
 
     emptyUser = User.builder().build();
-    emptyDto = new UserDto(null, null, null, null, null);
-  }
-
-  @Test
-  @DisplayName("User toEntity(UserDto userDto);")
-  void toEntity() {
-    UserDto dto = UserFixture.createUserDto();
-    User user = userMapper.toEntity(dto);
-    notEqualsTo(user, emptyUser);
+    emptyDto = UserDto.builder().build();
   }
 
   @Test
@@ -45,7 +38,8 @@ class UserMapperTest {
   void toEntityFrom() {
     UserCreateRequest request = UserFixture.createRequest();
     BinaryContent profile = BinaryContentFixture.createEntity();
-    User user = userMapper.toEntityFrom(request, profile);
+    UserStatus status = UserStatusFixture.createEntity();
+    User user = userMapper.toEntityFrom(request, status, profile);
     notEqualsTo(user, emptyUser);
   }
 

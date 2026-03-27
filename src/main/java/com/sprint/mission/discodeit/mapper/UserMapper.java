@@ -10,17 +10,12 @@ import com.sprint.mission.discodeit.mapper.config.GlobalMapperConfig;
 import java.util.List;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(config = GlobalMapperConfig.class,
-    uses = {BinaryContentMapper.class, UserStatusMapper.class})
+@Mapper(config = GlobalMapperConfig.class, uses = BinaryContentMapper.class)
 public interface UserMapper {
 
-  User toEntity(UserDto userDto);
-
-  @Mapping(target = "status", expression = "java(userStatusMapper.init())")
-  User toEntityFrom(UserCreateRequest request, BinaryContent profile);
+  User toEntityFrom(UserCreateRequest request, UserStatus status, BinaryContent profile);
 
   @AfterMapping
   default void linkStatus(@MappingTarget User user) {

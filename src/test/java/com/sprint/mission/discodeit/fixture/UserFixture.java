@@ -4,30 +4,49 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
+import net.datafaker.Faker;
 
 public final class UserFixture {
+
+  private static final Faker faker = new Faker();
 
   private UserFixture() {
   }
 
   public static UserDto createUserDto() {
-    return new UserDto("leee", "leee@lee.com", "abcde",
-        BinaryContentFixture.createDto(),
-        UserStatusFixture.createDto());
+    return UserDto.builder()
+        .username(getName())
+        .email(getEmail())
+        .password(getPassword())
+        .build();
   }
 
   public static UserCreateRequest createRequest() {
-    UserDto dto = createUserDto();
-    return new UserCreateRequest(dto.username(), dto.email(), dto.password());
+    return new UserCreateRequest(getName(), getEmail(), getPassword());
   }
 
   public static User createEntity() {
-    UserDto dto = createUserDto();
-    return new User(dto.username(), dto.email(), dto.password(), null, null);
+    return User.builder()
+        .username(getName())
+        .email(getEmail())
+        .password(getPassword())
+        .status(UserStatusFixture.createEntity())
+        .build();
   }
 
   public static UserUpdateRequest createUpdate() {
-    UserDto dto = createUserDto();
-    return new UserUpdateRequest(dto.username(), dto.email(), dto.password());
+    return new UserUpdateRequest(getName(), getEmail(), getPassword());
+  }
+
+  private static String getPassword() {
+    return faker.credentials().password();
+  }
+
+  private static String getEmail() {
+    return faker.internet().emailAddress();
+  }
+
+  private static String getName() {
+    return faker.name().name();
   }
 }

@@ -1,15 +1,18 @@
 package com.sprint.mission.discodeit.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.sprint.mission.discodeit.entity.User;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.Builder;
 
 /**
- * DTO for {@link com.sprint.mission.discodeit.entity.User}
+ * DTO for {@link User}
  */
-public record UserDto(@NotBlank String username, @Email String email, @NotBlank String password,
-                      @NotNull BinaryContentDto profile, @NotNull UserStatusDto status) implements
-    Serializable {
+@Builder
+public record UserDto(UUID id, LocalDateTime createdAt, LocalDateTime updatedAt,
+                      String username, String email,
+                      String password, BinaryContentDto profile,
+                      boolean online) implements Serializable {
 
 }
