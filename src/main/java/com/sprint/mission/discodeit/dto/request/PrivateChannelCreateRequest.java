@@ -1,0 +1,31 @@
+package com.sprint.mission.discodeit.dto.request;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import jakarta.validation.constraints.NotEmpty;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.List;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
+public final class PrivateChannelCreateRequest implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 12345L;
+
+  private final ChannelType type = ChannelType.PRIVATE;
+
+  @NotEmpty
+  private final List<UUID> participantIds;
+
+  @JsonCreator
+  public PrivateChannelCreateRequest(
+      @JsonProperty("participantIds") List<UUID> participantIds) {
+    this.participantIds = participantIds;
+  }
+}

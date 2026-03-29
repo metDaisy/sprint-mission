@@ -47,6 +47,6 @@ public final class UserFixture {
   }
 
   private static String getName() {
-    return faker.name().lastName();
+    return faker.name().name().replace(" ", "_");
   }
 }

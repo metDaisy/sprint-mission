@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.exception.common;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,10 @@ public abstract class DiscodeitException extends RuntimeException {
   public DiscodeitException(ErrorCode errorCode, Map<String, Object> detail) {
     this(errorCode);
     addDetail(detail);
+  }
+
+  public DiscodeitException(ErrorCode errorCode, UUID id) {
+    this(errorCode);
   }
 
   public void addDetail(Map<String, Object> detail) {
