@@ -54,9 +54,9 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
 
   @Override
   public UserDto create(UserCreateRequest request, MultipartFile profile) {
-    validateUserUniqueness(request.username(), request.email());
+    validateUserUniqueness(request.getUsername(), request.getEmail());
     log.debug("[USER] Unique: username={}, email={}",
-        request.username(), request.email());
+        request.getUsername(), request.getEmail());
     BinaryContent binaryContent = getBinaryContent(profile);
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
     userRepository.save(user);
@@ -70,7 +70,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
    * */
   @Override
   public UserDto update(UUID id, UserUpdateRequest request, MultipartFile profile) {
-    validateUserUniqueness(request.username(), request.email());
+    validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
     BinaryContent binaryContent = getBinaryContent(profile);
     userMapper.partialUpdate(request, binaryContent, user);

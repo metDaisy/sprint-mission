@@ -1,82 +1,76 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.common.util.TimeConverter;
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserServiceDTO.UserResponse;
-import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusServiceDTO.UserStatusDto;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusServiceDTO.UserStatusResponse;
-import com.sprint.mission.discodeit.dto.userstatus.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.UserStatusDto;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
-    private final UserStatusService userStatusService;
 
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<UserResponse> find(@PathVariable UUID id) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.find(id));
-    }
+  private final UserService userService;
+  private final UserStatusService userStatusService;
 
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> findAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
-    }
+  @GetMapping(value = "/{id}")
+  public ResponseEntity<UserDto> find(@PathVariable UUID id) {
+    return ResponseEntity.status(HttpStatus.OK).body(userService.find(id));
+  }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> create(
-            @RequestPart @Valid UserCreateRequest userCreateRequest,
-            @RequestPart(name = "profile") @Nullable MultipartFile file) {
-        BinaryContentDto profile = getBinaryContentCreateDto(file);
-        UserDto userDto = new UserDto(userCreateRequest, profile);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(userDto));
-    }
+  @GetMapping
+  public ResponseEntity<List<UserDto>> findAll() {
+    return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
+  }
 
-    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> update(
-            @PathVariable UUID id,
-            @RequestPart @Valid UserUpdateRequest userUpdateRequest,
-            @RequestPart @Nullable MultipartFile profile) {
-        BinaryContentDto profileImageDto = getBinaryContentCreateDto(profile);
-        UserDto userDto = new UserDto(id, userUpdateRequest, profileImageDto);
-        return ResponseEntity.status(HttpStatus.OK).body(userService.update(userDto));
-    }
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<UserDto> create(
+      @RequestPart @Valid UserCreateRequest userCreateRequest,
+      @RequestPart(required = false) MultipartFile profile) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(userService.create(userCreateRequest, profile));
+  }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        userService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+  @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<UserDto> update(
+      @PathVariable UUID id,
+      @RequestPart @Valid UserUpdateRequest userUpdateRequest,
+      @RequestPart(required = false) MultipartFile profile) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(userService.update(id, userUpdateRequest, profile));
+  }
 
-    @PatchMapping(value = "/{id}/userStatus")
-    public ResponseEntity<UserStatusResponse> updateUserStatus(
-            @PathVariable UUID id,
-            @RequestBody UserStatusUpdateRequest request) {
-        UserStatusDto statusDto = new UserStatusDto(null, id, TimeConverter.toInstant(request.datetime()));
-        return ResponseEntity.status(HttpStatus.OK).body(userStatusService.update(statusDto));
-    }
+  @DeleteMapping(value = "/{id}")
+  public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    userService.delete(id);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
 
-    private BinaryContentDto getBinaryContentCreateDto(MultipartFile profile) {
-        return Optional.ofNullable(profile)
-                .map(BinaryContentDto::from)
-                .orElse(null);
-    }
+  @PatchMapping(value = "/{userId}/userStatus")
+  public ResponseEntity<UserStatusDto> updateUserStatus(
+      @PathVariable UUID userId,
+      @RequestBody @Valid UserStatusUpdateRequest request) {
+    return ResponseEntity.status(HttpStatus.OK).body(userStatusService.update(userId, request));
+  }
+
 }

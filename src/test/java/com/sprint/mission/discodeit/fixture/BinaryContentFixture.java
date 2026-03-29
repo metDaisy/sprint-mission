@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import net.datafaker.Faker;
 import org.jspecify.annotations.Nullable;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 public final class BinaryContentFixture {
@@ -30,6 +31,10 @@ public final class BinaryContentFixture {
 
   public static MultipartFile createFile() {
     return new FakeMultiPartFile(getFileName(), getSize(), getContentType(), getBytes());
+  }
+
+  public static MockMultipartFile createMockFile() {
+    return new MockMultipartFile("profile", getFileName(), getContentType(), getBytes());
   }
 
   private record FakeMultiPartFile(String name, long size, String contentType,

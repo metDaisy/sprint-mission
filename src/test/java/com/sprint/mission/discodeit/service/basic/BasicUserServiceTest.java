@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
-import com.sprint.mission.discodeit.common.exception.custom.APIException;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.common.DiscodeitException;
+import com.sprint.mission.discodeit.exception.user.UserErrorCode;
 import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
 import com.sprint.mission.discodeit.fixture.UserFixture;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -64,8 +64,8 @@ class BasicUserServiceTest {
   void fail_to_find() {
     UUID userId = UUID.randomUUID();
     Assertions.assertThatThrownBy(() -> userService.find(userId))
-        .isInstanceOf(APIException.class)
-        .hasMessage(String.join(", ", ErrorCode.USERID_NOT_FOUND.getMessage(), userId.toString()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.USERID_NOT_FOUND.getMessage());
   }
 
   @Test
@@ -87,7 +87,7 @@ class BasicUserServiceTest {
     UserDto expected = userService.create(request, profile);
     Assertions.assertThat(expected)
         .extracting("username", "email", "password", "profile.fileName")
-        .containsExactly(request.username(), request.email(), request.password(),
+        .containsExactly(request.getUsername(), request.getEmail(), request.getPassword(),
             profile.getName());
     Optional<User> user = userRepository.findById(expected.id());
     Assertions.assertThat(user)
@@ -106,15 +106,13 @@ class BasicUserServiceTest {
     UserCreateRequest request = new UserCreateRequest(userDto.username(), userDto.email(),
         userDto.password());
     Assertions.assertThatThrownBy(() -> userService.create(request, profile))
-        .isInstanceOf(APIException.class)
-        .hasMessage(
-            String.join(", ", ErrorCode.USERNAME_ALREADY_EXIST.getMessage(), request.username()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.USERNAME_ALREADY_EXIST.getMessage());
 
     UserCreateRequest request2 = new UserCreateRequest("leee", userDto.email(), userDto.password());
     Assertions.assertThatThrownBy(() -> userService.create(request2, profile))
-        .isInstanceOf(APIException.class)
-        .hasMessage(
-            String.join(", ", ErrorCode.EMAIL_ALREADY_EXIST.getMessage(), request2.email()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.EMAIL_ALREADY_EXIST.getMessage());
   }
 
   @Test
@@ -128,7 +126,7 @@ class BasicUserServiceTest {
     Assertions.assertThat(updated)
         .extracting("id", "username", "email", "password",
             "profile.fileName", "profile.size", "profile.contentType")
-        .containsExactly(userId, request.username(), request.email(), request.password(),
+        .containsExactly(userId, request.getUsername(), request.getEmail(), request.getPassword(),
             profile.getName(), profile.getSize(), profile.getContentType());
     Assertions.assertThat(updated.profile().id()).isNotEqualTo(userDto.profile().id());
   }
@@ -139,8 +137,8 @@ class BasicUserServiceTest {
     UUID userId = UUID.randomUUID();
     UserUpdateRequest request = UserFixture.createUpdate();
     Assertions.assertThatThrownBy(() -> userService.update(userId, request, null))
-        .isInstanceOf(APIException.class)
-        .hasMessage(String.join(", ", ErrorCode.USERID_NOT_FOUND.getMessage(), userId.toString()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.USERID_NOT_FOUND.getMessage());
   }
 
   @Test
@@ -154,7 +152,7 @@ class BasicUserServiceTest {
 
     Assertions.assertThat(expected)
         .extracting(UserDto::username, UserDto::password)
-        .containsExactly(request.username(), request.password());
+        .containsExactly(request.getUsername(), request.getPassword());
     Assertions.assertThat(expected.email()).isEqualTo(origin.email());
 
     Assertions.assertThat(expected.profile())
@@ -170,18 +168,16 @@ class BasicUserServiceTest {
   void fail_to_partial_update() {
     UserDto origin = userDtos.get(0);
     UUID userId = origin.id();
-    UserUpdateRequest requestForUsername = new UserUpdateRequest(userDtos.get(1).username(), null,
-        null);
+    UserUpdateRequest requestForUsername
+        = new UserUpdateRequest(userDtos.get(1).username(), null, null);
     Assertions.assertThatThrownBy(() -> userService.update(userId, requestForUsername, null))
-        .isInstanceOf(APIException.class)
-        .hasMessage(String.join(", ", ErrorCode.USERNAME_ALREADY_EXIST.getMessage(),
-            userDtos.get(1).username()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.USERNAME_ALREADY_EXIST.getMessage());
 
     UserUpdateRequest requestForEmail = new UserUpdateRequest(null, userDtos.get(3).email(), null);
     Assertions.assertThatThrownBy(() -> userService.update(userId, requestForEmail, null))
-        .isInstanceOf(APIException.class)
-        .hasMessage(
-            String.join(", ", ErrorCode.EMAIL_ALREADY_EXIST.getMessage(), userDtos.get(3).email()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.EMAIL_ALREADY_EXIST.getMessage());
   }
 
   @Test
@@ -190,8 +186,8 @@ class BasicUserServiceTest {
     UUID userId = userDtos.get(0).id();
     userService.delete(userId);
     Assertions.assertThatThrownBy(() -> userService.find(userId))
-        .isInstanceOf(APIException.class)
-        .hasMessage(String.join(", ", ErrorCode.USERID_NOT_FOUND.getMessage(), userId.toString()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.USERID_NOT_FOUND.getMessage());
   }
 
   @Test
@@ -200,7 +196,7 @@ class BasicUserServiceTest {
     UUID userId = userDtos.get(0).id();
     userService.delete(userId);
     Assertions.assertThatThrownBy(() -> userService.delete(userId))
-        .isInstanceOf(APIException.class)
-        .hasMessage(String.join(", ", ErrorCode.USERID_NOT_FOUND.getMessage(), userId.toString()));
+        .isInstanceOf(DiscodeitException.class)
+        .hasMessage(UserErrorCode.USERID_NOT_FOUND.getMessage());
   }
 }

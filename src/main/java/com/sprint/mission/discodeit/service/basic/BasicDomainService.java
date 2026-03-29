@@ -1,23 +1,16 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.exception.custom.APIException;
 import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
 import com.sprint.mission.discodeit.exception.common.CommonException;
 import com.sprint.mission.discodeit.exception.common.DiscodeitException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 // todo: add log
 public abstract class BasicDomainService<T> {
-
-  protected <R, U> U getOrThrow(R value, Function<R, Optional<U>> action,
-      Supplier<? extends APIException> exception) {
-    return action.apply(value).orElseThrow(exception);
-  }
 
   protected <R, U> U getOrThrow(R value, Function<R, Optional<U>> action,
       DiscodeitException exception) {
