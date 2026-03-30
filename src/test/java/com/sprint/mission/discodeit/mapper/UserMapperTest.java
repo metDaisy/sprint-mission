@@ -72,8 +72,7 @@ class UserMapperTest {
   private static void notEqualsTo(UserDto userDto, UserDto emptyDto) {
     assertAll(
         () -> assertNotEquals(userDto.username(), emptyDto.username()),
-        () -> assertNotEquals(userDto.email(), emptyDto.email()),
-        () -> assertNotEquals(userDto.password(), emptyDto.password())
+        () -> assertNotEquals(userDto.email(), emptyDto.email())
     );
   }
 }

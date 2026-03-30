@@ -16,24 +16,24 @@ import org.hibernate.annotations.Immutable;
 @Table(name = "binary_contents")
 @Immutable
 public class BinaryContent extends BaseEntity {
-    @Column(nullable = false)
-    private String fileName;
 
-    @Column(nullable = false)
-    private Long size;
+  @Column(nullable = false)
+  private String fileName;
 
-    @Column(nullable = false, length = 100)
-    private String contentType;
+  @Column(nullable = false)
+  private Long size;
 
-    @Column(nullable = false)
-    private byte[] bytes;
+  @Column(nullable = false, length = 100)
+  private String contentType;
 
-    @Builder
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
-        this.fileName = fileName;
-        this.size = size;
-        this.contentType = contentType;
-        this.bytes = bytes;
-    }
+  @Column(nullable = false)
+  private byte[] bytes;
 
+  @Builder
+  public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
+    this.fileName = fileName;
+    this.size = size;
+    this.contentType = contentType;
+    this.bytes = bytes;
+  }
 }

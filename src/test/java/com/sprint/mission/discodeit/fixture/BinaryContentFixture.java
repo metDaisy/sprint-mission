@@ -33,6 +33,10 @@ public final class BinaryContentFixture {
     return new FakeMultiPartFile(getFileName(), getSize(), getContentType(), getBytes());
   }
 
+  public static MockMultipartFile toMockFile(BinaryContent profile) {
+    return new MockMultipartFile("profile", profile.getFileName(), profile.getContentType(), profile.getBytes());
+  }
+
   public static MockMultipartFile createMockFile() {
     return new MockMultipartFile("profile", getFileName(), getContentType(), getBytes());
   }

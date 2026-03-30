@@ -4,11 +4,15 @@ import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.common.DiscodeitException;
 import com.sprint.mission.discodeit.exception.user.UserErrorCode;
 import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
 import com.sprint.mission.discodeit.fixture.UserFixture;
+import com.sprint.mission.discodeit.fixture.UserStatusFixture;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.transaction.Transactional;
@@ -37,26 +41,32 @@ class BasicUserServiceTest {
   @Autowired
   private UserService userService;
 
-  private List<UserDto> userDtos = new ArrayList<>();
+  @Autowired
+  private UserMapper userMapper;
+
+  private List<User> users = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
-    userDtos.clear();
+    users.clear();
     for (int i = 0; i < 10; i++) {
       UserCreateRequest request = UserFixture.createRequest();
-      MultipartFile profile = BinaryContentFixture.createFile();
-      userDtos.add(userService.create(request, profile));
+      UserStatus status = UserStatusFixture.createOnline();
+      BinaryContent profile = BinaryContentFixture.createEntity();
+      User user = userMapper.toEntityFrom(request, status, profile);
+      userRepository.save(user);
+      users.add(user);
     }
   }
 
   @Test
   @DisplayName("success to find user by id")
   void success_to_find() {
-    UserDto userDto = userDtos.get(0);
-    UserDto expected = userService.find(userDto.id());
+    User user = users.get(0);
+    UserDto expected = userService.find(user.getId());
     Assertions.assertThat(expected)
-        .extracting("id", "username", "email", "password")
-        .containsExactly(userDto.id(), userDto.username(), userDto.email(), userDto.password());
+        .extracting("id", "username", "email")
+        .containsExactly(user.getId(), user.getUsername(), user.getEmail());
   }
 
   @Test
@@ -75,7 +85,7 @@ class BasicUserServiceTest {
     for (int i = 0; i < 10; i++) {
       Assertions.assertThat(expected.get(i))
           .usingRecursiveComparison()
-          .isEqualTo(userDtos.get(i));
+          .isEqualTo(userMapper.toDto(users.get(i)));
     }
   }
 
@@ -86,9 +96,8 @@ class BasicUserServiceTest {
     MultipartFile profile = BinaryContentFixture.createFile();
     UserDto expected = userService.create(request, profile);
     Assertions.assertThat(expected)
-        .extracting("username", "email", "password", "profile.fileName")
-        .containsExactly(request.getUsername(), request.getEmail(), request.getPassword(),
-            profile.getName());
+        .extracting("username", "email", "profile.fileName")
+        .containsExactly(request.getUsername(), request.getEmail(), profile.getName());
     Optional<User> user = userRepository.findById(expected.id());
     Assertions.assertThat(user)
         .isNotEmpty()
@@ -100,16 +109,16 @@ class BasicUserServiceTest {
   @Test
   @DisplayName("fail to create user due to existing username and email")
   void fail_to_create() {
-    UserDto userDto = userDtos.get(0);
+    User user = users.get(0);
     MultipartFile profile = BinaryContentFixture.createFile();
 
-    UserCreateRequest request = new UserCreateRequest(userDto.username(), userDto.email(),
-        userDto.password());
+    UserCreateRequest request = new UserCreateRequest(user.getUsername(), user.getEmail(),
+        user.getPassword());
     Assertions.assertThatThrownBy(() -> userService.create(request, profile))
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.USERNAME_ALREADY_EXIST.getMessage());
 
-    UserCreateRequest request2 = new UserCreateRequest("leee", userDto.email(), userDto.password());
+    UserCreateRequest request2 = new UserCreateRequest("leee", user.getEmail(), user.getPassword());
     Assertions.assertThatThrownBy(() -> userService.create(request2, profile))
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.EMAIL_ALREADY_EXIST.getMessage());
@@ -118,17 +127,18 @@ class BasicUserServiceTest {
   @Test
   @DisplayName("success to update user")
   void success_to_update() {
-    UserDto userDto = userDtos.get(0);
-    UUID userId = userDto.id();
+    User user = users.get(0);
+    UUID userId = user.getId();
+    UUID originProfileId = user.getProfile().getId();
     UserUpdateRequest request = UserFixture.createUpdate();
     MultipartFile profile = BinaryContentFixture.createFile();
     UserDto updated = userService.update(userId, request, profile);
     Assertions.assertThat(updated)
-        .extracting("id", "username", "email", "password",
-            "profile.fileName", "profile.size", "profile.contentType")
-        .containsExactly(userId, request.getUsername(), request.getEmail(), request.getPassword(),
-            profile.getName(), profile.getSize(), profile.getContentType());
-    Assertions.assertThat(updated.profile().id()).isNotEqualTo(userDto.profile().id());
+        .extracting("id", "username", "email", "profile.fileName", "profile.size", "profile.contentType")
+        .containsExactly(userId, request.getUsername(), request.getEmail(), profile.getName(), profile.getSize(), profile.getContentType());
+    Assertions.assertThat(updated.profile().id())
+        .isNotNull()
+        .isNotEqualTo(originProfileId);
   }
 
   @Test
@@ -144,37 +154,36 @@ class BasicUserServiceTest {
   @Test
   @DisplayName("success to update partially, where username, password, profile image")
   void success_to_partial_update() {
-    UserDto origin = userDtos.get(0);
-    UUID userId = origin.id();
+    User originUser = users.get(0);
+    UUID userId = originUser.getId();
+    UUID originProfileId = originUser.getProfile().getId();
     UserUpdateRequest request = new UserUpdateRequest("leee", null, "leee1234");
     MultipartFile profile = BinaryContentFixture.createFile();
     UserDto expected = userService.update(userId, request, profile);
 
     Assertions.assertThat(expected)
-        .extracting(UserDto::username, UserDto::password)
-        .containsExactly(request.getUsername(), request.getPassword());
-    Assertions.assertThat(expected.email()).isEqualTo(origin.email());
+        .extracting("id", "username", "email")
+        .containsExactly(userId, "leee", originUser.getEmail());
 
     Assertions.assertThat(expected.profile())
         .returns(profile.getName(), Assertions.from(BinaryContentDto::fileName))
         .returns(profile.getSize(), Assertions.from(BinaryContentDto::size))
-        .returns(profile.getContentType(), Assertions.from(BinaryContentDto::contentType))
-        .extracting(BinaryContentDto::id)
-        .isNotEqualTo(origin.profile().id());
+        .returns(profile.getContentType(), Assertions.from(BinaryContentDto::contentType));
+    Assertions.assertThat(expected.profile().id()).isNotEqualTo(originProfileId);
   }
 
   @Test
   @DisplayName("fail to update partially, since either username or email already exist")
   void fail_to_partial_update() {
-    UserDto origin = userDtos.get(0);
-    UUID userId = origin.id();
+    User user = users.get(0);
+    UUID userId = user.getId();
     UserUpdateRequest requestForUsername
-        = new UserUpdateRequest(userDtos.get(1).username(), null, null);
+        = new UserUpdateRequest(users.get(1).getUsername(), null, null);
     Assertions.assertThatThrownBy(() -> userService.update(userId, requestForUsername, null))
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.USERNAME_ALREADY_EXIST.getMessage());
 
-    UserUpdateRequest requestForEmail = new UserUpdateRequest(null, userDtos.get(3).email(), null);
+    UserUpdateRequest requestForEmail = new UserUpdateRequest(null, users.get(3).getEmail(), null);
     Assertions.assertThatThrownBy(() -> userService.update(userId, requestForEmail, null))
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.EMAIL_ALREADY_EXIST.getMessage());
@@ -183,7 +192,7 @@ class BasicUserServiceTest {
   @Test
   @DisplayName("success to delete")
   void success_to_delete() {
-    UUID userId = userDtos.get(0).id();
+    UUID userId = users.get(0).getId();
     userService.delete(userId);
     Assertions.assertThatThrownBy(() -> userService.find(userId))
         .isInstanceOf(DiscodeitException.class)
@@ -193,7 +202,7 @@ class BasicUserServiceTest {
   @Test
   @DisplayName("fail to delete since deleted user")
   void fail_to_delete() {
-    UUID userId = userDtos.get(0).id();
+    UUID userId = users.get(0).getId();
     userService.delete(userId);
     Assertions.assertThatThrownBy(() -> userService.delete(userId))
         .isInstanceOf(DiscodeitException.class)

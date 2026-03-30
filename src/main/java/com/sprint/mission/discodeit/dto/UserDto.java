@@ -12,7 +12,7 @@ import lombok.Builder;
 @Builder
 public record UserDto(UUID id, LocalDateTime createdAt, LocalDateTime updatedAt,
                       String username, String email,
-                      String password, BinaryContentDto profile,
+                      BinaryContentDto profile,
                       boolean online) implements Serializable {
 
 }

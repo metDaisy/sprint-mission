@@ -17,7 +17,6 @@ public final class UserFixture {
     return UserDto.builder()
         .username(getName())
         .email(getEmail())
-        .password(getPassword())
         .build();
   }
 
