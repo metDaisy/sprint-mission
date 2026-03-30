@@ -38,7 +38,7 @@ class UserMapperTest {
   void toEntityFrom() {
     UserCreateRequest request = UserFixture.createRequest();
     BinaryContent profile = BinaryContentFixture.createEntity();
-    UserStatus status = UserStatusFixture.createEntity();
+    UserStatus status = UserStatusFixture.createOnline();
     User user = userMapper.toEntityFrom(request, status, profile);
     notEqualsTo(user, emptyUser);
   }

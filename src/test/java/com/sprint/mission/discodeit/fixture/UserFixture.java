@@ -30,7 +30,7 @@ public final class UserFixture {
         .username(getName())
         .email(getEmail())
         .password(getPassword())
-        .status(UserStatusFixture.createEntity())
+        .status(UserStatusFixture.createOnline())
         .build();
   }
 
