@@ -21,7 +21,7 @@ import lombok.Setter;
 @Table(name = "user_statuses")
 public class UserStatus extends BaseUpdatableEntity {
 
-  private static final Long ACTIVE_THRESHOLD = 300L;
+  private static final Duration ONLINE_THRESHOLD_MINUTES = Duration.ofMinutes(5);
 
   @OneToOne
   @JoinColumn(name = "user_id")
@@ -36,8 +36,8 @@ public class UserStatus extends BaseUpdatableEntity {
     this.lastActiveAt = lastActiveAt;
   }
 
-  public boolean isOnline() {
-    return Duration.between(lastActiveAt, Instant.now()).getSeconds() < ACTIVE_THRESHOLD;
+  public boolean isOnline(Instant currentTime) {
+    return this.lastActiveAt.isAfter(currentTime.minus(ONLINE_THRESHOLD_MINUTES));
   }
 
 }
