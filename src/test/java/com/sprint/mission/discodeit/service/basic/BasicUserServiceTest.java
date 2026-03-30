@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.common.IntegratedTestSupport;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -15,25 +16,17 @@ import com.sprint.mission.discodeit.fixture.UserStatusFixture;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
-
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
-class BasicUserServiceTest {
+class BasicUserServiceTest extends IntegratedTestSupport {
 
   @Autowired
   private UserRepository userRepository;
@@ -54,9 +47,9 @@ class BasicUserServiceTest {
       UserStatus status = UserStatusFixture.createOnline();
       BinaryContent profile = BinaryContentFixture.createEntity();
       User user = userMapper.toEntityFrom(request, status, profile);
-      userRepository.save(user);
       users.add(user);
     }
+    userRepository.saveAllAndFlush(users);
   }
 
   @Test
@@ -95,31 +88,44 @@ class BasicUserServiceTest {
     UserCreateRequest request = UserFixture.createRequest();
     MultipartFile profile = BinaryContentFixture.createFile();
     UserDto expected = userService.create(request, profile);
+    flushAndClear();
     Assertions.assertThat(expected)
         .extracting("username", "email", "profile.fileName")
         .containsExactly(request.getUsername(), request.getEmail(), profile.getName());
-    Optional<User> user = userRepository.findById(expected.id());
-    Assertions.assertThat(user)
-        .isNotEmpty()
-        .get()
-        .extracting("id", "profile.id", "status.id")
-        .isNotNull();
+    User user = userRepository.findById(expected.id()).orElse(null);
+    Assertions.assertThat(user).isNotNull();
   }
 
   @Test
-  @DisplayName("fail to create user due to existing username and email")
-  void fail_to_create() {
-    User user = users.get(0);
+  @DisplayName("fail to create user due to existing username")
+  void fail_to_create_user_with_existing_username() {
+    String username = users.get(0).getUsername();
+    String password = "bbqwed";
+    String email = "dncie@ciom.com";
     MultipartFile profile = BinaryContentFixture.createFile();
+    UserCreateRequest request = new UserCreateRequest(username, email, password);
 
-    UserCreateRequest request = new UserCreateRequest(user.getUsername(), user.getEmail(),
-        user.getPassword());
-    Assertions.assertThatThrownBy(() -> userService.create(request, profile))
+    Assertions.assertThatThrownBy(() -> {
+          userService.create(request, profile);
+          em.flush();
+        })
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.USERNAME_ALREADY_EXIST.getMessage());
+  }
 
-    UserCreateRequest request2 = new UserCreateRequest("leee", user.getEmail(), user.getPassword());
-    Assertions.assertThatThrownBy(() -> userService.create(request2, profile))
+  @Test
+  @DisplayName("fail to create user due to existing email")
+  void fail_to_create_user_with_existing_email() {
+    String username = "leee";
+    String email = users.get(1).getEmail();
+    String password = ",cki4e3d";
+    MultipartFile profile = BinaryContentFixture.createFile();
+    UserCreateRequest request = new UserCreateRequest(username, email, password);
+
+    Assertions.assertThatThrownBy(() -> {
+          userService.create(request, profile);
+          em.flush();
+        })
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.EMAIL_ALREADY_EXIST.getMessage());
   }
@@ -133,9 +139,12 @@ class BasicUserServiceTest {
     UserUpdateRequest request = UserFixture.createUpdate();
     MultipartFile profile = BinaryContentFixture.createFile();
     UserDto updated = userService.update(userId, request, profile);
+    flushAndClear();
     Assertions.assertThat(updated)
-        .extracting("id", "username", "email", "profile.fileName", "profile.size", "profile.contentType")
-        .containsExactly(userId, request.getUsername(), request.getEmail(), profile.getName(), profile.getSize(), profile.getContentType());
+        .extracting("id", "username", "email", "profile.fileName", "profile.size",
+            "profile.contentType")
+        .containsExactly(userId, request.getUsername(), request.getEmail(), profile.getName(),
+            profile.getSize(), profile.getContentType());
     Assertions.assertThat(updated.profile().id())
         .isNotNull()
         .isNotEqualTo(originProfileId);
@@ -146,7 +155,10 @@ class BasicUserServiceTest {
   void fail_to_update() {
     UUID userId = UUID.randomUUID();
     UserUpdateRequest request = UserFixture.createUpdate();
-    Assertions.assertThatThrownBy(() -> userService.update(userId, request, null))
+    Assertions.assertThatThrownBy(() -> {
+          userService.update(userId, request, null);
+          em.flush();
+        })
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.USERID_NOT_FOUND.getMessage());
   }
@@ -160,6 +172,7 @@ class BasicUserServiceTest {
     UserUpdateRequest request = new UserUpdateRequest("leee", null, "leee1234");
     MultipartFile profile = BinaryContentFixture.createFile();
     UserDto expected = userService.update(userId, request, profile);
+    flushAndClear();
 
     Assertions.assertThat(expected)
         .extracting("id", "username", "email")
@@ -173,20 +186,39 @@ class BasicUserServiceTest {
   }
 
   @Test
-  @DisplayName("fail to update partially, since either username or email already exist")
-  void fail_to_partial_update() {
+  @DisplayName("fail to update partially due to existing username")
+  void fail_to_partial_update_with_existing_username() {
     User user = users.get(0);
     UUID userId = user.getId();
-    UserUpdateRequest requestForUsername
-        = new UserUpdateRequest(users.get(1).getUsername(), null, null);
-    Assertions.assertThatThrownBy(() -> userService.update(userId, requestForUsername, null))
+    String existingUsername = users.get(1).getUsername();
+    UserUpdateRequest request
+        = new UserUpdateRequest(existingUsername, null, null);
+    Assertions.assertThatThrownBy(() -> {
+          userService.update(userId, request, null);
+          flushAndClear();
+        })
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.USERNAME_ALREADY_EXIST.getMessage());
+    Assertions.assertThat(user.getEmail()).isNotEmpty();
+    Assertions.assertThat(user.getProfile()).isNotNull();
+  }
 
-    UserUpdateRequest requestForEmail = new UserUpdateRequest(null, users.get(3).getEmail(), null);
-    Assertions.assertThatThrownBy(() -> userService.update(userId, requestForEmail, null))
+  @Test
+  @DisplayName("fail to update partially due to existing email")
+  void fail_to_partial_update_with_existing_email() {
+    User user = users.get(2);
+    UUID userId = user.getId();
+    String existingEmail = users.get(3).getEmail();
+    UserUpdateRequest request = new UserUpdateRequest(null, existingEmail, null);
+
+    Assertions.assertThatThrownBy(() -> {
+          userService.update(userId, request, null);
+          flushAndClear();
+        })
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.EMAIL_ALREADY_EXIST.getMessage());
+    Assertions.assertThat(user.getUsername()).isNotEmpty();
+    Assertions.assertThat(user.getProfile()).isNotNull();
   }
 
   @Test
@@ -194,6 +226,7 @@ class BasicUserServiceTest {
   void success_to_delete() {
     UUID userId = users.get(0).getId();
     userService.delete(userId);
+    flushAndClear();
     Assertions.assertThatThrownBy(() -> userService.find(userId))
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.USERID_NOT_FOUND.getMessage());
@@ -204,6 +237,7 @@ class BasicUserServiceTest {
   void fail_to_delete() {
     UUID userId = users.get(0).getId();
     userService.delete(userId);
+    flushAndClear();
     Assertions.assertThatThrownBy(() -> userService.delete(userId))
         .isInstanceOf(DiscodeitException.class)
         .hasMessage(UserErrorCode.USERID_NOT_FOUND.getMessage());

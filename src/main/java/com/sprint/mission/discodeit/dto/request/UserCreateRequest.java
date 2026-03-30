@@ -9,11 +9,13 @@ import jakarta.validation.constraints.NotEmpty;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * DTO for {@link User}
  */
 @Getter
+@ToString
 public final class UserCreateRequest implements Serializable {
 
   @Serial
@@ -40,14 +42,6 @@ public final class UserCreateRequest implements Serializable {
     this.username = username;
     this.email = email;
     this.password = password;
-  }
-
-  @Override
-  public String toString() {
-    return "UserCreateRequest[" +
-        "username=" + username + ", " +
-        "email=" + email + ", " +
-        "password=" + password + ']';
   }
 
 }

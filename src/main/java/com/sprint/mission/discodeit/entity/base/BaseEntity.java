@@ -1,40 +1,52 @@
 package com.sprint.mission.discodeit.entity.base;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Transient;
+import java.time.Instant;
 import java.util.Objects;
-import lombok.AccessLevel;
+import java.util.UUID;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+public abstract class BaseEntity implements Persistable<UUID> {
 
-    @CreatedDate
-    @Column(updatable = false, nullable = false)
-    private Instant createdAt;
+  @Id
+  @Column
+  private UUID id;
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        BaseEntity that = (BaseEntity) o;
-        return Objects.equals(id, that.id);
+  @CreatedDate
+  @Column(updatable = false, nullable = false)
+  private Instant createdAt;
+
+  protected BaseEntity() {
+    this.id = UUID.randomUUID();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    BaseEntity that = (BaseEntity) o;
+    return Objects.equals(id, that.id);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(id);
+  }
+
+  @Override
+  @Transient
+  public boolean isNew() {
+    return this.createdAt == null;
+  }
 }
