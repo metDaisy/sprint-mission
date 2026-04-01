@@ -16,12 +16,12 @@ public final class ErrorResponse {
   private final String exceptionType;
   private final String code;
   private final String message;
-  private final Map<String, Object> details;
+  private final Map<String, String> details;
   private final LocalDateTime timestamp;
 
   @Builder
   private ErrorResponse(Instant timestamp, String code, String message,
-      Map<String, Object> details, String exceptionType, int status) {
+      Map<String, String> details, String exceptionType, int status) {
     this.timestamp = toLocalDateTime(timestamp);
     this.code = code;
     this.message = message;

@@ -1,22 +1,19 @@
 package com.sprint.mission.discodeit.mapper;
 
+import com.sprint.mission.discodeit.common.utils.ProxyResolver;
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.mapper.config.GlobalMapperConfig;
-import org.mapstruct.BeanMapping;
+import java.util.List;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
 
-@Mapper(config = GlobalMapperConfig.class, uses = {UserMapper.class})
-public interface ReadStatusMapper {
+@Mapper(config = GlobalMapperConfig.class, uses = ProxyResolver.class)
+public interface ReadStatusMapper extends BaseMapper<ReadStatus, ReadStatusDto> {
 
-  ReadStatus toEntity(ReadStatusDto readStatusDto);
+  ReadStatus toEntityFrom(ReadStatusCreateRequest request);
 
-  ReadStatusDto toDto(ReadStatus readStatus);
-
-  ReadStatus partialUpdate(
-      ReadStatusDto readStatusDto, @MappingTarget ReadStatus readStatus);
+  ReadStatus partialUpdate(ReadStatusUpdateRequest request, @MappingTarget ReadStatus readStatus);
 }

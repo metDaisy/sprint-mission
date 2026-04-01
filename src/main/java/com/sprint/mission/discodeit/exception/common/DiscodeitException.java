@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -11,11 +12,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class DiscodeitException extends RuntimeException {
 
-  private final Map<String, Object> details = new HashMap<>();
+  private final Map<String, String> details = new HashMap<>();
   private final Instant timestamp = Instant.now();
   private final ErrorCode errorCode;
 
-  public DiscodeitException(ErrorCode errorCode, Map<String, Object> detail) {
+  public DiscodeitException(ErrorCode errorCode, Map<String, ?> detail) {
     this(errorCode);
     addDetail(detail);
   }
@@ -24,8 +25,13 @@ public abstract class DiscodeitException extends RuntimeException {
     this(errorCode);
   }
 
-  public void addDetail(Map<String, Object> detail) {
-    details.putAll(detail);
+  public void addDetail(Map<String, ?> detail) {
+    Map<String, String> toStringMap = detail.entrySet().stream()
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            entry -> String.valueOf(entry.getValue())
+        ));
+    details.putAll(toStringMap);
   }
 
   @Override
