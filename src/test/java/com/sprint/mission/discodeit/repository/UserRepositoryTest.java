@@ -1,15 +1,10 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.config.QueryDslConfig;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.fixture.UserFixture;
 import com.sprint.mission.discodeit.fixture.UserStatusFixture;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapperImpl;
-import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.mapper.UserMapperImpl;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,36 +13,28 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@DataJpaTest
-@EnableJpaAuditing
-@Import(QueryDslConfig.class)
-@AutoConfigureTestDatabase(replace = Replace.NONE)
-class UserRepositoryTest {
+class UserRepositoryTest extends BaseRepositoryTest {
 
   @Autowired
   private UserRepository userRepository;
 
-  private UserMapper userMapper;
+  @Autowired
+  private BinaryContentRepository binaryContentRepository;
 
-  private List<User> users = new ArrayList<>();
+  @Autowired
+  private UserStatusRepository userStatusRepository;
 
   @BeforeEach
   void setUp() {
-    BinaryContentMapper binaryContentMapper = new BinaryContentMapperImpl();
-    userMapper = new UserMapperImpl(binaryContentMapper);
-    for (int i = 0; i < 10; i++) {
-      User user = getUser();
-      users.add(user);
-    }
-    userRepository.saveAllAndFlush(users);
+    initMappers();
+    initUsers(userRepository);
+    em.clear();
+    queryInspector.clear();
   }
 
   @Test
@@ -55,6 +42,7 @@ class UserRepositoryTest {
   void save_and_find_user() {
     User actual = getUser();
     userRepository.saveAndFlush(actual);
+    ensureQueryCount(3);
     User expected = userRepository.findById(actual.getId()).orElseThrow();
     Assertions.assertThat(expected)
         .isNotNull()
@@ -108,6 +96,7 @@ class UserRepositoryTest {
       Assertions.assertThat(expected)
           .isNotNull()
           .usingRecursiveComparison()
+          .withEqualsForType(this::compareInstant, Instant.class)
           .isEqualTo(user);
     }
   }
@@ -140,6 +129,7 @@ class UserRepositoryTest {
     users.forEach(user -> userIds.add(user.getId()));
     int beforeSize = userIds.size();
     List<UUID> existingUserIds = userRepository.filterExistingIds(userIds);
+    ensureQueryCount(1);
     int afterSize = existingUserIds.size();
     Assertions.assertThat(beforeSize)
         .isNotEqualTo(afterSize)
@@ -150,9 +140,19 @@ class UserRepositoryTest {
     }
   }
 
-  private User getUser() {
-    UserCreateRequest request = UserFixture.createRequest();
-    UserStatus status = UserStatusFixture.createOnline();
-    return userMapper.toEntityFrom(request, status, null);
+  @ParameterizedTest(name = "유저 삭제 시 프로필 이미지, 유저 상태도 같이 삭제 된다")
+  @ValueSource(ints = {0, 1, 2, 3})
+  void success_to_delete_user_and_related(int index) {
+    UUID userId = users.get(index).getId();
+    User user = userRepository.findById(userId).orElseThrow();
+    UserStatus status = user.getStatus();
+    BinaryContent profile = user.getProfile();
+    ensureQueryCount(1);
+    userRepository.delete(user);
+    flushAndClear();
+    ensureQueryCount(4);
+    Assertions.assertThat(userRepository.existsById(user.getId())).isFalse();
+    Assertions.assertThat(binaryContentRepository.existsById(profile.getId())).isFalse();
+    Assertions.assertThat(userStatusRepository.existsById(status.getId())).isFalse();
   }
 }
