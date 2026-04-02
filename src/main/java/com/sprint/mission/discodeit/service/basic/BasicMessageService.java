@@ -1,84 +1,78 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
-import com.sprint.mission.discodeit.common.exception.custom.APIException;
-import com.sprint.mission.discodeit.dto.message.MessageServiceDTO.AuthorAndChannelId;
-import com.sprint.mission.discodeit.dto.message.MessageServiceDTO.MessageCreateDto;
-import com.sprint.mission.discodeit.dto.message.MessageServiceDTO.MessageResponse;
-import com.sprint.mission.discodeit.dto.message.MessageServiceDTO.MessageUpdateDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelErrorCode;
+import com.sprint.mission.discodeit.exception.channel.ChannelException;
+import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
+import com.sprint.mission.discodeit.exception.common.CommonException;
+import com.sprint.mission.discodeit.exception.message.MessageErrorCode;
+import com.sprint.mission.discodeit.exception.message.MessageException;
+import com.sprint.mission.discodeit.exception.user.UserErrorCode;
+import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-@Service
 @RequiredArgsConstructor
+@Service
+@Transactional
 public class BasicMessageService extends BasicDomainService<Message> implements MessageService {
-    private final MessageRepository messageRepository;
-    private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
-    private final BinaryContentRepository attachmentRepository;
-    private final MessageMapper messageMapper;
 
-    @Override
-    public MessageResponse create(MessageCreateDto dto) {
-        ensureUserAndChannelExist(dto);
-        List<BinaryContent> attachments = dto.attachments().stream()
-                .map(BinaryContent::new)
-                .map(attachmentRepository::save)
-                .toList();
-        User user = getOrThrow(dto.authorId(), userRepository::findById, () -> new APIException(ErrorCode.USERID_NOT_FOUND, dto.authorId()));
-        Channel channel = getOrThrow(dto.channelId(), channelRepository::findById, () -> new APIException(ErrorCode.CHANNELID_NOT_FOUND, dto.channelId()));
-        Message message = Message.builder()
-                .content(dto.content())
-                .author(user)
-                .channel(channel)
-                .attachments(attachments)
-                .build();
-        messageRepository.save(message);
-        return messageMapper.toResponse(message);
-    }
+  private final MessageRepository messageRepository;
+  private final ChannelRepository channelRepository;
+  private final UserRepository userRepository;
+  private final MessageMapper messageMapper;
 
-    @Override
-    public List<MessageResponse> findAllByChannelId(UUID channelId) {
-        return messageRepository.findAllByChannelId(channelId)
-                .stream()
-                .map(messageMapper::toResponse)
-                .toList();
+  @Override
+  public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
+    ensure(request.getChannelId(), channelRepository::existsById,
+        id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
+    ensure(request.getAuthorId(), userRepository::existsById,
+        id -> new UserException(UserErrorCode.USERID_NOT_FOUND, id));
+    try {
+      Message message = messageMapper.toEntityFrom(request, attachments);
+      messageRepository.save(message);
+      return messageMapper.toDto(message);
+    } catch (IOException e) {
+      throw new CommonException(CommonErrorCode.FILE_CANT_READ);
     }
+  }
 
-    @Override
-    public MessageResponse update(MessageUpdateDto dto) {
-        Message message = findById(dto.id());
-        message.update(dto);
-        messageRepository.save(message);
-        return messageMapper.toResponse(message);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<MessageDto> findAllByChannelId(UUID channelId) {
+    return messageMapper.toDto(messageRepository.findAllByChannelId(channelId));
+  }
 
-    @Override
-    public void delete(UUID id) {
-        deleteByIdOrThrow(id, messageRepository, new APIException(ErrorCode.MESSAGEID_NOT_FOUND, id));
-    }
+  @Override
+  public MessageDto update(UUID id, MessageUpdateRequest request) {
+    Message message = findById(id);
+    messageMapper.partialUpdate(request, message);
+    return messageMapper.toDto(message);
+  }
 
-    @Override
-    protected Message findById(UUID id) {
-        return getOrThrow(id, messageRepository::findById,
-                () -> new APIException(ErrorCode.MESSAGEID_NOT_FOUND, id));
-    }
+  @Override
+  public void delete(UUID id) {
+    deleteByIdOrThrow(id, messageRepository,
+        messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
+  }
 
-    private void ensureUserAndChannelExist(AuthorAndChannelId dto) {
-        ensure(dto.authorId(), userRepository::existsById, id -> new APIException(ErrorCode.USERID_NOT_FOUND, id));
-        ensure(dto.channelId(), channelRepository::existsById, id -> new APIException(ErrorCode.CHANNELID_NOT_FOUND, id));
-    }
+  @Override
+  protected Message findById(UUID id) {
+    return getOrThrow(id, messageRepository::findById,
+        messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
+  }
+
 }
