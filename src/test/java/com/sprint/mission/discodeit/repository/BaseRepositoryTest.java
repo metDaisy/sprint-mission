@@ -8,8 +8,10 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
 import com.sprint.mission.discodeit.fixture.ChannelFixture;
 import com.sprint.mission.discodeit.fixture.UserFixture;
@@ -25,7 +27,9 @@ import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -48,11 +52,13 @@ public abstract class BaseRepositoryTest {
   protected UserMapper userMapper;
   protected ChannelMapper channelMapper;
   protected BinaryContentMapper binaryContentMapper;
+
   protected List<User> users = new ArrayList<>();
   protected List<Channel> channels = new ArrayList<>();
   protected List<Message> messages = new ArrayList<>();
   protected List<BinaryContent> binaryContents = new ArrayList<>();
   protected List<UserStatus> userStatuses = new ArrayList<>();
+  protected List<ReadStatus> readStatuses = new ArrayList<>();
 
   protected void initMappers() {
     binaryContentMapper = new BinaryContentMapperImpl();
@@ -79,7 +85,9 @@ public abstract class BaseRepositoryTest {
   }
 
   protected void initPrivateChannel(ChannelRepository repository) {
-    repository.saveAndFlush(getPrivateChannel());
+    Channel channel = getPrivateChannel();
+    repository.saveAndFlush(channel);
+    readStatuses.addAll(channel.getReadStatuses());
   }
 
   protected User getUser() {
@@ -108,6 +116,12 @@ public abstract class BaseRepositoryTest {
   }
 
   protected boolean compareInstant(Instant a, Instant b) {
+    if (a == null && b == null) {
+      return true;
+    }
+    if (a == null || b == null) {
+      return false;
+    }
     return toTruncated(a).equals(toTruncated(b));
   }
 
