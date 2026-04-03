@@ -13,10 +13,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public final class PrivateChannelCreateRequest implements Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 12345L;
+public final class PrivateChannelCreateRequest {
 
   private final ChannelType type = ChannelType.PRIVATE;
 

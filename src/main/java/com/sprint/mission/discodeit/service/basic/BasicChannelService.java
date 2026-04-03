@@ -6,15 +6,19 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +30,9 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
 
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
+  private final ReadStatusRepository readStatusRepository;
   private final ChannelMapper channelMapper;
+  private final ReadStatusMapper readStatusMapper;
 
   @Override
   public ChannelDto createPublic(PublicChannelCreateRequest request) {
@@ -38,10 +44,11 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
   // todo: [warn] user id not found
   @Override
   public ChannelDto createPrivate(PrivateChannelCreateRequest request) {
-    List<UUID> participantIds = userRepository.filterExistingIds(request.getParticipantIds());
-    List<User> participants = userRepository.getReferenceById(participantIds);
-    Channel channel = channelMapper.toEntityFrom(ChannelType.PRIVATE, participants);
+    Channel channel = channelMapper.toEntityFrom(request);
     channelRepository.save(channel);
+    List<UUID> participantIds = userRepository.filterExistingIds(request.getParticipantIds());
+    List<ReadStatus> readStatuses = readStatusMapper.toEntityFrom(channel, participantIds);
+    readStatusRepository.saveAll(readStatuses);
     return channelMapper.toDto(channel);
   }
 
@@ -61,8 +68,8 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
 
   @Override
   public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
-    ensure(request.getType(), ChannelType.PUBLIC::equals,
-        new ChannelException(ChannelErrorCode.PRIVATE_CHANNEL_CANT_BE_UPDATED, id));
+    ensure(request.getType(), Predicate.not(ChannelType.PUBLIC::equals),
+        value -> new ChannelException(ChannelErrorCode.PRIVATE_CHANNEL_CANT_BE_UPDATED, id));
 
     Channel channel = findById(id);
     channelMapper.partialUpdate(request, channel);
@@ -72,13 +79,13 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
   @Override
   public void delete(UUID id) {
     deleteByIdOrThrow(id, channelRepository,
-        new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
+        value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 
   @Override
   protected Channel findById(UUID id) {
-    return getOrThrow(id, channelRepository::findByIdWithLastMsgAt,
-        new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
+    return getOrThrow(id, channelRepository::findById,
+        value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 
 }
