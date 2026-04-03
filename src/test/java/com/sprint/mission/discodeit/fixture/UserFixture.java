@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import java.util.List;
+import java.util.stream.IntStream;
 import net.datafaker.Faker;
 
 public final class UserFixture {
@@ -35,6 +37,12 @@ public final class UserFixture {
     UserStatus status = UserStatusFixture.createOnline();
     user.setStatus(status);
     return user;
+  }
+
+  public static List<User> createEntities() {
+    return IntStream.range(0, 3)
+        .mapToObj(i -> createEntity())
+        .toList();
   }
 
   public static UserUpdateRequest createUpdate() {

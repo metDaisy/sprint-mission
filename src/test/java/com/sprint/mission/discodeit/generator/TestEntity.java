@@ -21,8 +21,13 @@ public class TestEntity {
     return persistAndFlush(user);
   }
 
-  public Channel generatorChannel() {
+  public Channel generatorPublicChannel() {
     Channel channel = ChannelFixture.createPublic();
+    return persistAndFlush(channel);
+  }
+
+  public Channel generatorPrivateChannel() {
+    Channel channel = ChannelFixture.createPrivate();
     return persistAndFlush(channel);
   }
 
