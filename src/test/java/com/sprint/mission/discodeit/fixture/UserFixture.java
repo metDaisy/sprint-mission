@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import net.datafaker.Faker;
 
 public final class UserFixture {
@@ -25,12 +26,15 @@ public final class UserFixture {
   }
 
   public static User createEntity() {
-    return User.builder()
+    User user = User.builder()
         .username(getName())
         .email(getEmail())
         .password(getPassword())
-        .status(UserStatusFixture.createOnline())
+        .profile(BinaryContentFixture.createEntity())
         .build();
+    UserStatus status = UserStatusFixture.createOnline();
+    user.setStatus(status);
+    return user;
   }
 
   public static UserUpdateRequest createUpdate() {

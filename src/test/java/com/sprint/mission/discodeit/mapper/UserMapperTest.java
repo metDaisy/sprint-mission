@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.mapper;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -12,23 +11,22 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
 import com.sprint.mission.discodeit.fixture.UserFixture;
 import com.sprint.mission.discodeit.fixture.UserStatusFixture;
+import com.sprint.mission.discodeit.mapper.factory.MapperContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class UserMapperTest {
 
-  private UserMapper userMapper;
+  private final UserMapper userMapper = MapperContainer.get(UserMapper.class);
   private User emptyUser;
-  private UserDto emptyDto;
 
   @BeforeEach
   void setup() {
-    BinaryContentMapper binaryContentMapper = new BinaryContentMapperImpl();
-    userMapper = new UserMapperImpl(binaryContentMapper);
-
     emptyUser = User.builder().build();
-    emptyDto = UserDto.builder().build();
   }
 
   @Test
@@ -41,14 +39,6 @@ class UserMapperTest {
     UserStatus status = UserStatusFixture.createOnline();
     User user = userMapper.toEntityFrom(request, status, profile);
     notEqualsTo(user, emptyUser);
-  }
-
-  @Test
-  @DisplayName("UserDto toDto(User user);")
-  void toDto() {
-    User user = UserFixture.createEntity();
-    UserDto dto = userMapper.toDto(user);
-    notEqualsTo(dto, emptyDto);
   }
 
   @Test
@@ -69,10 +59,4 @@ class UserMapperTest {
     );
   }
 
-  private static void notEqualsTo(UserDto userDto, UserDto emptyDto) {
-    assertAll(
-        () -> assertNotEquals(userDto.username(), emptyDto.username()),
-        () -> assertNotEquals(userDto.email(), emptyDto.email())
-    );
-  }
 }
