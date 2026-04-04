@@ -40,20 +40,34 @@ class UserRepositoryTest extends BaseRepositoryTest {
       """
           유저를 저장하고 조회한다
           profile이 존재하면 insert query가 3개, 그렇지 않으면 2개 생성된다
-          조회 시 query 1개 생성된다
+          조회 시 query 2개 생성된다
           """
   )
   void save_and_find_user() {
-    User actual = testEntity.generatorUser();
+    User expected = testEntity.generatorUser();
+    queryInspector.logQueries();
     ensureQueryCount(3);
     clear();
-    User expected = userRepository.findById(actual.getId()).orElseThrow();
-    Assertions.assertThat(expected)
-        .isNotNull()
+
+    User actual = userRepository.findById(expected.getId()).orElseThrow();
+    Assertions.assertThat(actual)
         .usingRecursiveComparison()
+        .ignoringFields("status", "profile")
         .withEqualsForType(this::compareInstant, Instant.class)
-        .isEqualTo(actual);
-    ensureQueryCount(1);
+        .isEqualTo(expected);
+
+    Assertions.assertThat(actual.getStatus())
+        .usingRecursiveComparison()
+        .ignoringFields("user")
+        .withEqualsForType(this::compareInstant, Instant.class)
+        .isEqualTo(expected.getStatus());
+
+    Assertions.assertThat(actual.getProfile())
+        .usingRecursiveComparison()
+        .comparingOnlyFields("fileName", "size", "contentType", "bytes") // 💡 핵심!
+        .isEqualTo(expected.getProfile());
+    queryInspector.logQueries();
+    ensureQueryCount(2);
   }
 
   @Test

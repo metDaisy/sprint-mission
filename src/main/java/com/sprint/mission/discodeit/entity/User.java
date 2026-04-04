@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -31,6 +32,7 @@ public class User extends BaseUpdatableEntity {
   private String password;
 
   @OneToOne(
+      fetch = FetchType.LAZY,
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},
       orphanRemoval = true)
   @JoinColumn(name = "profile_id")
@@ -56,4 +58,8 @@ public class User extends BaseUpdatableEntity {
     return status.isOnline(Instant.now());
   }
 
+  public void setStatus(UserStatus status) {
+    this.status = status;
+    status.setUser(this);
+  }
 }
