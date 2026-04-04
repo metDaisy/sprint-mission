@@ -8,10 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum UserErrorCode implements ErrorCode {
   USERID_NOT_FOUND(404, "U001", "User id not found"),
-  USERNAME_OR_PASSWORD_INCORRECT(404, "U002", "Username or password incorrect"),
+  USERSTATUS_NOT_FOUND(404, "U002", "UserStatus not found"),
   USERNAME_ALREADY_EXIST(400, "U003", "Username already exists"),
   EMAIL_ALREADY_EXIST(400, "U004", "Email already exists"),
-  USERSTATUS_NOT_FOUND(404, "U005", "UserStatus not found")
   ;
 
   private final int status;

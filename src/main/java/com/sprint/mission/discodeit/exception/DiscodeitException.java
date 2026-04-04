@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.exception.common;
+package com.sprint.mission.discodeit.exception;
 
+import com.sprint.mission.discodeit.exception.common.ErrorCode;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;

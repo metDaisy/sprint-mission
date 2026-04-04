@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.exception.common;
 
+import com.sprint.mission.discodeit.exception.DiscodeitException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
