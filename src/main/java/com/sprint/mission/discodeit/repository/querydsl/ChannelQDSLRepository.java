@@ -7,9 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelQDSLRepository {
-    Optional<Channel> findByIdWithLastMsgAt(UUID id);
+    Optional<Channel> findByIdWithLastMessageAt(UUID id);
 
-    List<Channel> findAllWithLastMsgAt();
+    List<Channel> findAllWithLastMessageAt();
 
-    List<Channel> findVisibleToWithLastMsgAt(UUID userId);
+    List<Channel> findVisibleToWithLastMessageAt(UUID userId);
 }

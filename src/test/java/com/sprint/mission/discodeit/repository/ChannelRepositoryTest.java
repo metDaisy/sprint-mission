@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.fixture.ChannelFixture;
@@ -10,7 +12,9 @@ import com.sprint.mission.discodeit.generator.TestEntity;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +37,8 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
 
   @Autowired
   private TestEntity testEntity;
+  @Autowired
+  private BinaryContentRepository binaryContentRepository;
 
   @BeforeEach
   void setUp() {
@@ -41,19 +47,24 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
 
   @Test
   @DisplayName(
-      "public channel 생성 후 조회 성공한다\n"
-          + "조회 시 query 1개 생성한다"
+      """
+          public channel 생성 후 조회 성공한다
+          조회 시 query 1개 생성한다
+          lastMessageAt은 존재한다
+          """
   )
   void success_to_create_and_find_public() {
-    Channel actual = testEntity.generatorPublicChannel();
-    ensureQueryCount(1);
+    Message message = testEntity.generatorMessage();
+    Channel actual = message.getChannel();
     clear();
     Channel expected = channelRepository.findByIdWithLastMessageAt(actual.getId()).orElseThrow();
     ensureQueryCount(1);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
+        .ignoringFields("lastMessageAt")
         .withEqualsForType(this::compareInstant, Instant.class)
         .isEqualTo(expected);
+    Assertions.assertThat(expected.getLastMessageAt()).isNotNull();
   }
 
   @Test
@@ -130,6 +141,31 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
         .hasSize(expectedPublicChannelIds.size() + expectedPrivateChannelIds.size())
         .containsAll(expectedPublicChannelIds)
         .containsAll(expectedPrivateChannelIds);
+  }
+
+  @Test
+  @DisplayName(
+      "public channel 삭제 시 연관된 message만 삭제된다\n"
+      + "이 message와 연관된 binary content은 삭제되지 않는다"
+  )
+  void success_to_delete_channel_with_messages_and_attachments() {
+    Message message = testEntity.generatorMessage();
+    queryInspector.logQueries();
+    User user = message.getAuthor();
+    Channel expected = message.getChannel();
+    Set<BinaryContent> attachments = message.getAttachments();
+    clear();
+    channelRepository.deleteById(expected.getId());
+    em.flush();
+    queryInspector.logQueries();
+    clear();
+
+    Assertions.assertThat(channelRepository.existsById(expected.getId())).isFalse();
+    Assertions.assertThat(messageRepository.existsById(message.getId())).isFalse();
+    Assertions.assertThat(attachments)
+        .extracting(BinaryContent::getId)
+        .allMatch(binaryContentRepository::existsById);
+    Assertions.assertThat(userRepository.existsById(user.getId())).isTrue();
   }
 
   private List<ReadStatus> getReadStatuses(
