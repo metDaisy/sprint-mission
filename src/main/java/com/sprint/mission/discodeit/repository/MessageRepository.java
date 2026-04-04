@@ -15,8 +15,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
   @Query("select m from Message m join fetch m.channel c where c.id = :channelId")
   List<Message> findAllByChannelId(@Param("channelId") UUID channelId);
 
-  @Override
   @EntityGraph(attributePaths = {"author", "channel", "attachments", "author.status",
       "author.profile"})
-  Optional<Message> findById(UUID uuid);
+  Optional<Message> findWithFetchJoinById(UUID uuid);
 }

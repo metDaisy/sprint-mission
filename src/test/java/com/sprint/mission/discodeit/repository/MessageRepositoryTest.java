@@ -7,8 +7,6 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
 import com.sprint.mission.discodeit.fixture.MessageFixture;
 import com.sprint.mission.discodeit.generator.TestEntity;
-import com.sprint.mission.discodeit.mapper.MessageMapper;
-import com.sprint.mission.discodeit.mapper.factory.MapperContainer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +32,6 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   private BinaryContentRepository binaryContentRepository;
   @Autowired
   private TestEntity testEntity;
-
-  private final MessageMapper messageMapper = MapperContainer.get(MessageMapper.class);
 
   @BeforeEach
   void setUp() {
@@ -65,7 +61,7 @@ class MessageRepositoryTest extends BaseRepositoryTest {
     ensureQueryCount(3);
     clear();
 
-    Message actual = messageRepository.findById(expected.getId()).orElseThrow();
+    Message actual = messageRepository.findWithFetchJoinById(expected.getId()).orElseThrow();
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
         .withEqualsForType(this::compareInstant, Instant.class)
@@ -156,7 +152,7 @@ class MessageRepositoryTest extends BaseRepositoryTest {
     queryInspector.logQueries();
     ensureQueryCount(1);
 
-    Message actual = messageRepository.findById(expected.getId()).orElseThrow();
+    Message actual = messageRepository.findWithFetchJoinById(expected.getId()).orElseThrow();
     Assertions.assertThat(actual.getContent())
         .isNotEqualTo(oldValue)
         .isEqualTo(newValue);
