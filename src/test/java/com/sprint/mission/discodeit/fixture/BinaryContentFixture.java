@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.IntStream;
 import net.datafaker.Faker;
 import org.jspecify.annotations.Nullable;
 import org.springframework.mock.web.MockMultipartFile;
@@ -18,6 +20,12 @@ public final class BinaryContentFixture {
 
   public static BinaryContent createEntity() {
     return new BinaryContent(getFileName(), getSize(), getContentType(), getBytes());
+  }
+
+  public static List<BinaryContent> createEntities() {
+    return IntStream.range(0, 3)
+        .mapToObj(i -> createEntity())
+        .toList();
   }
 
   public static BinaryContentDto createDto() {

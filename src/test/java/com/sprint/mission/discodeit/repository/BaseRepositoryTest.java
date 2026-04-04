@@ -17,7 +17,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @Import({QueryDslConfig.class, HibernateConfig.class,
     QueryInspector.class, TestEntity.class})
-@DataJpaTest
+@DataJpaTest(properties = {
+    "spring.jpa.show-sql=false",
+    "spring.jpa.properties.hibernate.show_sql=false"
+})
 @EnableJpaAuditing
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 public abstract class BaseRepositoryTest {
