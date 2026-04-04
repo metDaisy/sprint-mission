@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.common.utils.ProxyResolver;
 import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
@@ -9,9 +8,8 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.fixture.ChannelFixture;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
-import com.sprint.mission.discodeit.mapper.ChannelMapperImpl;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
-import com.sprint.mission.discodeit.mapper.ReadStatusMapperImpl;
+import com.sprint.mission.discodeit.mapper.factory.MapperContainer;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -41,14 +39,12 @@ class BasicChannelServiceTest {
   @Mock
   private UserRepository userRepository;
 
-  private ChannelMapper channelMapper;
+  private final ChannelMapper channelMapper = MapperContainer.get(ChannelMapper.class);
   private BasicChannelService channelService;
 
   @BeforeEach
   void setUp() {
-    ProxyResolver proxyResolver = new ProxyResolver(userRepository, channelRepository);
-    channelMapper = new ChannelMapperImpl();
-    ReadStatusMapper readStatusMapper = new ReadStatusMapperImpl(proxyResolver);
+    ReadStatusMapper readStatusMapper = MapperContainer.get(ReadStatusMapper.class);
     channelService = new BasicChannelService(userRepository, channelRepository,
         readStatusRepository, channelMapper, readStatusMapper);
   }

@@ -6,6 +6,8 @@ import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.mapper.ChannelMapperImpl;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapperImpl;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapperImpl;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserMapperImpl;
 import java.util.HashMap;
@@ -24,6 +26,8 @@ public final class MapperContainer {
     container.put(ChannelMapper.class, channelMapper);
     MessageMapper messageMapper = new MessageMapperImpl(binaryContentMapper);
     container.put(MessageMapper.class, messageMapper);
+    ReadStatusMapper readStatusMapper = new ReadStatusMapperImpl();
+    container.put(ReadStatusMapper.class, readStatusMapper);
   }
 
   public static <T> T get(Class<T> type) {
