@@ -13,7 +13,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
 @Mapper(config = GlobalMapperConfig.class, uses = BinaryContentMapper.class)
-public interface UserMapper {
+public interface UserMapper extends BaseMapper<User, UserDto> {
 
   User toEntityFrom(UserCreateRequest request, UserStatus status, BinaryContent profile);
 
@@ -24,10 +24,6 @@ public interface UserMapper {
       status.setUser(user);
     }
   }
-
-  UserDto toDto(User user);
-
-  List<UserDto> toDto(List<User> users);
 
   User partialUpdate(UserUpdateRequest request, BinaryContent profile, @MappingTarget User user);
 }
