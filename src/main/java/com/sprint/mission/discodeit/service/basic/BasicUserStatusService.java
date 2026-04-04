@@ -30,9 +30,8 @@ public class BasicUserStatusService extends BasicDomainService<UserStatus>
   }
 
   @Override
-  @Transactional(readOnly = true)
   protected UserStatus findById(UUID userId) {
     return getOrThrow(userId, userStatusRepository::findByUserId,
-        new UserException(UserErrorCode.USERSTATUS_NOT_FOUND, userId));
+        value -> new UserException(UserErrorCode.USERSTATUS_NOT_FOUND, value));
   }
 }

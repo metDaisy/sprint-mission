@@ -25,7 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class BasicReadStatusService extends BasicDomainService<ReadStatus> implements ReadStatusService {
+public class BasicReadStatusService extends BasicDomainService<ReadStatus>
+    implements ReadStatusService {
 
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
@@ -33,6 +34,7 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
   private final ReadStatusMapper readStatusMapper;
 
   @Override
+  @Transactional(readOnly = true)
   public List<ReadStatusDto> findAllByUserId(UUID userId) {
     return readStatusMapper.toDto(readStatusRepository.findAllByUserId(userId));
   }
@@ -44,6 +46,7 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
     return readStatusMapper.toDto(status);
   }
 
+  @Transactional(readOnly = true)
   public ReadStatusDto find(UUID id) {
     return readStatusMapper.toDto(findById(id));
   }
@@ -69,8 +72,11 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus> imple
   @Override
   @Transactional(readOnly = true)
   public ReadStatusDto find(UUID userId, UUID channelId) {
-    ReadStatus status = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
-        .orElse(null);
+    ReadStatus status = getOrThrow(
+        Map.of("userId", userId, "channelId", channelId),
+        map -> readStatusRepository.findByUserIdAndChannelId(map.get("userId"),
+            map.get("channelId")),
+        map -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, map));
     return readStatusMapper.toDto(status);
   }
 

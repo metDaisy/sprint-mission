@@ -46,8 +46,11 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
   public ChannelDto createPrivate(PrivateChannelCreateRequest request) {
     Channel channel = channelMapper.toEntityFrom(request);
     channelRepository.save(channel);
-    List<UUID> participantIds = userRepository.filterExistingIds(request.getParticipantIds());
-    List<ReadStatus> readStatuses = readStatusMapper.toEntityFrom(channel, participantIds);
+    List<User> participants = userRepository.filterExistingIds(request.getParticipantIds())
+        .stream()
+        .map(userRepository::getReferenceById)
+        .toList();
+    List<ReadStatus> readStatuses = readStatusMapper.toEntityFrom(channel, participants);
     readStatusRepository.saveAll(readStatuses);
     return channelMapper.toDto(channel);
   }
@@ -62,7 +65,7 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
   @Override
   @Transactional(readOnly = true)
   public List<ChannelDto> findAllByUserId(UUID userId) {
-    List<Channel> channels = channelRepository.findVisibleToWithLastMsgAt(userId);
+    List<Channel> channels = channelRepository.findVisibleToWithLastMessageAt(userId);
     return channelMapper.toDto(channels);
   }
 

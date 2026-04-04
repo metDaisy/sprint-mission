@@ -79,24 +79,27 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
 
   @Override
   public void delete(UUID id) {
-    deleteByIdOrThrow(id, userRepository, new UserException(UserErrorCode.USERID_NOT_FOUND, id));
+    deleteByIdOrThrow(id, userRepository,
+        value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
   @Override
   protected User findById(UUID id) {
     return getOrThrow(id, userRepository::findById,
-        new UserException(UserErrorCode.USERID_NOT_FOUND, id));
+        value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
   // todo: distinguish create and update
   private void validateUserUniqueness(String username, String email) {
     if (username != null) {
       ensure(username, userRepository::existsByUsername,
-          new UserException(UserErrorCode.USERNAME_ALREADY_EXIST, Map.of("username", username)));
+          value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
+              Map.of("username", value)));
     }
     if (email != null) {
       ensure(email, userRepository::existsByEmail,
-          new UserException(UserErrorCode.EMAIL_ALREADY_EXIST, Map.of("email", email)));
+          value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
+              Map.of("email", value)));
     }
   }
 
