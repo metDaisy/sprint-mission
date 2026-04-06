@@ -1,8 +1,22 @@
 # 10-spring-mission
 
-- mission-5
-  - 주어진 api specification 을 보고 다시 구현하기
-  - 배포 해보기
+- mission-7
+  - custom exception
+  - logging
+  - entity
+    - unit test
+    - ex) UserStatus.isOnline()
+  - repository
+    - slice test
+    - custom queries
+  - service
+    - unit test
+    - business logics
+  - controller
+    - slice test
+    - custom validator test
+  - controller ~ repository
+    - integrated test(SpringBootTest)
 
 # 구현
 
@@ -50,10 +64,3 @@
   - `controller`
     - `BaseControllerTest`
     - `UserControllerTest`
-  - `fixture`
-    - `UserFixture`
-    - `BinaryContentFixture`
-
-### Todo
-- toJson
-- encryption, decryption
