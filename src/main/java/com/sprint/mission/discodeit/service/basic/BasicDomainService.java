@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
 import com.sprint.mission.discodeit.exception.common.CommonException;
-import com.sprint.mission.discodeit.exception.common.DiscodeitException;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;

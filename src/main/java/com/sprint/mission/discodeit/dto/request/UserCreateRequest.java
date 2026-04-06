@@ -6,8 +6,6 @@ import com.sprint.mission.discodeit.common.validator.UpdateSafe;
 import com.sprint.mission.discodeit.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import java.io.Serial;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -16,10 +14,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-public final class UserCreateRequest implements Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 12345L;
+public final class UserCreateRequest {
 
   @UpdateSafe
   @NotEmpty

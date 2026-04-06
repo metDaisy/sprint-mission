@@ -1,86 +1,91 @@
 package com.sprint.mission.discodeit.storage;
 
-import com.sprint.mission.discodeit.common.exception.code.ErrorCode;
-import com.sprint.mission.discodeit.common.exception.custom.APIException;
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentServiceDTO.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
+import com.sprint.mission.discodeit.exception.common.CommonException;
 import jakarta.annotation.PostConstruct;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.UUID;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.UUID;
-
-@Component
-@EnableConfigurationProperties(LocalBCStorageProperties.class)
+//@Component
+//@EnableConfigurationProperties(LocalBCStorageProperties.class)
 public class LocalBinaryContentStorage implements BinaryContentStorage {
-    private final Path root;
 
-    public LocalBinaryContentStorage(LocalBCStorageProperties properties) {
-        this.root = properties.rootPath();
-    }
+  private final Path root;
 
-    @Override
-    public UUID put(UUID id, byte[] bytes) {
-        Path path = resolvePath(id);
-        if (isPresent(path)) {
-            throw new APIException(ErrorCode.FILE_ALREADY_EXIST, path);
-        }
-        try {
-            Files.write(path, bytes);
-            return id;
-        } catch (IOException e) {
-            throw new APIException(ErrorCode.FILE_CANT_WRITE, e.getMessage());
-        }
-    }
+  public LocalBinaryContentStorage(LocalBCStorageProperties properties) {
+    this.root = properties.rootPath();
+  }
 
-    @Override
-    public InputStream get(UUID id) {
-        Path path = resolvePath(id);
-        if (!isPresent(path)) {
-            throw new APIException(ErrorCode.FILE_NOT_FOUND, path);
-        }
-        try {
-            return Files.newInputStream(path);
-        } catch (IOException e) {
-            throw new APIException(ErrorCode.FILE_CANT_READ, e.getMessage());
-        }
+  @Override
+  public UUID put(UUID id, byte[] bytes) {
+    Path path = resolvePath(id);
+    if (isPresent(path)) {
+      throw new CommonException(CommonErrorCode.FILE_ALREADY_EXIST, Map.of("path", path));
     }
+    try {
+      Files.write(path, bytes);
+      return id;
+    } catch (IOException e) {
+      throw new CommonException(CommonErrorCode.FILE_CANT_WRITE,
+          Map.of("IOException", e.getMessage()));
+    }
+  }
 
-    @Override
-    public ResponseEntity<Resource> download(BinaryContentResponse dto) {
-        try (InputStream inputStream = get(dto.id())) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .contentLength(dto.size())
-                    .contentType(MediaType.IMAGE_JPEG)
-                    .body(new InputStreamResource(inputStream));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+  @Override
+  public InputStream get(UUID id) {
+    Path path = resolvePath(id);
+    if (!isPresent(path)) {
+      throw getIncorrectPathException(path);
     }
+    try {
+      return Files.newInputStream(path);
+    } catch (IOException e) {
+      throw new CommonException(CommonErrorCode.FILE_CANT_READ,
+          Map.of("IOException", e.getMessage()));
+    }
+  }
 
-    @PostConstruct
-    public void init() {
-        try {
-            Files.createDirectories(root);
-        } catch (IOException e) {
-            throw new APIException(ErrorCode.ROOT_DIRECTORY_FAILED_TO_CREATE, root);
-        }
-    }
+  private CommonException getIncorrectPathException(Path path) {
+    return new CommonException(CommonErrorCode.FILE_NOT_FOUND, Map.of("path", path));
+  }
 
-    private Path resolvePath(UUID id) {
-        return root.resolve(id.toString());
+  @Override
+  public ResponseEntity<Resource> download(BinaryContentDto dto) {
+    try (InputStream inputStream = get(dto.id())) {
+      return ResponseEntity.status(HttpStatus.OK)
+          .contentLength(dto.size())
+          .contentType(MediaType.IMAGE_JPEG)
+          .body(new InputStreamResource(inputStream));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    private boolean isPresent(Path path) {
-        return path.toFile().exists();
+  @PostConstruct
+  public void init() {
+    try {
+      Files.createDirectories(root);
+    } catch (IOException e) {
+      throw new CommonException(CommonErrorCode.ROOT_DIRECTORY_FAILED_TO_CREATE,
+          Map.of("root-path", root));
     }
+  }
+
+  private Path resolvePath(UUID id) {
+    return root.resolve(id.toString());
+  }
+
+  private boolean isPresent(Path path) {
+    return path.toFile().exists();
+  }
 }
