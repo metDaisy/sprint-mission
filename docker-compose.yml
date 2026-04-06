@@ -1,11 +1,36 @@
 services:
   db:
-    image: postgres
-    container_name: discodeit-A
+    image: postgres:17-alpine
     restart: always
     environment:
-      POSTGRES_USER: discodeit_user
-      POSTGRES_PASSWORD: discodeit1234
-      POSTGRES_DB: discodeit
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5433:5432"
+      - "5432:5432"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data # 데이터베이스 데이터를 호스트에 저장하여 영속성 확보
+
+  app:
+    build: .
+    image: discodeit-backend:1.7
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+  web-server:
+    build:
+      context: ./0-sprint-mission-front-1.2.3
+    image: discodeit-frontend:1.2.3
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - "80:80"
