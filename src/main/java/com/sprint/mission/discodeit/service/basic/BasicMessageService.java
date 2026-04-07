@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -25,7 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,8 +67,8 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
 
   @Override
   @Transactional(readOnly = true)
-  public List<MessageDto> findAllByChannelId(UUID channelId) {
-    return messageMapper.toDto(messageRepository.findAllByChannelId(channelId));
+  public PageResponse<MessageDto> findSliceByChannelId(UUID channelId, Pageable pageable) {
+    return messageMapper.fromSlice(messageRepository.findSliceByChannelId(channelId, pageable));
   }
 
   @Override

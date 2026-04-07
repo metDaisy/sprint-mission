@@ -31,7 +31,7 @@ public abstract class BasicDomainService<E> {
 
   protected <T> void ensure(T value, Predicate<T> condition,
       Function<T, DiscodeitException> exception) {
-    if (condition.test(value)) {
+    if (!condition.test(value)) {
       throw exception.apply(value);
     }
   }

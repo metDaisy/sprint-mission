@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelException;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusErrorCode;
@@ -41,7 +43,9 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus>
 
   public ReadStatusDto create(ReadStatusCreateRequest request) {
     verifyCreatable(request);
-    ReadStatus status = readStatusMapper.toEntityFrom(request);
+    User user = userRepository.getReferenceById(request.getUserId());
+    Channel channel = channelRepository.getReferenceById(request.getChannelId());
+    ReadStatus status = new ReadStatus(user, channel, request.getLastReadAt());
     readStatusRepository.save(status);
     return readStatusMapper.toDto(status);
   }
@@ -88,7 +92,7 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus>
     ensure(channelId, channelRepository::existsById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
     ensure(Map.of("userId", userId, "channelId", channelId),
-        map -> readStatusRepository.existsByUserIdAndChannelId(map.get("userId"),
+        map -> !readStatusRepository.existsByUserIdAndChannelId(map.get("userId"),
             map.get("channelId")),
         map -> new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST, map));
   }

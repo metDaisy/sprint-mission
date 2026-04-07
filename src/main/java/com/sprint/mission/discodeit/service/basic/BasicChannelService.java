@@ -71,7 +71,7 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
 
   @Override
   public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
-    ensure(request.getType(), Predicate.not(ChannelType.PUBLIC::equals),
+    ensure(request.getType(), ChannelType.PUBLIC::equals,
         value -> new ChannelException(ChannelErrorCode.PRIVATE_CHANNEL_CANT_BE_UPDATED, id));
 
     Channel channel = findById(id);

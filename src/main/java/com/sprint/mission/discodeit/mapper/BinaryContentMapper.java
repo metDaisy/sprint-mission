@@ -15,5 +15,12 @@ public interface BinaryContentMapper extends BaseMapper<BinaryContent, BinaryCon
   @Mapping(target = "fileName", source = "name")
   BinaryContent toEntityFrom(MultipartFile profile) throws IOException;
 
-  List<BinaryContent> toEntityFrom(List<MultipartFile> profiles) throws IOException;
+  default List<BinaryContent> toEntityFrom(List<MultipartFile> profiles) throws IOException {
+    if (profiles == null) {
+      return List.of();
+    }
+    return doMapping(profiles);
+  }
+
+  List<BinaryContent> doMapping(List<MultipartFile> profiles) throws IOException;
 }

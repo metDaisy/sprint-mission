@@ -25,7 +25,7 @@ public final class UserStatusFixture {
   }
 
   public static UserStatusUpdateRequest createUpdate() {
-    return new UserStatusUpdateRequest(getLocalDateTime());
+    return new UserStatusUpdateRequest(getInstant());
   }
 
   public static UserStatus createOffline() {

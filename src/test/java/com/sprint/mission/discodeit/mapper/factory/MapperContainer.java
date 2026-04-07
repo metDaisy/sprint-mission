@@ -24,7 +24,7 @@ public final class MapperContainer {
     container.put(UserMapper.class, userMapper);
     ChannelMapper channelMapper = new ChannelMapperImpl();
     container.put(ChannelMapper.class, channelMapper);
-    MessageMapper messageMapper = new MessageMapperImpl(binaryContentMapper);
+    MessageMapper messageMapper = new MessageMapperImpl(binaryContentMapper, userMapper);
     container.put(MessageMapper.class, messageMapper);
     ReadStatusMapper readStatusMapper = new ReadStatusMapperImpl();
     container.put(ReadStatusMapper.class, readStatusMapper);

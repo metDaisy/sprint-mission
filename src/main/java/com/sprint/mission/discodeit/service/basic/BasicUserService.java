@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -92,12 +93,12 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   // todo: distinguish create and update
   private void validateUserUniqueness(String username, String email) {
     if (username != null) {
-      ensure(username, userRepository::existsByUsername,
+      ensure(username, Predicate.not(userRepository::existsByUsername),
           value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
               Map.of("username", value)));
     }
     if (email != null) {
-      ensure(email, userRepository::existsByEmail,
+      ensure(email, Predicate.not(userRepository::existsByEmail),
           value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
               Map.of("email", value)));
     }

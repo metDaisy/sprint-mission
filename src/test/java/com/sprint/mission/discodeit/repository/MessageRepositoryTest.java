@@ -19,6 +19,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 class MessageRepositoryTest extends BaseRepositoryTest {
 
@@ -103,9 +108,9 @@ class MessageRepositoryTest extends BaseRepositoryTest {
     messageRepository.saveAll(expected);
     em.flush();
     clear();
-
-    List<Message> actual = messageRepository.findAllByChannelId(channel.getId());
-    Assertions.assertThat(actual)
+    Pageable pageable = PageRequest.of(0, 50, Sort.by(Direction.DESC, "createdAt"));
+    Slice<Message> actual = messageRepository.findSliceByChannelId(channel.getId(), pageable);
+    Assertions.assertThat(actual.getContent())
         .usingRecursiveComparison()
         .ignoringCollectionOrder()
         .withEqualsForType(this::compareInstant, Instant.class)
