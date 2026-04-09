@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.FileUploadDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
@@ -7,6 +8,7 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +39,11 @@ public class MessageController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
       @RequestPart @Valid MessageCreateRequest messageCreateRequest,
-      @RequestPart(required = false) List<MultipartFile> attachments) {
+      @RequestPart(required = false) List<MultipartFile> files) {
+    List<FileUploadDto> attachments = files.stream()
+        .map(FileUploadDto::from)
+        .flatMap(Optional::stream)
+        .toList();
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(messageService.create(messageCreateRequest, attachments));
   }

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.FileUploadDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
@@ -11,8 +12,6 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.FileUploadEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelException;
-import com.sprint.mission.discodeit.exception.file.FileErrorCode;
-import com.sprint.mission.discodeit.exception.file.FileException;
 import com.sprint.mission.discodeit.exception.message.MessageErrorCode;
 import com.sprint.mission.discodeit.exception.message.MessageException;
 import com.sprint.mission.discodeit.exception.user.UserErrorCode;
@@ -24,8 +23,6 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +33,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -52,7 +48,7 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
-  public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
+  public MessageDto create(MessageCreateRequest request, List<FileUploadDto> attachments) {
     throwOrNot(request.getChannelId(), channelRepository::existsById,
         id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
     throwOrNot(request.getAuthorId(), userRepository::existsById,
@@ -60,7 +56,7 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
     User author = userRepository.getReferenceById(request.getAuthorId());
     Channel channel = channelRepository.getReferenceById(request.getChannelId());
     List<BinaryContent> binaryContents = binaryContentMapper.toEntityFrom(attachments);
-    publishFileUploadEvent(attachments, binaryContents);
+    publishFileUploadEvent(binaryContents, attachments);
     Message message = Message.builder()
         .content(request.getContent())
         .channel(channel)
@@ -96,28 +92,22 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
         messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
   }
 
-  private void publishFileUploadEvent(List<MultipartFile> attachments,
-      List<BinaryContent> binaryContents) {
-    if (attachments != null) {
-      applicationEventPublisher.publishEvent(
-          new FileUploadEvent(zipIdWithBytes(binaryContents, attachments),
-              binaryContentRepository::deleteAllByIdInBatch));
+  private void publishFileUploadEvent(List<BinaryContent> binaryContents,
+      List<FileUploadDto> attachments) {
+    if (attachments.isEmpty()) {
+      return;
     }
+    applicationEventPublisher.publishEvent(
+        new FileUploadEvent(zipIdWithBytes(binaryContents, attachments),
+            binaryContentRepository::deleteAllByIdInBatch));
   }
 
   private Map<UUID, byte[]> zipIdWithBytes(List<BinaryContent> binaryContents,
-      List<MultipartFile> multipartFiles) {
-    List<UUID> ids = binaryContents.stream().map(BinaryContent::getId).toList();
-    List<byte[]> contents = new ArrayList<>();
-    try {
-      for (MultipartFile file : multipartFiles) {
-        contents.add(file.getBytes());
-      }
-    } catch (IOException e) {
-      throw new FileException(FileErrorCode.FILE_CANT_READ);
-    }
+      List<FileUploadDto> attachments) {
     return IntStream.range(0, binaryContents.size())
         .boxed()
-        .collect(Collectors.toMap(ids::get, contents::get));
+        .collect(Collectors.toMap(
+            i -> binaryContents.get(i).getId(),
+            i -> attachments.get(i).bytes()));
   }
 }

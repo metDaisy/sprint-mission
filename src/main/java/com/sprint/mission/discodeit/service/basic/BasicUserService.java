@@ -1,13 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.FileUploadDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.FileUploadEvent;
-import com.sprint.mission.discodeit.exception.file.FileErrorCode;
-import com.sprint.mission.discodeit.exception.file.FileException;
 import com.sprint.mission.discodeit.exception.user.UserErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
@@ -16,9 +15,9 @@ import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -59,11 +57,11 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   }
 
   @Override
-  public UserDto create(UserCreateRequest request, MultipartFile profile) {
+  public UserDto create(UserCreateRequest request, Optional<FileUploadDto> profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     log.debug("[USER] Unique: username={}, email={}",
         request.getUsername(), request.getEmail());
-    BinaryContent binaryContent = binaryContentMapper.toEntityFrom(profile);
+    Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(profile);
     publishFileUploadEvent(profile, binaryContent);
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
     userRepository.save(user);
@@ -76,10 +74,10 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
    *  distinguish whether to delete the image or not update it.
    * */
   @Override
-  public UserDto update(UUID id, UserUpdateRequest request, MultipartFile profile) {
+  public UserDto update(UUID id, UserUpdateRequest request, Optional<FileUploadDto> profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
-    BinaryContent binaryContent = binaryContentMapper.toEntityFrom(profile);
+    Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(profile);
     publishFileUploadEvent(profile, binaryContent);
     userMapper.partialUpdate(request, binaryContent, user);
     return userMapper.toDto(user);
@@ -111,16 +109,11 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
   }
 
-  private void publishFileUploadEvent(MultipartFile profile, BinaryContent binaryContent) {
-    if (profile == null) {
+  private void publishFileUploadEvent(Optional<FileUploadDto> file, Optional<BinaryContent> binaryContent) {
+    if (file.isEmpty()) {
       return;
     }
-    Map<UUID, byte[]> data;
-    try {
-      data = Map.of(binaryContent.getId(), profile.getBytes());
-    } catch (IOException e) {
-      throw new FileException(FileErrorCode.FILE_CANT_READ, e);
-    }
+    Map<UUID, byte[]> data = Map.of(binaryContent.get().getId(), file.get().bytes());
     applicationEventPublisher.publishEvent(
         new FileUploadEvent(data, binaryContentRepository::deleteAllByIdInBatch));
   }
