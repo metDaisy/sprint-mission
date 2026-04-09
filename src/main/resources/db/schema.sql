@@ -51,8 +51,7 @@ create table binary_contents
     created_at   created_at,
     file_name    varchar(255) not null,
     size         bigint       not null,
-    content_type varchar(100) not null,
-    bytes        bytea        not null
+    content_type varchar(100) not null
 );
 
 create table user_statuses

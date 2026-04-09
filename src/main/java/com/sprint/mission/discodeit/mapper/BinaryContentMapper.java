@@ -12,15 +12,15 @@ import org.springframework.web.multipart.MultipartFile;
 @Mapper(config = GlobalMapperConfig.class)
 public interface BinaryContentMapper extends BaseMapper<BinaryContent, BinaryContentDto> {
 
-  @Mapping(target = "fileName", source = "name")
-  BinaryContent toEntityFrom(MultipartFile profile) throws IOException;
+  @Mapping(target = "fileName", source = "originalFilename")
+  BinaryContent toEntityFrom(MultipartFile profile);
 
-  default List<BinaryContent> toEntityFrom(List<MultipartFile> profiles) throws IOException {
+  default List<BinaryContent> toEntityFrom(List<MultipartFile> profiles) {
     if (profiles == null) {
       return List.of();
     }
     return doMapping(profiles);
   }
 
-  List<BinaryContent> doMapping(List<MultipartFile> profiles) throws IOException;
+  List<BinaryContent> doMapping(List<MultipartFile> profiles);
 }

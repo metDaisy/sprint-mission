@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-  @EntityGraph(attributePaths = {"author", "attachments", "author.status", "author.profile"})
+  @EntityGraph(attributePaths = {"author", "author.status", "author.profile"})
   @Query("select m from Message m join fetch m.channel c where c.id = :channelId")
   Slice<Message> findSliceByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
 

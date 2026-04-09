@@ -5,8 +5,9 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
-import com.sprint.mission.discodeit.exception.common.CommonException;
+import com.sprint.mission.discodeit.event.FileUploadEvent;
+import com.sprint.mission.discodeit.exception.file.FileErrorCode;
+import com.sprint.mission.discodeit.exception.file.FileException;
 import com.sprint.mission.discodeit.exception.user.UserErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +38,8 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   private final UserMapper userMapper;
   private final BinaryContentMapper binaryContentMapper;
   private final UserStatusMapper userStatusMapper;
+  private final BinaryContentRepository binaryContentRepository;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   @Override
   @Transactional(readOnly = true)
@@ -59,7 +63,8 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     validateUserUniqueness(request.getUsername(), request.getEmail());
     log.debug("[USER] Unique: username={}, email={}",
         request.getUsername(), request.getEmail());
-    BinaryContent binaryContent = getBinaryContent(profile);
+    BinaryContent binaryContent = binaryContentMapper.toEntityFrom(profile);
+    publishFileUploadEvent(profile, binaryContent);
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
     userRepository.save(user);
     return userMapper.toDto(user);
@@ -74,7 +79,8 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   public UserDto update(UUID id, UserUpdateRequest request, MultipartFile profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
-    BinaryContent binaryContent = getBinaryContent(profile);
+    BinaryContent binaryContent = binaryContentMapper.toEntityFrom(profile);
+    publishFileUploadEvent(profile, binaryContent);
     userMapper.partialUpdate(request, binaryContent, user);
     return userMapper.toDto(user);
   }
@@ -105,12 +111,17 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     }
   }
 
-  private BinaryContent getBinaryContent(MultipartFile profile) {
-    try {
-      return binaryContentMapper.toEntityFrom(profile);
-    } catch (IOException e) {
-      log.error("[USER] profile image can't be loaded");
-      throw new CommonException(CommonErrorCode.FILE_CANT_READ, profile);
+  private void publishFileUploadEvent(MultipartFile profile, BinaryContent binaryContent) {
+    if (profile == null) {
+      return;
     }
+    Map<UUID, byte[]> data;
+    try {
+      data = Map.of(binaryContent.getId(), profile.getBytes());
+    } catch (IOException e) {
+      throw new FileException(FileErrorCode.FILE_CANT_READ, e);
+    }
+    applicationEventPublisher.publishEvent(
+        new FileUploadEvent(data, binaryContentRepository::deleteAllByIdInBatch));
   }
 }
