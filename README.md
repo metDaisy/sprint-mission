@@ -1,5 +1,10 @@
 # 10-spring-mission
 
+- mission-8
+  - Dockerfile
+  - docker-compose
+  - aws s3
+
 - mission-7
   - custom exception
   - logging

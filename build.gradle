@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '1.0-SNAPSHOT'
+version = '1.8-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -36,7 +36,7 @@ dependencies {
 
     developmentOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.postgresql:postgresql:42.7.7')
-    runtimeOnly('io.github.cdimascio:dotenv-java:3.2.0')
+    runtimeOnly 'me.paulschwarz:spring-dotenv:4.0.0'
 
     testCompileOnly("org.projectlombok:lombok:1.18.42")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
