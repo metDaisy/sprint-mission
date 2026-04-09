@@ -87,11 +87,11 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus>
   private void verifyCreatable(ReadStatusCreateRequest request) {
     UUID userId = request.getUserId();
     UUID channelId = request.getChannelId();
-    ensure(userId, userRepository::existsById,
+    throwOrNot(userId, userRepository::existsById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
-    ensure(channelId, channelRepository::existsById,
+    throwOrNot(channelId, channelRepository::existsById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
-    ensure(Map.of("userId", userId, "channelId", channelId),
+    throwOrNot(Map.of("userId", userId, "channelId", channelId),
         map -> !readStatusRepository.existsByUserIdAndChannelId(map.get("userId"),
             map.get("channelId")),
         map -> new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST, map));

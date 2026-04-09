@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import java.io.IOException;
@@ -93,12 +94,12 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   // todo: distinguish create and update
   private void validateUserUniqueness(String username, String email) {
     if (username != null) {
-      ensure(username, Predicate.not(userRepository::existsByUsername),
+      throwOrNot(username, Predicate.not(userRepository::existsByUsername),
           value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
               Map.of("username", value)));
     }
     if (email != null) {
-      ensure(email, Predicate.not(userRepository::existsByEmail),
+      throwOrNot(email, Predicate.not(userRepository::existsByEmail),
           value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
               Map.of("email", value)));
     }

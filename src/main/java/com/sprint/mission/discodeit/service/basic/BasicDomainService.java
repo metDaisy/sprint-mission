@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
 import com.sprint.mission.discodeit.exception.common.CommonException;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -29,7 +29,7 @@ public abstract class BasicDomainService<E> {
     }
   }
 
-  protected <T> void ensure(T value, Predicate<T> condition,
+  protected <T> void throwOrNot(T value, Predicate<T> condition,
       Function<T, DiscodeitException> exception) {
     if (!condition.test(value)) {
       throw exception.apply(value);

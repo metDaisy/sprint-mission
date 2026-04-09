@@ -18,7 +18,6 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +70,7 @@ public class BasicChannelService extends BasicDomainService<Channel> implements 
 
   @Override
   public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
-    ensure(request.getType(), ChannelType.PUBLIC::equals,
+    throwOrNot(request.getType(), ChannelType.PUBLIC::equals,
         value -> new ChannelException(ChannelErrorCode.PRIVATE_CHANNEL_CANT_BE_UPDATED, id));
 
     Channel channel = findById(id);

@@ -10,8 +10,8 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelException;
-import com.sprint.mission.discodeit.exception.common.CommonErrorCode;
-import com.sprint.mission.discodeit.exception.common.CommonException;
+import com.sprint.mission.discodeit.exception.file.FileErrorCode;
+import com.sprint.mission.discodeit.exception.file.FileException;
 import com.sprint.mission.discodeit.exception.message.MessageErrorCode;
 import com.sprint.mission.discodeit.exception.message.MessageException;
 import com.sprint.mission.discodeit.exception.user.UserErrorCode;
@@ -44,9 +44,9 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
 
   @Override
   public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
-    ensure(request.getChannelId(), channelRepository::existsById,
+    throwOrNot(request.getChannelId(), channelRepository::existsById,
         id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
-    ensure(request.getAuthorId(), userRepository::existsById,
+    throwOrNot(request.getAuthorId(), userRepository::existsById,
         id -> new UserException(UserErrorCode.USERID_NOT_FOUND, id));
     User author = userRepository.getReferenceById(request.getAuthorId());
     Channel channel = channelRepository.getReferenceById(request.getChannelId());
