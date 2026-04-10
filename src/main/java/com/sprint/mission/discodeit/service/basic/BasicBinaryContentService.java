@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentErrorCode;
@@ -25,12 +26,14 @@ public class BasicBinaryContentService extends BasicDomainService<BinaryContent>
   private final BinaryContentMapper binaryContentMapper;
 
   @Override
+  @ServiceLogAround
   @Transactional(readOnly = true)
   public List<BinaryContentDto> findAllByIdIn(List<UUID> ids) {
     return binaryContentMapper.toDto(binaryContentRepository.findAllById(ids));
   }
 
   @Override
+  @ServiceLogAround
   @Transactional(readOnly = true)
   public BinaryContentDto find(UUID id) {
     return binaryContentMapper.toDto(findById(id));

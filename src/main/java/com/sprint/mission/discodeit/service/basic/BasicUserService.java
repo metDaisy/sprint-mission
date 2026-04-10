@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
 import com.sprint.mission.discodeit.dto.FileUploadDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -21,12 +22,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
@@ -40,27 +39,24 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   private final ApplicationEventPublisher applicationEventPublisher;
 
   @Override
+  @ServiceLogAround
   @Transactional(readOnly = true)
   public UserDto find(UUID id) {
     User user = findById(id);
-    log.debug("[USER] id={}, username={}, email={}",
-        user.getId(), user.getUsername(), user.getEmail());
     return userMapper.toDto(user);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<UserDto> findAll() {
-    List<User> users = userRepository.findAll();
-    log.debug("[USERS] count={}", users.size());
+    List<User> users = userRepository.findAllUsersProfileAndStatusBy();
     return userMapper.toDto(users);
   }
 
   @Override
+  @ServiceLogAround
   public UserDto create(UserCreateRequest request, Optional<FileUploadDto> profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
-    log.debug("[USER] Unique: username={}, email={}",
-        request.getUsername(), request.getEmail());
     Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(profile);
     publishFileUploadEvent(profile, binaryContent);
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
@@ -74,6 +70,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
    *  distinguish whether to delete the image or not update it.
    * */
   @Override
+  @ServiceLogAround
   public UserDto update(UUID id, UserUpdateRequest request, Optional<FileUploadDto> profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
@@ -84,6 +81,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   }
 
   @Override
+  @ServiceLogAround
   public void delete(UUID id) {
     deleteByIdOrThrow(id, userRepository,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
@@ -91,7 +89,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
 
   @Override
   protected User findById(UUID id) {
-    return getOrThrow(id, userRepository::findById,
+    return getOrThrow(id, userRepository::findProfileAndStatusById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
@@ -110,7 +108,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   }
 
   private void publishFileUploadEvent(Optional<FileUploadDto> file, Optional<BinaryContent> binaryContent) {
-    if (file.isEmpty()) {
+    if (file.isEmpty() || binaryContent.isEmpty()) {
       return;
     }
     Map<UUID, byte[]> data = Map.of(binaryContent.get().getId(), file.get().bytes());

@@ -47,18 +47,18 @@ public class UserController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto> create(
       @RequestPart @Valid UserCreateRequest userCreateRequest,
-      @RequestPart(required = false) MultipartFile file) {
+      @RequestPart(required = false) MultipartFile profile) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(userService.create(userCreateRequest, FileUploadDto.from(file)));
+        .body(userService.create(userCreateRequest, FileUploadDto.from(profile)));
   }
 
   @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto> update(
       @PathVariable UUID id,
       @RequestPart @Valid UserUpdateRequest userUpdateRequest,
-      @RequestPart(required = false) MultipartFile file) {
+      @RequestPart(required = false) MultipartFile profile) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(userService.update(id, userUpdateRequest, FileUploadDto.from(file)));
+        .body(userService.update(id, userUpdateRequest, FileUploadDto.from(profile)));
   }
 
   @DeleteMapping(value = "/{id}")

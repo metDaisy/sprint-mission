@@ -39,13 +39,14 @@ public class MessageController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
       @RequestPart @Valid MessageCreateRequest messageCreateRequest,
-      @RequestPart(required = false) List<MultipartFile> files) {
-    List<FileUploadDto> attachments = files.stream()
+      @RequestPart(required = false) List<MultipartFile> attachments) {
+    attachments = (attachments == null) ? List.of() : attachments;
+    List<FileUploadDto> safeAttachments = attachments.stream()
         .map(FileUploadDto::from)
         .flatMap(Optional::stream)
         .toList();
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(messageService.create(messageCreateRequest, attachments));
+        .body(messageService.create(messageCreateRequest, safeAttachments));
   }
 
   @GetMapping

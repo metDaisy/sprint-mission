@@ -15,14 +15,8 @@ public interface BinaryContentMapper extends BaseMapper<BinaryContent, BinaryCon
     return file.map(this::toEntityFrom);
   }
 
-  default List<BinaryContent> toEntityFrom(List<FileUploadDto> files) {
-    if (files.isEmpty()) {
-      return List.of();
-    }
-    return doMapping(files);
-  }
+  List<BinaryContent> toEntityFrom(List<FileUploadDto> files);
 
   BinaryContent toEntityFrom(FileUploadDto dto);
 
-  List<BinaryContent> doMapping(List<FileUploadDto> files);
 }

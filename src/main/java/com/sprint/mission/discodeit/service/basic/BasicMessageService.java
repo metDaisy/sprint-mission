@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
 import com.sprint.mission.discodeit.dto.FileUploadDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
@@ -48,6 +49,7 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
+  @ServiceLogAround
   public MessageDto create(MessageCreateRequest request, List<FileUploadDto> attachments) {
     throwOrNot(request.getChannelId(), channelRepository::existsById,
         id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
@@ -68,12 +70,14 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
   }
 
   @Override
+  @ServiceLogAround
   @Transactional(readOnly = true)
   public PageResponse<MessageDto> findSliceByChannelId(UUID channelId, Pageable pageable) {
     return messageMapper.fromSlice(messageRepository.findSliceByChannelId(channelId, pageable));
   }
 
   @Override
+  @ServiceLogAround
   public MessageDto update(UUID id, MessageUpdateRequest request) {
     Message message = findById(id);
     messageMapper.partialUpdate(request, message);
@@ -81,6 +85,7 @@ public class BasicMessageService extends BasicDomainService<Message> implements 
   }
 
   @Override
+  @ServiceLogAround
   public void delete(UUID id) {
     deleteByIdOrThrow(id, messageRepository,
         messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
