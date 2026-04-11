@@ -16,12 +16,14 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation platform('org.springdoc:springdoc-openapi:2.8.5')
+    implementation platform('software.amazon.awssdk:bom:2.42.31')
 
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
     compileOnly('org.mapstruct:mapstruct:1.6.3')
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor('org.mapstruct:mapstruct-processor:1.6.3')
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -29,6 +31,7 @@ dependencies {
     implementation('org.springdoc:springdoc-openapi-starter-webmvc-ui')
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-aop')
+    implementation('software.amazon.awssdk:s3')
 
     implementation 'io.github.openfeign.querydsl:querydsl-jpa:7.1'
     annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:7.1:jpa'
