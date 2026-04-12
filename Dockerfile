@@ -2,7 +2,7 @@
 # 1. 빌드 스테이지 (Build Stage)
 # ==========================================
 # JDK(자바 개발 도구)가 포함된 무거운 이미지를 사용합니다.
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM amazoncorretto:17 AS builder
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew dependencies --no-daemon || true
 
 # 실제 소스 코드 복사
-COPY src src
+COPY . .
 
 # 애플리케이션 빌드 (테스트 코드는 제외하여 빌드 속도 향상)
 RUN ./gradlew clean build -x test --no-daemon
@@ -29,14 +29,14 @@ RUN ./gradlew clean build -x test --no-daemon
 # 2. 실행 스테이지 (Run Stage)
 # ==========================================
 # JRE(자바 실행 환경)만 포함된 가벼운 이미지를 사용하여 최종 용량을 줄입니다.
-FROM eclipse-temurin:17-jre-alpine
+FROM amazoncorretto:17-alpine
 
 WORKDIR /app
 
 # 빌드 스테이지(builder)에서 완성된 .jar 파일만 쏙 빼와서 app.jar로 이름을 바꿔서 복사합니다.
 COPY --from=builder /app/build/libs/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8080
 
 # 컨테이너가 켜질 때 실행할 명령어 지정
 ENTRYPOINT ["java", "-jar", "app.jar"]

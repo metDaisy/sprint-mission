@@ -22,7 +22,7 @@ create table users
     profile_id uuid
 );
 
-create index idx_users_username_password ON users(username, password);
+create index idx_users_username_password ON users (username, password);
 
 create table channels
 (
@@ -51,7 +51,8 @@ create table binary_contents
     created_at   created_at,
     file_name    varchar(255) not null,
     size         bigint       not null,
-    content_type varchar(100) not null
+    content_type varchar(100) not null,
+    status       varchar(10)  not null
 );
 
 create table user_statuses
@@ -70,7 +71,7 @@ create table read_statuses
     updated_at   updated_at,
     user_id      uuid not null,
     channel_id   uuid not null,
-    last_read_at created_at
+    last_read_at updated_at
 );
 
 create table message_attachments
@@ -98,3 +99,5 @@ alter table read_statuses
 alter table message_attachments
     add constraint fk_message_attachments_message_id foreign key (message_id) references messages (id) on delete cascade,
     add constraint fk_message_attachments_attachment_id foreign key (attachment_id) references binary_contents (id) on delete cascade;
+alter table binary_contents
+    add constraint ck_binary_contents_status check (status in ('PENDING', 'COMPLETED', 'FAILED', 'DELETED'));

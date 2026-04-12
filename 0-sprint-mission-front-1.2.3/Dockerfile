@@ -24,7 +24,7 @@ FROM nginx:alpine
 # Nginx 기본 파일 삭제
 RUN rm -rf /usr/share/nginx/html/*
 
-copy nginx.conf /etc/nginx/conf.d/default.conf
+copy nginx.conf.template /etc/nginx/conf.d/default.conf
 
 # ★ 핵심: 1단계(builder)에서 완성된 'dist' 폴더의 내용물만 Nginx로 쏙 빼옵니다.
 # (Vite는 빌드 결과물이 dist 폴더에 생깁니다. 만약 에러가 나면 dist를 build로 바꿔보세요)
