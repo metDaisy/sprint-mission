@@ -1,12 +1,12 @@
 springdoc:
   swagger-ui:
-    url: /api/api-docs_1.1.json
+    url: /api/api-docs_1.2.json
 
 spring:
   sql:
     init:
       mode: always
-      schema-locations: classpath:db/schema.sql
+      schema-locations: file:db/schema.sql
 
   datasource:
     url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
