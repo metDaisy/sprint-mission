@@ -38,6 +38,8 @@ services:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       AWS_S3_REGION: ${AWS_S3_REGION}
       AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION}
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      LOCAL_STORAGE_ROOT_PATH: ${LOCAL_STORAGE_ROOT_PATH}
 
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1" ]

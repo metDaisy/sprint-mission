@@ -16,8 +16,11 @@ server {
   location ^~ /internal-s3/ {
     internal;
 
-    proxy_set_header Host ${AWS_S3_BUCKET};
+    proxy_set_header Host ${AWS_S3_BUCKET}.s3.${AWS_S3_REGION}.amazonaws.com;
     proxy_hide_header Content-Disposition;
+    proxy_hide_header x-amz-id-2;
+    proxy_hide_header x-amz-request-id;
+    proxy_hide_header x-amz-meta-server-side-encryption;
 
     rewrite ^/internal-s3/(.*)$ /$1 break;
     proxy_pass https://${AWS_S3_BUCKET}.s3.${AWS_S3_REGION}.amazonaws.com;
