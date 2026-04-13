@@ -7,13 +7,12 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.event.FileUploadEvent;
+import com.sprint.mission.discodeit.event.publisher.FileUploadEventPublisher;
 import com.sprint.mission.discodeit.exception.user.UserErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
@@ -22,21 +21,20 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class BasicUserService extends BasicDomainService<User> implements UserService {
+public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentMapper binaryContentMapper;
   private final UserStatusMapper userStatusMapper;
-  private final BinaryContentRepository binaryContentRepository;
-  private final ApplicationEventPublisher applicationEventPublisher;
+  private final BasicDomainTemplate domainTemplate;
+  private final FileUploadEventPublisher fileUploadEventPublisher;
 
   @Override
   @ServiceLogAround
@@ -58,7 +56,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   public UserDto create(UserCreateRequest request, Optional<FileUploadDto> profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(profile);
-    publishFileUploadEvent(profile, binaryContent);
+    fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
     userRepository.save(user);
     return userMapper.toDto(user);
@@ -75,7 +73,7 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
     validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
     Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(profile);
-    publishFileUploadEvent(profile, binaryContent);
+    fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
     userMapper.partialUpdate(request, binaryContent, user);
     return userMapper.toDto(user);
   }
@@ -83,36 +81,26 @@ public class BasicUserService extends BasicDomainService<User> implements UserSe
   @Override
   @ServiceLogAround
   public void delete(UUID id) {
-    deleteByIdOrThrow(id, userRepository,
+    domainTemplate.deleteByIdOrThrow(id, userRepository,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
-  @Override
-  protected User findById(UUID id) {
-    return getOrThrow(id, userRepository::findProfileAndStatusById,
+  private User findById(UUID id) {
+    return domainTemplate.getOrThrow(id, userRepository::findProfileAndStatusById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
   // todo: distinguish create and update
   private void validateUserUniqueness(String username, String email) {
     if (username != null) {
-      throwOrNot(username, Predicate.not(userRepository::existsByUsername),
+      domainTemplate.throwOrNot(username, Predicate.not(userRepository::existsByUsername),
           value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
               Map.of("username", value)));
     }
     if (email != null) {
-      throwOrNot(email, Predicate.not(userRepository::existsByEmail),
+      domainTemplate.throwOrNot(email, Predicate.not(userRepository::existsByEmail),
           value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
               Map.of("email", value)));
     }
-  }
-
-  private void publishFileUploadEvent(Optional<FileUploadDto> file, Optional<BinaryContent> binaryContent) {
-    if (file.isEmpty() || binaryContent.isEmpty()) {
-      return;
-    }
-    Map<UUID, byte[]> data = Map.of(binaryContent.get().getId(), file.get().bytes());
-    applicationEventPublisher.publishEvent(
-        new FileUploadEvent(data, binaryContentRepository::deleteAllByIdInBatch));
   }
 }

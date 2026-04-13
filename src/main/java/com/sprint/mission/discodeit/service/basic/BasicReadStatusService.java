@@ -27,13 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class BasicReadStatusService extends BasicDomainService<ReadStatus>
-    implements ReadStatusService {
+public class BasicReadStatusService implements ReadStatusService {
 
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
   private final ReadStatusMapper readStatusMapper;
+  private final BasicDomainTemplate domainTemplate;
 
   @Override
   @Transactional(readOnly = true)
@@ -63,20 +63,19 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus>
 
   @Override
   public void delete(UUID id) {
-    deleteByIdOrThrow(id, readStatusRepository,
+    domainTemplate.deleteByIdOrThrow(id, readStatusRepository,
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
-  @Override
-  protected ReadStatus findById(UUID id) {
-    return getOrThrow(id, readStatusRepository::findById,
+  private ReadStatus findById(UUID id) {
+    return domainTemplate.getOrThrow(id, readStatusRepository::findById,
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
   @Override
   @Transactional(readOnly = true)
   public ReadStatusDto find(UUID userId, UUID channelId) {
-    ReadStatus status = getOrThrow(
+    ReadStatus status = domainTemplate.getOrThrow(
         Map.of("userId", userId, "channelId", channelId),
         map -> readStatusRepository.findByUserIdAndChannelId(map.get("userId"),
             map.get("channelId")),
@@ -87,11 +86,11 @@ public class BasicReadStatusService extends BasicDomainService<ReadStatus>
   private void verifyCreatable(ReadStatusCreateRequest request) {
     UUID userId = request.getUserId();
     UUID channelId = request.getChannelId();
-    throwOrNot(userId, userRepository::existsById,
+    domainTemplate.throwOrNot(userId, userRepository::existsById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
-    throwOrNot(channelId, channelRepository::existsById,
+    domainTemplate.throwOrNot(channelId, channelRepository::existsById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
-    throwOrNot(Map.of("userId", userId, "channelId", channelId),
+    domainTemplate.throwOrNot(Map.of("userId", userId, "channelId", channelId),
         map -> !readStatusRepository.existsByUserIdAndChannelId(map.get("userId"),
             map.get("channelId")),
         map -> new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST, map));

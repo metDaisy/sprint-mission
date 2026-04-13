@@ -27,14 +27,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class BasicChannelService extends BasicDomainService<ChannelDetailResponse>
-    implements ChannelService {
+public class BasicChannelService implements ChannelService {
 
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
   private final ReadStatusRepository readStatusRepository;
   private final ChannelMapper channelMapper;
   private final ReadStatusMapper readStatusMapper;
+  private final BasicDomainTemplate domainTemplate;
 
   @Override
   @ServiceLogAround
@@ -77,7 +77,7 @@ public class BasicChannelService extends BasicDomainService<ChannelDetailRespons
   @Override
   @ServiceLogAround
   public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
-    throwOrNot(request.getType(), ChannelType.PUBLIC::equals,
+    domainTemplate.throwOrNot(request.getType(), ChannelType.PUBLIC::equals,
         value -> new ChannelException(ChannelErrorCode.PRIVATE_CHANNEL_CANT_BE_UPDATED, id));
 
     ChannelDetailResponse channelDetail = findById(id);
@@ -88,13 +88,12 @@ public class BasicChannelService extends BasicDomainService<ChannelDetailRespons
   @Override
   @ServiceLogAround
   public void delete(UUID id) {
-    deleteByIdOrThrow(id, channelRepository,
+    domainTemplate.deleteByIdOrThrow(id, channelRepository,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 
-  @Override
-  protected ChannelDetailResponse findById(UUID id) {
-    return getOrThrow(id, channelRepository::findChannelDetailById,
+  private ChannelDetailResponse findById(UUID id) {
+    return domainTemplate.getOrThrow(id, channelRepository::findChannelDetailById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 

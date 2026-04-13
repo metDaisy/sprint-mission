@@ -11,25 +11,23 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class BasicBinaryContentService extends BasicDomainService<BinaryContent>
-    implements BinaryContentService {
+public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentMapper binaryContentMapper;
+  private final BasicDomainTemplate domainTemplate;
 
   @Override
   @ServiceLogAround
   @Transactional(readOnly = true)
   public List<BinaryContentDto> findAllByIdIn(List<UUID> ids) {
-    return binaryContentMapper.toDto(binaryContentRepository.findAllById(ids));
+    return binaryContentMapper.toDto(binaryContentRepository.findAllCompletedByIds(ids));
   }
 
   @Override
@@ -39,9 +37,8 @@ public class BasicBinaryContentService extends BasicDomainService<BinaryContent>
     return binaryContentMapper.toDto(findById(id));
   }
 
-  @Override
-  protected BinaryContent findById(UUID id) {
-    return getOrThrow(id, binaryContentRepository::findById,
+  private BinaryContent findById(UUID id) {
+    return domainTemplate.getOrThrow(id, binaryContentRepository::findCompletedById,
         value -> new BinaryContentException(BinaryContentErrorCode.BINARYCONTENTID_NOT_FOUND,
             value));
   }
