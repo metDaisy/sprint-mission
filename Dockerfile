@@ -35,7 +35,6 @@ WORKDIR /app
 
 # 빌드 스테이지(builder)에서 완성된 .jar 파일만 쏙 빼와서 app.jar로 이름을 바꿔서 복사합니다.
 COPY --from=builder /app/build/libs/*.jar app.jar
-COPY --from=builder /app/db ./db
 
 EXPOSE 8080
 

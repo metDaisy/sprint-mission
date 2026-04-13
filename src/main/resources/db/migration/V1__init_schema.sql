@@ -1,21 +1,8 @@
-drop domain if exists created_at cascade;
-drop domain if exists updated_at cascade;
-drop table if exists users cascade;
-drop table if exists channels cascade;
-drop table if exists messages cascade;
-drop table if exists binary_contents cascade;
-drop table if exists read_statuses cascade;
-drop table if exists message_attachments cascade;
-drop table if exists user_statuses cascade;
-
-create domain created_at as timestamp with time zone not null;
-create domain updated_at as timestamp with time zone;
-
 create table users
 (
     id         uuid primary key,
-    created_at created_at,
-    updated_at updated_at,
+    created_at timestamp with time zone not null,
+    updated_at timestamp with time zone,
     username   varchar(50)  not null,
     email      varchar(100) not null,
     password   varchar(60)  not null,
@@ -27,8 +14,8 @@ create index idx_users_username_password ON users (username, password);
 create table channels
 (
     id          uuid primary key,
-    created_at  created_at,
-    updated_at  updated_at,
+    created_at  timestamp with time zone not null,
+    updated_at  timestamp with time zone,
     name        varchar(100),
     description varchar(500),
     type        varchar(10) not null
@@ -37,8 +24,8 @@ create table channels
 create table messages
 (
     id         uuid primary key,
-    created_at created_at,
-    updated_at updated_at,
+    created_at timestamp with time zone not null,
+    updated_at timestamp with time zone,
     content    text,
     channel_id uuid not null,
     author_id  uuid not null
@@ -48,7 +35,7 @@ create index idx_messages on messages (channel_id, created_at);
 create table binary_contents
 (
     id           uuid primary key,
-    created_at   created_at,
+    created_at   timestamp with time zone not null,
     file_name    varchar(255) not null,
     size         bigint       not null,
     content_type varchar(100) not null,
@@ -58,20 +45,20 @@ create table binary_contents
 create table user_statuses
 (
     id             uuid primary key,
-    created_at     created_at,
-    updated_at     updated_at,
+    created_at     timestamp with time zone not null,
+    updated_at     timestamp with time zone,
     user_id        uuid not null,
-    last_active_at created_at
+    last_active_at timestamp with time zone
 );
 
 create table read_statuses
 (
     id           uuid primary key,
-    created_at   created_at,
-    updated_at   updated_at,
+    created_at   timestamp with time zone not null,
+    updated_at   timestamp with time zone,
     user_id      uuid not null,
     channel_id   uuid not null,
-    last_read_at updated_at
+    last_read_at timestamp with time zone
 );
 
 create table message_attachments

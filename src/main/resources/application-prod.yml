@@ -5,18 +5,14 @@ springdoc:
     enabled: false
 
 spring:
-  sql:
-    init:
-      mode: never
-
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     show-sql: false
     database: PostgreSQL
     defer-datasource-initialization: false
