@@ -51,14 +51,15 @@ services:
     image: discodeit-frontend:1.2.3
     restart: always
     depends_on:
-      app:
-        condition: service_healthy
+      - app
     ports:
       - "80:80"
     volumes:
-      - local-uploads:/user/share/nginx/html/uploads
+      - local-uploads:/usr/share/nginx/html/uploads
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template
     environment:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_REGION: ${AWS_S3_REGION}
 
 volumes:
   local-uploads:
