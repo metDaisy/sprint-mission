@@ -22,7 +22,7 @@ public final class MapperContainer {
     container.put(BinaryContentMapper.class, binaryContentMapper);
     UserMapper userMapper = new UserMapperImpl(binaryContentMapper);
     container.put(UserMapper.class, userMapper);
-    ChannelMapper channelMapper = new ChannelMapperImpl();
+    ChannelMapper channelMapper = new ChannelMapperImpl(userMapper);
     container.put(ChannelMapper.class, channelMapper);
     MessageMapper messageMapper = new MessageMapperImpl(binaryContentMapper, userMapper);
     container.put(MessageMapper.class, messageMapper);

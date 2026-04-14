@@ -45,10 +45,16 @@ dependencies {
     runtimeOnly 'me.paulschwarz:spring-dotenv:4.0.0'
 
     testCompileOnly("org.projectlombok:lombok:1.18.42")
+    testCompileOnly('org.mapstruct:mapstruct:1.6.3')
     testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+    testAnnotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    testAnnotationProcessor('org.mapstruct:mapstruct-processor:1.6.3')
+
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('com.h2database:h2')
     testImplementation('net.datafaker:datafaker:2.5.4')
+    testImplementation('org.testcontainers:postgresql')
+    testImplementation('org.testcontainers:junit-jupiter')
 }
 
 test {
