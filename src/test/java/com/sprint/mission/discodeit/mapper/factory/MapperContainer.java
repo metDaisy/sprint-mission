@@ -30,6 +30,9 @@ public final class MapperContainer {
     container.put(ReadStatusMapper.class, readStatusMapper);
   }
 
+  private MapperContainer() {
+  }
+
   public static <T> T get(Class<T> type) {
     return type.cast(container.get(type));
   }

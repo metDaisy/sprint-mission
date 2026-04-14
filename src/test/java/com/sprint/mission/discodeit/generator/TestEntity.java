@@ -38,7 +38,7 @@ public class TestEntity {
     User author = generatorUser();
     Channel channel = generatorPublicChannel();
     List<BinaryContent> attachments = List.of(generatorBinaryContent());
-    Message message = MessageFixture.createEntity(author, channel, attachments);
+    Message message = MessageFixture.createEntity();
     return persistAndFlush(message);
   }
 

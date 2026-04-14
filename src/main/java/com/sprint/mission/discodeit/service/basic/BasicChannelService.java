@@ -77,9 +77,6 @@ public class BasicChannelService implements ChannelService {
   @Override
   @ServiceLogAround
   public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
-    domainTemplate.throwOrNot(request.getType(), ChannelType.PUBLIC::equals,
-        value -> new ChannelException(ChannelErrorCode.PRIVATE_CHANNEL_CANT_BE_UPDATED, id));
-
     ChannelDetailResponse channelDetail = findById(id);
     channelMapper.partialUpdate(request, channelDetail.channel());
     return channelMapper.toDto(channelDetail);

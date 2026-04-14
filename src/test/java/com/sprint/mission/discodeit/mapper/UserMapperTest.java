@@ -45,7 +45,7 @@ class UserMapperTest {
   @Test
   @DisplayName("User partialUpdate(UserUpdateRequest request, BinaryContent profile, @MappingTarget User user);")
   void partialUpdate() {
-    UserUpdateRequest request = UserFixture.createUpdate();
+    UserUpdateRequest request = UserFixture.createUpdateRequest();
     Optional<BinaryContent> profile = Optional.of(BinaryContentFixture.createEntity());
     User user = User.builder().build();
     userMapper.partialUpdate(request, profile, user);
