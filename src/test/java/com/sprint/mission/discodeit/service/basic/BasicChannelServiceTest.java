@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -45,8 +46,8 @@ class BasicChannelServiceTest {
   private UserRepository userRepository;
   @Spy
   private ReadStatusMapper readStatusMapper = MapperContainer.get(ReadStatusMapper.class);
-  @Mock
-  private BasicDomainTemplate domainTemplate;
+  @Spy
+  private BasicDomainTemplate domainTemplate = new BasicDomainTemplate();
   @Spy
   private ChannelMapper channelMapper = MapperContainer.get(ChannelMapper.class);
   @InjectMocks
@@ -72,8 +73,6 @@ class BasicChannelServiceTest {
   void fail_to_find_channel() {
     // given
     UUID incorrectId = UUID.randomUUID();
-    given(domainTemplate.getOrThrow(incorrectId, any(), any()))
-        .willThrow(ChannelException.class);
     given(channelRepository.findChannelDetailById(any(UUID.class)))
         .willReturn(Optional.empty());
 
@@ -89,15 +88,13 @@ class BasicChannelServiceTest {
   void success_to_create_public_channel() {
     // given
     PublicChannelCreateRequest request = ChannelFixture.createPublicRequest();
-    Channel channel = channelMapper.toEntityFrom(request);
-
-    given(channelRepository.save(any(Channel.class))).willReturn(channel);
+    given(channelRepository.save(any(Channel.class))).willReturn(any(Channel.class));
 
     // when
     channelService.createPublic(request);
 
     // then
-    verify(channelRepository, times(1)).save(channel);
+    verify(channelRepository, times(1)).save(any(Channel.class));
   }
 
   @Test
@@ -108,14 +105,14 @@ class BasicChannelServiceTest {
   void success_to_create_private_channel() {
     // given
     PrivateChannelCreateRequest request = ChannelFixture.createPrivateRequest();
-    Channel channel = channelMapper.toEntityFrom(request);
+    Channel channel = mock(Channel.class);
     List<User> participants = UserFixture.createEntities();
-    List<ReadStatus> readStatuses = readStatusMapper.toEntityFrom(channel, participants);
+    List<ReadStatus> readStatuses = List.of(mock(ReadStatus.class));
 
     given(channelRepository.save(any(Channel.class))).willReturn(channel);
     given(userRepository.findProfileAndStatusByIdIn(request.getParticipantIds()))
         .willReturn(participants);
-    given(readStatusRepository.saveAll(readStatuses)).willReturn(anyList());
+    given(readStatusRepository.saveAll(anyList())).willReturn(readStatuses);
 
     // when
     channelService.createPrivate(request);

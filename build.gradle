@@ -58,7 +58,6 @@ dependencies {
     testImplementation platform('org.instancio:instancio-bom:6.0.0-RC2')
     testImplementation('org.instancio:instancio-core')
     testImplementation('org.instancio:instancio-junit')
-    testImplementation('org.instancio:instancio-guava')
 }
 
 test {
