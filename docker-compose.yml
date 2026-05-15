@@ -1,7 +1,7 @@
 services:
   app:
     build: .
-    image: discodeit-backend:1.2-M8
+    image: discodeit-backend:2.0-M9
     restart: always
     ports:
       - "8081:8080"
@@ -22,7 +22,7 @@ services:
 
   web-server:
     build:
-      context: ./0-sprint-mission-front-1.2.3
+      context: discodeit-front
     image: discodeit-frontend:1.2.3
     restart: always
     depends_on:
