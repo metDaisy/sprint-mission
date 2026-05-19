@@ -23,7 +23,7 @@ services:
   web-server:
     build:
       context: discodeit-front
-    image: discodeit-frontend:1.2.3
+    image: discodeit-frontend:2.0
     restart: always
     depends_on:
       - app

@@ -1,4 +1,11 @@
-*
-
-!src/
-!Dockerfile
+README.md
+postman
+discodeit-front
+db-data
+build
+.logs
+.idea
+.gradle
+.github
+.discodeit
+.gitignore

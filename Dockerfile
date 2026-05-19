@@ -7,11 +7,15 @@ COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
 
+RUN sed -i 's/\r$//' gradlew
+
 RUN chmod +x ./gradlew
 
 RUN ./gradlew dependencies --no-daemon || true
 
 COPY . .
+
+RUN sed -i 's/\r$//' gradlew
 
 RUN ./gradlew clean build -x test --no-daemon
 
