@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -16,9 +17,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     private final ObjectMapper objectMapper;
 
+    @Value("${discodeit.api-prefix}")
+    private String API_PREFIX;
+
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.addPathPrefix("/api",
+        configurer.addPathPrefix(API_PREFIX,
                 HandlerTypePredicate.forBasePackage("com.sprint.mission.discodeit"));
     }
 

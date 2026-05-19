@@ -1,14 +1,21 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,9 +35,6 @@ public class User extends BaseUpdatableEntity {
   @Column(unique = true, nullable = false, length = 100)
   private String email;
 
-  @Column(nullable = false, length = 60)
-  private String password;
-
   @OneToOne(
       fetch = FetchType.LAZY,
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},
@@ -44,12 +48,20 @@ public class User extends BaseUpdatableEntity {
       orphanRemoval = true)
   private UserStatus status;
 
+  @ElementCollection(fetch = FetchType.LAZY)
+  @CollectionTable(
+      name = "user_roles",
+      joinColumns = @JoinColumn(name = "user_id")
+  )
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role")
+  private Set<DiscodeitRole> roles = new LinkedHashSet<>();
+
   @Builder
-  public User(String username, String email, String password,
+  public User(String username, String email,
       BinaryContent profile, UserStatus status) {
     this.username = username;
     this.email = email;
-    this.password = password;
     this.profile = profile;
     this.status = status;
   }
