@@ -4,6 +4,7 @@ server {
   location / {
     root /usr/share/nginx/html;
     index index.html;
+    try_files $uri $uri/ /index.html;
   }
 
   location /api/ {
@@ -11,13 +12,17 @@ server {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
   }
 
   location ^~ /internal-s3/ {
     internal;
 
-    proxy_set_header Host ${AWS_S3_BUCKET};
+    proxy_set_header Host ${AWS_S3_BUCKET}.s3.${AWS_S3_REGION}.amazonaws.com;
     proxy_hide_header Content-Disposition;
+    proxy_hide_header x-amz-id-2;
+    proxy_hide_header x-amz-request-id;
+    proxy_hide_header x-amz-meta-server-side-encryption;
 
     rewrite ^/internal-s3/(.*)$ /$1 break;
     proxy_pass https://${AWS_S3_BUCKET}.s3.${AWS_S3_REGION}.amazonaws.com;

@@ -6,6 +6,7 @@ import { UserDto } from '../types/api';
 interface UserListStore {
   users: UserDto[];
   fetchUsers: () => Promise<void>;
+  updateUserStatus: (userId: string) => void;
 }
 
 const useUserListStore = create<UserListStore>((set) => ({
@@ -17,7 +18,16 @@ const useUserListStore = create<UserListStore>((set) => ({
     } catch (error) {
       console.error('사용자 목록 조회 실패:', error);
     }
-  }
+  },
+  updateUserStatus: (userId: string) => {
+    set((state) => ({
+      users: state.users.map((user) =>
+          user.id === userId
+              ? { ...user, status: 'OFFLINE' }
+              : user
+      ),
+    }));
+  },
 }));
 
 export default useUserListStore; 
