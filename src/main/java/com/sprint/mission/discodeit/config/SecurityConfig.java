@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.auth.DiscodeitUserDetailsService;
-import com.sprint.mission.discodeit.auth.converter.JsonUserPasswordAuthentificationConverter;
+import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
+import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Stream;
@@ -11,19 +10,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,8 +27,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final ObjectMapper objectMapper;
-  private final DiscodeitUserDetailsService userDetailsService;
+  private final LoginSuccessHandler loginSuccessHandler;
+  private final LoginFailureHandler loginFailureHandler;
 
   @Value("${discodeit.api-prefix}")
   private String API_PREFIX;
@@ -45,26 +40,24 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    JsonUserPasswordAuthentificationConverter converter = new JsonUserPasswordAuthentificationConverter(
-        objectMapper);
-    AuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-    AuthenticationManager authManager = new ProviderManager(provider);
-    AuthenticationFilter filter = new AuthenticationFilter(authManager, converter);
-    filter.setRequestMatcher(
-        PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, resolveUrl("/auth/login"))
-    );
     return http.csrf(
-            csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+            csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-        .formLogin(AbstractHttpConfigurer::disable)
+        .formLogin(form ->
+            form.loginProcessingUrl(resolveUrl("/auth/login"))
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .successHandler(loginSuccessHandler)
+                .failureHandler(loginFailureHandler))
         .httpBasic(AbstractHttpConfigurer::disable)
-        .addFilterAt(filter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(resolveUrl("/auth/login"), resolveUrl("/auth/csrf-token"))
-                    .permitAll()
+                auth.requestMatchers(HttpMethod.GET, resolveUrl("/auth/csrf-token")).permitAll()
+                    .requestMatchers(HttpMethod.POST, resolveUrl("/auth/login"),
+                        resolveUrl("/users")).permitAll()
                     .anyRequest().authenticated())
         .exceptionHandling(
             exception -> exception.authenticationEntryPoint(
@@ -86,6 +79,11 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration(resolveUrl("/**"), config);
     return source;
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
   }
 
   private String resolveUrl(String url) {

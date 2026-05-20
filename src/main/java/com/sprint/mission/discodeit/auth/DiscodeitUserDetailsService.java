@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth;
 
-import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
 import com.sprint.mission.discodeit.entity.UserCredential;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserCredentialRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DiscodeitUserDetailsService implements UserDetailsService {
 
   private final UserCredentialRepository userCredentialRepository;
+  private final UserMapper userMapper;
 
   @Override
   @Transactional(readOnly = true)
@@ -24,7 +25,8 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
     UUID userId = toUUID(stringUserId);
     UserCredential credential = userCredentialRepository.findByUser_Id(userId)
         .orElseThrow(() -> new UsernameNotFoundException("not found user credentials"));
-    return new DiscodeitUserDetails(userId, credential.getPassword(), credential.getUser().getRoles());
+    return new DiscodeitUserDetails(userMapper.toDto(credential.getUser()),
+        credential.getPassword());
   }
 
   private UUID toUUID(String userId) {
