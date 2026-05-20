@@ -2,10 +2,8 @@ package com.sprint.mission.discodeit.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.constant.ChannelType;
 import jakarta.validation.constraints.NotEmpty;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;

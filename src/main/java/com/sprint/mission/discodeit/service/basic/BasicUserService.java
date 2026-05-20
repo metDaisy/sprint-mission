@@ -87,7 +87,7 @@ public class BasicUserService implements UserService {
       fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
     }
     userMapper.partialUpdate(request, binaryContent, user);
-    updateUserCredential(id, request.getPassword());
+    updateUserCredential(user.getEmail(), request.getPassword());
     return userMapper.toDto(user);
   }
 
@@ -117,11 +117,11 @@ public class BasicUserService implements UserService {
     }
   }
 
-  private void updateUserCredential(UUID userId, String rawPassword) {
+  private void updateUserCredential(String email, String rawPassword) {
     if (rawPassword.isEmpty()) {
       return;
     }
-    UserCredential userCredential = userCredentialRepository.findByUser_Id(userId).orElseThrow();
+    UserCredential userCredential = userCredentialRepository.findByUser_Email(email).orElseThrow();
     userCredential.setPassword(passwordEncoder.encode(rawPassword));
   }
 

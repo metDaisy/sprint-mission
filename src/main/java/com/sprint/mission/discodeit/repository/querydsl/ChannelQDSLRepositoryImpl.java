@@ -6,7 +6,7 @@ import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.mission.discodeit.dto.ChannelDetailResponse;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.constant.ChannelType;
 import com.sprint.mission.discodeit.entity.QBinaryContent;
 import com.sprint.mission.discodeit.entity.QChannel;
 import com.sprint.mission.discodeit.entity.QMessage;

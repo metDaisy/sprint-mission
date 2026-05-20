@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.event.FileUploadEvent;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,12 +27,8 @@ public class FileUploadEventPublisher {
     applicationEventPublisher.publishEvent(new FileUploadEvent(zipIdWithBytes(entities, files)));
   }
 
-  public void publishFileUploadEvent(Optional<BinaryContent> entity,
-      Optional<FileUploadDto> file) {
-    if (file.isEmpty() || entity.isEmpty()) {
-      return;
-    }
-    Map<UUID, byte[]> data = Map.of(entity.get().getId(), file.get().bytes());
+  public void publishFileUploadEvent(BinaryContent entity, FileUploadDto file) {
+    Map<UUID, byte[]> data = Map.of(entity.getId(), file.bytes());
     applicationEventPublisher.publishEvent(new FileUploadEvent(data));
   }
 

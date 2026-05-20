@@ -8,8 +8,9 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -43,7 +44,7 @@ public class MessageController {
     attachments = (attachments == null) ? List.of() : attachments;
     List<FileUploadDto> safeAttachments = attachments.stream()
         .map(FileUploadDto::from)
-        .flatMap(Optional::stream)
+        .filter(Predicate.not(Objects::isNull))
         .toList();
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(messageService.create(messageCreateRequest, safeAttachments));

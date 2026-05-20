@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.constant.ChannelType;
 import lombok.Getter;
 import lombok.ToString;
 

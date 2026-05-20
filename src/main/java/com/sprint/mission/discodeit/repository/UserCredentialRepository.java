@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserCredentialRepository extends JpaRepository<UserCredential, UUID> {
 
   @EntityGraph(attributePaths = {"user"})
-  Optional<UserCredential> findByUser_Id(UUID userId);
+  Optional<UserCredential> findByUser_Email(String email);
 }

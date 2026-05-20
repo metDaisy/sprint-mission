@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.event.handler;
 
-import com.sprint.mission.discodeit.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.entity.constant.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.FileUploadResult;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import java.util.List;
