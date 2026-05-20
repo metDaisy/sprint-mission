@@ -24,9 +24,9 @@ public record FileUploadDto(
         '}';
   }
 
-  public static Optional<FileUploadDto> from(MultipartFile file) {
+  public static FileUploadDto from(MultipartFile file) {
     if (file == null || file.isEmpty()) {
-      return Optional.empty();
+      return null;
     }
 
     String filename = Objects.requireNonNull(file.getOriginalFilename(), "[error] name is null");
@@ -35,7 +35,7 @@ public record FileUploadDto(
 
     try {
       byte[] bytes = file.getBytes();
-      return Optional.of(new FileUploadDto(filename, contentType, size, bytes));
+      return new FileUploadDto(filename, contentType, size, bytes);
     } catch (IOException e) {
       Map<String, Object> details = Map.of("fileName", filename, "IOException", e.getMessage());
       throw new FileException(FileErrorCode.FILE_CANT_READ, details);

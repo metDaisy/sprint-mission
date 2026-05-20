@@ -7,20 +7,23 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserCredential;
 import com.sprint.mission.discodeit.event.publisher.FileUploadEventPublisher;
 import com.sprint.mission.discodeit.exception.user.UserErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
+import com.sprint.mission.discodeit.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,8 @@ public class BasicUserService implements UserService {
   private final UserStatusMapper userStatusMapper;
   private final BasicDomainTemplate domainTemplate;
   private final FileUploadEventPublisher fileUploadEventPublisher;
+  private final PasswordEncoder passwordEncoder;
+  private final UserCredentialRepository userCredentialRepository;
 
   @Override
   @ServiceLogAround
@@ -53,12 +58,16 @@ public class BasicUserService implements UserService {
 
   @Override
   @ServiceLogAround
-  public UserDto create(UserCreateRequest request, Optional<FileUploadDto> profile) {
+  public UserDto create(UserCreateRequest request, @Nullable FileUploadDto profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
-    Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(profile);
-    fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
+    BinaryContent binaryContent = null;
+    if (profile != null) {
+      binaryContent = binaryContentMapper.toEntityFrom(profile);
+      fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
+    }
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
     userRepository.save(user);
+    createUserCredential(request, user);
     return userMapper.toDto(user);
   }
 
@@ -69,12 +78,16 @@ public class BasicUserService implements UserService {
    * */
   @Override
   @ServiceLogAround
-  public UserDto update(UUID id, UserUpdateRequest request, Optional<FileUploadDto> profile) {
+  public UserDto update(UUID id, UserUpdateRequest request, @Nullable FileUploadDto profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
-    Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(profile);
-    fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
+    BinaryContent binaryContent = null;
+    if (profile != null) {
+      binaryContent = binaryContentMapper.toEntityFrom(profile);
+      fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
+    }
     userMapper.partialUpdate(request, binaryContent, user);
+    updateUserCredential(id, request.getPassword());
     return userMapper.toDto(user);
   }
 
@@ -102,5 +115,19 @@ public class BasicUserService implements UserService {
           value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
               Map.of("email", value)));
     }
+  }
+
+  private void updateUserCredential(UUID userId, String rawPassword) {
+    if (rawPassword.isEmpty()) {
+      return;
+    }
+    UserCredential userCredential = userCredentialRepository.findByUser_Id(userId).orElseThrow();
+    userCredential.setPassword(passwordEncoder.encode(rawPassword));
+  }
+
+  private void createUserCredential(UserCreateRequest request, User user) {
+    UserCredential userCredential = new UserCredential(user,
+        passwordEncoder.encode(request.getPassword()));
+    userCredentialRepository.save(userCredential);
   }
 }
