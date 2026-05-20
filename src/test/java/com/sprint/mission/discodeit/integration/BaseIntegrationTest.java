@@ -1,14 +1,14 @@
-package com.sprint.mission.discodeit.common;
+package com.sprint.mission.discodeit.integration;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Transactional
-public abstract class IntegratedTestSupport {
+public abstract class BaseIntegrationTest {
 
   @Autowired
   protected EntityManager em;

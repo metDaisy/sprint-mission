@@ -69,7 +69,7 @@ class UserControllerTest {
   private ObjectMapper objectMapper;
 
   @Captor
-  ArgumentCaptor<Optional<FileUploadDto>> profileCaptor;
+  ArgumentCaptor<FileUploadDto> profileCaptor;
 
   private final UserMapper userMapper = MapperContainer.get(UserMapper.class);
   private final BinaryContentMapper binaryContentMapper = MapperContainer.get(
@@ -78,13 +78,14 @@ class UserControllerTest {
   @Test
   @DisplayName("success to map to UserCreateRequest and MultipartFile and return UserDto")
   void success_to_map() throws Exception {
+    // given
     UserCreateRequest expectedRequest = UserFixture.createRequest();
     MockMultipartFile expectedFile = BinaryContentFixture.createMockFile();
-    Optional<FileUploadDto> expectedDto = FileUploadDto.from(expectedFile);
-    Optional<BinaryContent> binaryContent = binaryContentMapper.toEntityFrom(expectedDto);
+    FileUploadDto expectedFileDto = FileUploadDto.from(expectedFile);
+    BinaryContent profile = binaryContentMapper.toEntityFrom(expectedFileDto);
     User user = userMapper.toEntityFrom(expectedRequest, UserStatusFixture.createOnline(),
-        binaryContent);
-    given(userService.create(any(UserCreateRequest.class), any()))
+        profile);
+    given(userService.create(any(UserCreateRequest.class), expectedFileDto))
         .willReturn(userMapper.toDto(user));
 
     doTestCreateRequest(expectedRequest, expectedFile)
@@ -103,8 +104,8 @@ class UserControllerTest {
 
     UserCreateRequest actualRequest = requestCaptor.getValue();
     assertEqualRequest(actualRequest, expectedRequest);
-    Optional<FileUploadDto> actualDto = profileCaptor.getValue();
-    assertEqualProfile(actualDto.get(), expectedDto.get());
+    FileUploadDto actualDto = profileCaptor.getValue();
+    assertEqualProfile(actualDto, expectedFileDto);
   }
 
   @ParameterizedTest
@@ -120,20 +121,21 @@ class UserControllerTest {
   @Test
   @DisplayName("success to map to UserUpdateRequest")
   void success_to_map_userUpdateRequest() throws Exception {
-    UserUpdateRequest expectedRequest = UserFixture.createUpdate();
-    Optional<BinaryContent> expectedProfile = Optional.of(BinaryContentFixture.createEntity());
-    MockMultipartFile mockProfile = BinaryContentFixture.toMockFile(expectedProfile.get());
-    User emptyUser = User.builder()
-        .status(UserStatusFixture.createOnline())
-        .build();
-    userMapper.partialUpdate(expectedRequest, expectedProfile, emptyUser);
+    // given
+    UserUpdateRequest expectedRequest = UserFixture.createUpdateRequest();
+    MockMultipartFile mockProfile = BinaryContentFixture.createMockFile();
+    FileUploadDto fileDto = FileUploadDto.from(mockProfile);
+    BinaryContent expectedProfile = binaryContentMapper.toEntityFrom(fileDto);
+    User user = UserFixture.createEntity();
+    userMapper.partialUpdate(expectedRequest, expectedProfile, user);
     given(
         userService.update(
             any(UUID.class),
             any(UserUpdateRequest.class),
             any()))
-        .willReturn(userMapper.toDto(emptyUser));
+        .willReturn(userMapper.toDto(user));
 
+    // when & then
     doTestUpdateRequest(expectedRequest, mockProfile)
         .andExpect(getOk())
         .andExpect(jsonPath("$.id").exists())

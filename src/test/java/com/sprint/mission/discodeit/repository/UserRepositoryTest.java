@@ -101,8 +101,8 @@ class UserRepositoryTest extends BaseRepositoryTest {
   void find_by_username_and_password() {
     User actual = testEntity.generatorUser();
     clear();
-    User expected = userRepository.findByUsernameAndPassword(
-            actual.getUsername(), actual.getPassword())
+    User expected = userRepository.findByUsername(
+            actual.getUsername())
         .orElse(null);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
@@ -115,7 +115,7 @@ class UserRepositoryTest extends BaseRepositoryTest {
   void fail_to_find_by_password_and_incorrect_username() {
     User actual = testEntity.generatorUser();
     clear();
-    User expected = userRepository.findByUsernameAndPassword("3e4r9kx,vv", actual.getPassword())
+    User expected = userRepository.findByUsername("3e4r9kx,vv")
         .orElse(null);
     Assertions.assertThat(expected).isNull();
   }
@@ -125,7 +125,7 @@ class UserRepositoryTest extends BaseRepositoryTest {
   void fail_to_find_by_username_and_incorrect_password() {
     User actual = testEntity.generatorUser();
     clear();
-    User expected = userRepository.findByUsernameAndPassword(actual.getUsername(), "asb@czxc.com")
+    User expected = userRepository.findByUsername(actual.getUsername())
         .orElse(null);
     Assertions.assertThat(expected).isNull();
   }

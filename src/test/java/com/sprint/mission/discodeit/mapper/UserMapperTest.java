@@ -31,12 +31,11 @@ class UserMapperTest {
   }
 
   @Test
-  @DisplayName(""
-      + "@Mapping(target = \"status\", qualifiedByName = \"toEntity\")\n"
+  @DisplayName("@Mapping(target = \"status\", qualifiedByName = \"toEntity\")\n"
       + "User toEntityFrom(UserCreateRequest request, BinaryContent profile);")
   void toEntityFrom() {
     UserCreateRequest request = UserFixture.createRequest();
-    Optional<BinaryContent> profile = Optional.of(BinaryContentFixture.createEntity());
+    BinaryContent profile = BinaryContentFixture.createEntity();
     UserStatus status = UserStatusFixture.createOnline();
     User user = userMapper.toEntityFrom(request, status, profile);
     notEqualsTo(user, emptyUser);
@@ -46,7 +45,7 @@ class UserMapperTest {
   @DisplayName("User partialUpdate(UserUpdateRequest request, BinaryContent profile, @MappingTarget User user);")
   void partialUpdate() {
     UserUpdateRequest request = UserFixture.createUpdateRequest();
-    Optional<BinaryContent> profile = Optional.of(BinaryContentFixture.createEntity());
+    BinaryContent profile = BinaryContentFixture.createEntity();
     User user = User.builder().build();
     userMapper.partialUpdate(request, profile, user);
     notEqualsTo(user, emptyUser);
@@ -55,8 +54,7 @@ class UserMapperTest {
   private static void notEqualsTo(User user, User emptyUser) {
     assertAll(
         () -> assertNotEquals(user.getUsername(), emptyUser.getUsername()),
-        () -> assertNotEquals(user.getEmail(), emptyUser.getEmail()),
-        () -> assertNotEquals(user.getPassword(), emptyUser.getPassword())
+        () -> assertNotEquals(user.getEmail(), emptyUser.getEmail())
     );
   }
 

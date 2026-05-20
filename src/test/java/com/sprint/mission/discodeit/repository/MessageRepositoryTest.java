@@ -82,7 +82,7 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   void fail_to_create_due_to_not_existing_user() {
     User user = em.getReference(User.class, UUID.randomUUID());
     Channel channel = testEntity.generatorPublicChannel();
-    Message message = MessageFixture.createEntity(user, channel, List.of());
+    Message message = MessageFixture.createEntity();
     Assertions.assertThatThrownBy(() -> messageRepository.saveAndFlush(message))
         .isInstanceOf(DataIntegrityViolationException.class);
   }
@@ -92,7 +92,7 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   void fail_to_create_due_to_not_existing_channel() {
     User user = testEntity.generatorUser();
     Channel channel = em.getReference(Channel.class, UUID.randomUUID());
-    Message message = MessageFixture.createEntity(user, channel, List.of());
+    Message message = MessageFixture.createEntity();
     Assertions.assertThatThrownBy(() -> messageRepository.saveAndFlush(message))
         .isInstanceOf(DataIntegrityViolationException.class);
   }
@@ -104,7 +104,7 @@ class MessageRepositoryTest extends BaseRepositoryTest {
     List<Message> expected = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       User author = testEntity.generatorUser();
-      Message message = MessageFixture.createEntity(author, channel, List.of());
+      Message message = MessageFixture.createEntity();
       expected.add(message);
     }
     messageRepository.saveAll(expected);

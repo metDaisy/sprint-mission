@@ -7,11 +7,8 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.fixture.ChannelFixture;
-import com.sprint.mission.discodeit.fixture.ReadStatusFixture;
-import com.sprint.mission.discodeit.fixture.UserFixture;
 import com.sprint.mission.discodeit.generator.TestEntity;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -59,7 +56,8 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     Message message = testEntity.generatorMessage();
     Channel actual = message.getChannel();
     clear();
-    ChannelDetailResponse expected = channelRepository.findChannelDetailById(actual.getId()).orElseThrow();
+    ChannelDetailResponse expected = channelRepository.findChannelDetailById(actual.getId())
+        .orElseThrow();
     ensureQueryCount(1);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
@@ -78,7 +76,8 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     Channel actual = testEntity.generatorPrivateChannel();
     ensureQueryCount(1);
     clear();
-    ChannelDetailResponse expected = channelRepository.findChannelDetailById(actual.getId()).orElseThrow();
+    ChannelDetailResponse expected = channelRepository.findChannelDetailById(actual.getId())
+        .orElseThrow();
     ensureQueryCount(1);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
@@ -115,41 +114,30 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
           + "user가 볼 수 있는 모든 channel(모든 public, user 가 속한 private channel)을 조회한다"
   )
   void findVisibleToWithLastMessageAt() {
-    List<User> users = UserFixture.createEntities();
-    userRepository.saveAll(users);
-    List<Channel> publicChannels = ChannelFixture.createPublicChannels();
-    List<Channel> privateChannels = ChannelFixture.createPrivateChannels();
-    channelRepository.saveAll(publicChannels);
-    channelRepository.saveAll(privateChannels);
-    List<ReadStatus> readStatuses = getReadStatuses(privateChannels, users);
-    readStatusRepository.saveAll(readStatuses);
-    em.flush();
-    ensureQueryCount(5);
+    // given
+    ReadStatus readStatus = testEntity.generatorReadStatus();
+    User user = readStatus.getUser();
+    Channel privateChannel = readStatus.getChannel();
+    Channel publicChannel = testEntity.generatorPublicChannel();
+    ensureQueryCount(4);
     clear();
+    UUID userId = user.getId();
+    List<UUID> expectedChannelIds = List.of(privateChannel.getId(), publicChannel.getId());
 
-    UUID userId = users.get(0).getId();
-    List<UUID> expectedPublicChannelIds = publicChannels.stream()
-        .map(Channel::getId)
-        .toList();
-    List<UUID> expectedPrivateChannelIds = readStatuses.stream()
-        .filter(rs -> rs.getUser().getId().equals(userId))
-        .map(rs -> rs.getChannel().getId())
-        .toList();
-
-    List<ChannelDetailResponse> actualVisibleChannels = channelRepository.findVisibleChannelDetails(userId);
+    // when
+    List<ChannelDetailResponse> actualChannelIds
+        = channelRepository.findVisibleChannelDetails(userId);
     ensureQueryCount(1);
-    Assertions.assertThat(actualVisibleChannels)
-        .extracting(ChannelDetailResponse::channel)
-        .extracting(Channel::getId)
-        .hasSize(expectedPublicChannelIds.size() + expectedPrivateChannelIds.size())
-        .containsAll(expectedPublicChannelIds)
-        .containsAll(expectedPrivateChannelIds);
+
+    // then
+    Assertions.assertThat(actualChannelIds)
+        .isEqualTo(expectedChannelIds);
   }
 
   @Test
   @DisplayName(
       "public channel 삭제 시 연관된 message만 삭제된다\n"
-      + "이 message와 연관된 binary content은 삭제되지 않는다"
+          + "이 message와 연관된 binary content은 삭제되지 않는다"
   )
   void success_to_delete_channel_with_messages_and_attachments() {
     Message message = testEntity.generatorMessage();
@@ -169,16 +157,5 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
         .extracting(BinaryContent::getId)
         .allMatch(binaryContentRepository::existsById);
     Assertions.assertThat(userRepository.existsById(user.getId())).isTrue();
-  }
-
-  private List<ReadStatus> getReadStatuses(
-      List<Channel> privateChannels, List<User> users) {
-    List<ReadStatus> readStatuses = new ArrayList<>();
-    for (int i = 0; i < privateChannels.size(); i++) {
-      User user = users.get(i);
-      Channel channel = privateChannels.get(i);
-      readStatuses.add(ReadStatusFixture.createEntity(user, channel));
-    }
-    return readStatuses;
   }
 }
