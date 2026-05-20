@@ -49,8 +49,11 @@ public class User extends BaseUpdatableEntity {
   private DiscodeitRole role;
 
   @Builder
-  public User(String username, String email,
-      BinaryContent profile, UserStatus status, DiscodeitRole role) {
+  public User(String username,
+      String email,
+      BinaryContent profile,
+      UserStatus status,
+      DiscodeitRole role) {
     this.username = username;
     this.email = email;
     this.profile = profile;

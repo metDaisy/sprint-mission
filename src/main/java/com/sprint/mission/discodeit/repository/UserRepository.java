@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
 import com.sprint.mission.discodeit.entity.User;
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByEmail(String email);
 
-  Optional<User> findByUsername(String username);
+  boolean existsByRole(DiscodeitRole role);
 
   @Query("select u.id from User u where u.id in :ids")
   List<UUID> filterExistingIds(@Param("ids") Collection<UUID> ids);
