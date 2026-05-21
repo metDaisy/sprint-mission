@@ -29,12 +29,14 @@ public class AdminInitializer {
     if (hasAdmin) {
       return;
     }
+    UserStatus status = UserStatus.builder().lastActiveAt(Instant.now()).build();
     User admin = User.builder()
         .username("admin")
         .email("admin@admin.com")
         .role(DiscodeitRole.ADMIN)
-        .status(UserStatus.builder().lastActiveAt(Instant.now()).build())
+        .status(status)
         .build();
+    status.setUser(admin);
     userRepository.save(admin);
     UserCredential userCredential = new UserCredential(admin, passwordEncoder.encode("admin"));
     userCredentialRepository.save(userCredential);

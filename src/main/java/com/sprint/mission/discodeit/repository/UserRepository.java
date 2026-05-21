@@ -19,6 +19,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByRole(DiscodeitRole role);
 
+  Optional<User> findByUsername(String username);
+
   @Query("select u.id from User u where u.id in :ids")
   List<UUID> filterExistingIds(@Param("ids") Collection<UUID> ids);
 

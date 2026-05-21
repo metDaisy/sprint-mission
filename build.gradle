@@ -61,6 +61,15 @@ dependencies {
     testImplementation('org.instancio:instancio-junit')
 }
 
+tasks.register('copyFrontApiJson', Copy) {
+    from "${project.rootDir}/discodeit-front/api.json"
+    into "${project.projectDir}/src/main/resources/static"
+}
+
+tasks.named('processResources') {
+    dependsOn copyFrontApiJson
+}
+
 test {
     useJUnitPlatform()
 }
