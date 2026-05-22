@@ -68,9 +68,15 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(HttpMethod.GET, resolveUrl("/auth/csrf-token"), "/actuator/**",
-                        "/swagger-ui/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, resolveUrl("/auth/login"),
+                auth.requestMatchers(HttpMethod.GET,
+                        resolveUrl("/auth/csrf-token"),
+                        "/actuator/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/api.json").permitAll()
+                    .requestMatchers(HttpMethod.POST,
+                        resolveUrl("/auth/login"),
                         resolveUrl("/users")).permitAll()
                     .anyRequest().authenticated())
         .exceptionHandling(

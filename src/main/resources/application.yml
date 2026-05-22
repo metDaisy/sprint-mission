@@ -11,7 +11,10 @@ discodeit:
     type: ${STORAGE_TYPE} # local | s3
     local:
       root-path: ${LOCAL_STORAGE_ROOT_PATH:.discodeit/storage}
-  admin-email: admin@admin.com
+  admin:
+    username: ${ADMIN_USERNAME}
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
   api-prefix: /api
 aws:
   s3:

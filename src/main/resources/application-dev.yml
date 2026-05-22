@@ -1,8 +1,6 @@
 springdoc:
   swagger-ui:
     url: /api.json
-  api-docs:
-    enabled: false
 
 spring:
   datasource:
