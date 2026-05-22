@@ -118,7 +118,7 @@ public class BasicUserService implements UserService {
   }
 
   private void updateUserCredential(String email, String rawPassword) {
-    if (rawPassword.isEmpty()) {
+    if (rawPassword == null) {
       return;
     }
     UserCredential userCredential = userCredentialRepository.findByUser_Email(email).orElseThrow();

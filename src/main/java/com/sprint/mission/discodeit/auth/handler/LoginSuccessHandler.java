@@ -21,7 +21,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
-    super.onAuthenticationSuccess(request, response, authentication);
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();

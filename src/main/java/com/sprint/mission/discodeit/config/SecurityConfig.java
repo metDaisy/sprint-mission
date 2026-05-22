@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.auth.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.handler.LogoutSuccessHandler;
+import com.sprint.mission.discodeit.repository.RememberMeTokenRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,11 +23,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -38,6 +43,8 @@ public class SecurityConfig {
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
   private final LogoutSuccessHandler logoutSuccessHandler;
+  private final DiscodeitUserDetailsService userDetailsService;
+  private final RememberMeTokenRepository rememberMeTokenRepository;
 
   @Value("${discodeit.api-prefix}")
   private String API_PREFIX;
@@ -54,13 +61,23 @@ public class SecurityConfig {
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .sessionConcurrency(concurrency ->
+                        concurrency.sessionRegistry(sessionRegistry())
+                            .maximumSessions(1)
+                            .maxSessionsPreventsLogin(false)))
         .formLogin(form ->
             form.loginProcessingUrl(resolveUrl("/auth/login"))
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler))
+        .rememberMe(remember -> remember.key("discodeit-remember-key")
+            .rememberMeParameter("remember-me")
+            .tokenValiditySeconds(60 * 60 * 24 * 7)
+            .userDetailsService(userDetailsService)
+            .tokenRepository(rememberMeTokenRepository))
         .logout(logout -> logout.logoutUrl(resolveUrl("/auth/logout"))
             .logoutSuccessHandler(logoutSuccessHandler)
             .deleteCookies("JSESSIONID", "XSRF-TOKEN")
@@ -89,7 +106,7 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost", "http://localhost:5173"));
+    config.setAllowedOrigins(List.of("http://localhost"));
     config.setAllowedMethods(
         Stream.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PATCH, HttpMethod.DELETE,
                 HttpMethod.OPTIONS)
@@ -121,6 +138,16 @@ public class SecurityConfig {
     handler.setRoleHierarchy(roleHierarchy);
     handler.setDefaultRolePrefix("");
     return handler;
+  }
+
+  @Bean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
+  }
+
+  @Bean
+  public SessionRegistry sessionRegistry() {
+    return new SessionRegistryImpl();
   }
 
   private String resolveUrl(String url) {
