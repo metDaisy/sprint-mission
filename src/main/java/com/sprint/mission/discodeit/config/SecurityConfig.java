@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.handler.LogoutSuccessHandler;
+import com.sprint.mission.discodeit.auth.permission.DomainPermissionEvaluator;
 import com.sprint.mission.discodeit.repository.RememberMeTokenRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -45,6 +46,7 @@ public class SecurityConfig {
   private final LogoutSuccessHandler logoutSuccessHandler;
   private final DiscodeitUserDetailsService userDetailsService;
   private final RememberMeTokenRepository rememberMeTokenRepository;
+  private final DomainPermissionEvaluator permissionEvaluator;
 
   @Value("${discodeit.api-prefix}")
   private String API_PREFIX;
@@ -137,6 +139,7 @@ public class SecurityConfig {
     DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
     handler.setRoleHierarchy(roleHierarchy);
     handler.setDefaultRolePrefix("");
+    handler.setPermissionEvaluator(permissionEvaluator);
     return handler;
   }
 
