@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.user.entity;
 
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.fixture.UserStatusFixture;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

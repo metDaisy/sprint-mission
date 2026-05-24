@@ -1,13 +1,13 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.user.controller;
 
 import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserStatusDto;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -35,17 +35,17 @@ public class UserController {
   private final UserStatusService userStatusService;
 
   @GetMapping(value = "/{id}")
-  public ResponseEntity<UserDto> find(@PathVariable UUID id) {
+  public ResponseEntity<UserResponse> find(@PathVariable UUID id) {
     return ResponseEntity.status(HttpStatus.OK).body(userService.find(id));
   }
 
   @GetMapping
-  public ResponseEntity<List<UserDto>> findAll() {
+  public ResponseEntity<List<UserResponse>> findAll() {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<UserDto> create(
+  public ResponseEntity<UserResponse> create(
       @RequestPart @Valid UserCreateRequest userCreateRequest,
       @RequestPart(required = false) MultipartFile profile) {
     return ResponseEntity.status(HttpStatus.CREATED)
@@ -53,7 +53,7 @@ public class UserController {
   }
 
   @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<UserDto> update(
+  public ResponseEntity<UserResponse> update(
       @PathVariable UUID id,
       @RequestPart @Valid UserUpdateRequest userUpdateRequest,
       @RequestPart(required = false) MultipartFile profile) {

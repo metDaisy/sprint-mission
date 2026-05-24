@@ -1,6 +1,8 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.user.entity;
 
 import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

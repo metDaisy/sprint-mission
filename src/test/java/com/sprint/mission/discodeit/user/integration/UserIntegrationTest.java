@@ -1,21 +1,21 @@
-package com.sprint.mission.discodeit.integration;
+package com.sprint.mission.discodeit.user.integration;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.integration.BaseIntegrationTest;
+import com.sprint.mission.discodeit.user.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.entity.User;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.user.UserErrorCode;
+import com.sprint.mission.discodeit.user.exception.UserErrorCode;
 import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
 import com.sprint.mission.discodeit.fixture.UserFixture;
 import com.sprint.mission.discodeit.generator.TestEntity;
-import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.user.mapper.UserMapper;
+import com.sprint.mission.discodeit.user.repository.UserRepository;
+import com.sprint.mission.discodeit.user.service.UserService;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +52,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
   @DisplayName("success to find user by id")
   void success_to_find() {
     User user = users.get(0);
-    UserDto expected = userService.find(user.getId());
+    UserResponse expected = userService.find(user.getId());
     Assertions.assertThat(expected)
         .extracting("id", "username", "email")
         .containsExactly(user.getId(), user.getUsername(), user.getEmail());
@@ -70,7 +70,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
   @Test
   @DisplayName("success to find all user")
   void success_to_findAll() {
-    List<UserDto> expected = userService.findAll();
+    List<UserResponse> expected = userService.findAll();
     for (int i = 0; i < 10; i++) {
       Assertions.assertThat(expected.get(i))
           .usingRecursiveComparison()
@@ -84,7 +84,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     UserCreateRequest request = UserFixture.createRequest();
     MultipartFile file = BinaryContentFixture.createFile();
     FileUploadDto fileDto = FileUploadDto.from(file);
-    UserDto expected = userService.create(request, fileDto);
+    UserResponse expected = userService.create(request, fileDto);
     flushAndClear();
     User actual = userRepository.findById(expected.id()).orElse(null);
     Assertions.assertThat(actual)
@@ -137,7 +137,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     UserUpdateRequest request = UserFixture.createUpdateRequest();
     MultipartFile file = BinaryContentFixture.createFile();
     FileUploadDto fileDto = FileUploadDto.from(file);
-    UserDto updated = userService.update(userId, request, fileDto);
+    UserResponse updated = userService.update(userId, request, fileDto);
     flushAndClear();
     Assertions.assertThat(updated)
         .extracting("id", "username", "email", "profile.fileName", "profile.size",
@@ -171,7 +171,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     UserUpdateRequest request = new UserUpdateRequest("leee", null, "leee1234");
     MultipartFile file = BinaryContentFixture.createFile();
     FileUploadDto fileDto = FileUploadDto.from(file);
-    UserDto expected = userService.update(userId, request, fileDto);
+    UserResponse expected = userService.update(userId, request, fileDto);
     flushAndClear();
 
     Assertions.assertThat(expected)

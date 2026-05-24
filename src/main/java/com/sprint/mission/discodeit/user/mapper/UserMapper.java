@@ -1,11 +1,13 @@
-package com.sprint.mission.discodeit.mapper;
+package com.sprint.mission.discodeit.user.mapper;
 
-import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.mapper.BaseMapper;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.user.dto.response.UserResponse;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.user.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.config.GlobalMapperConfig;
 import org.mapstruct.AfterMapping;
@@ -15,7 +17,7 @@ import org.mapstruct.MappingTarget;
 
 
 @Mapper(config = GlobalMapperConfig.class, uses = BinaryContentMapper.class)
-public interface UserMapper extends BaseMapper<User, UserDto> {
+public interface UserMapper extends BaseMapper<User, UserResponse> {
 
 
   @Mapping(target = "status", source = "status")

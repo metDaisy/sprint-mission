@@ -1,22 +1,22 @@
-package com.sprint.mission.discodeit.service.basic;
+package com.sprint.mission.discodeit.user.service;
 
 import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
 import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserCredential;
 import com.sprint.mission.discodeit.event.publisher.FileUploadEventPublisher;
-import com.sprint.mission.discodeit.exception.user.UserErrorCode;
-import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserCredentialRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicDomainTemplate;
+import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.exception.UserErrorCode;
+import com.sprint.mission.discodeit.user.exception.UserException;
+import com.sprint.mission.discodeit.user.mapper.UserMapper;
+import com.sprint.mission.discodeit.user.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,10 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
 @Transactional
-public class BasicUserService implements UserService {
+@RequiredArgsConstructor
+public class UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
@@ -41,24 +41,21 @@ public class BasicUserService implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final UserCredentialRepository userCredentialRepository;
 
-  @Override
   @ServiceLogAround
   @Transactional(readOnly = true)
-  public UserDto find(UUID id) {
+  public UserResponse find(UUID id) {
     User user = findById(id);
     return userMapper.toDto(user);
   }
 
-  @Override
   @Transactional(readOnly = true)
-  public List<UserDto> findAll() {
+  public List<UserResponse> findAll() {
     List<User> users = userRepository.findAllUsersProfileAndStatusBy();
     return userMapper.toDto(users);
   }
 
-  @Override
   @ServiceLogAround
-  public UserDto create(UserCreateRequest request, @Nullable FileUploadDto profile) {
+  public UserResponse create(UserCreateRequest request, @Nullable FileUploadDto profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     BinaryContent binaryContent = null;
     if (profile != null) {
@@ -76,9 +73,8 @@ public class BasicUserService implements UserService {
    *  If an image already exists and the received image is null,
    *  distinguish whether to delete the image or not update it.
    * */
-  @Override
   @ServiceLogAround
-  public UserDto update(UUID id, UserUpdateRequest request, @Nullable FileUploadDto profile) {
+  public UserResponse update(UUID id, UserUpdateRequest request, @Nullable FileUploadDto profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
     BinaryContent binaryContent = null;
@@ -91,7 +87,6 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
-  @Override
   @ServiceLogAround
   public void delete(UUID id) {
     domainTemplate.deleteByIdOrThrow(id, userRepository,
