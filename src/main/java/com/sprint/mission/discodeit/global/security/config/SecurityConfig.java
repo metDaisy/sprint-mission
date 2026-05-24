@@ -5,8 +5,6 @@ import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.auth.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.security.handler.LogoutSuccessHandler;
-import com.sprint.mission.discodeit.global.security.authorization.DomainPermissionEvaluator;
-import com.sprint.mission.discodeit.user.entity.constant.UserRole;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Stream;
@@ -15,19 +13,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -46,15 +37,9 @@ public class SecurityConfig {
   private final LogoutSuccessHandler logoutSuccessHandler;
   private final DiscodeitUserDetailsService userDetailsService;
   private final RememberMeTokenRepository rememberMeTokenRepository;
-  private final DomainPermissionEvaluator permissionEvaluator;
 
   @Value("${discodeit.api-prefix}")
   private String API_PREFIX;
-
-  @Bean
-  public GrantedAuthorityDefaults grantedAuthorityDefaults() {
-    return new GrantedAuthorityDefaults("");
-  }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -118,29 +103,6 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration(resolveUrl("/**"), config);
     return source;
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-  }
-
-  @Bean
-  public RoleHierarchy roleHierarchy() {
-    return RoleHierarchyImpl.withRolePrefix("")
-        .role(UserRole.ADMIN.name()).implies(UserRole.CHANNEL_MANAGER.name())
-        .role(UserRole.CHANNEL_MANAGER.name()).implies(UserRole.USER.name())
-        .build();
-  }
-
-  @Bean
-  public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
-      RoleHierarchy roleHierarchy) {
-    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-    handler.setRoleHierarchy(roleHierarchy);
-    handler.setDefaultRolePrefix("");
-    handler.setPermissionEvaluator(permissionEvaluator);
-    return handler;
   }
 
   @Bean
