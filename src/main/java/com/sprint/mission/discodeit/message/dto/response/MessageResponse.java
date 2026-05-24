@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.message.dto.response;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.message.entity.Message;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
 import java.io.Serializable;

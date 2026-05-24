@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.user.integration;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.integration.BaseIntegrationTest;
+import com.sprint.mission.discodeit.binarycontent.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.support.base.BaseIntegrationTest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.user.exception.UserErrorCode;
-import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
-import com.sprint.mission.discodeit.fixture.UserFixture;
-import com.sprint.mission.discodeit.generator.TestEntity;
+import com.sprint.mission.discodeit.support.fixture.BinaryContentFixture;
+import com.sprint.mission.discodeit.support.fixture.UserFixture;
+import com.sprint.mission.discodeit.support.generator.TestEntity;
 import com.sprint.mission.discodeit.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.user.repository.UserRepository;
 import com.sprint.mission.discodeit.user.service.UserService;
@@ -83,7 +83,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
   void success_to_create() {
     UserCreateRequest request = UserFixture.createRequest();
     MultipartFile file = BinaryContentFixture.createFile();
-    FileUploadDto fileDto = FileUploadDto.from(file);
+    FileUploadRequest fileDto = FileUploadRequest.from(file);
     UserResponse expected = userService.create(request, fileDto);
     flushAndClear();
     User actual = userRepository.findById(expected.id()).orElse(null);
@@ -99,7 +99,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     String password = "bbqwed";
     String email = "dncie@ciom.com";
     MultipartFile file = BinaryContentFixture.createFile();
-    FileUploadDto fileDto = FileUploadDto.from(file);
+    FileUploadRequest fileDto = FileUploadRequest.from(file);
     UserCreateRequest request = new UserCreateRequest(username, email, password);
 
     Assertions.assertThatThrownBy(() -> {
@@ -117,7 +117,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     String email = users.get(0).getEmail();
     String password = ",cki4e3d";
     MultipartFile file = BinaryContentFixture.createFile();
-    FileUploadDto fileDto = FileUploadDto.from(file);
+    FileUploadRequest fileDto = FileUploadRequest.from(file);
     UserCreateRequest request = new UserCreateRequest(username, email, password);
 
     Assertions.assertThatThrownBy(() -> {
@@ -136,7 +136,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     UUID originProfileId = user.getProfile().getId();
     UserUpdateRequest request = UserFixture.createUpdateRequest();
     MultipartFile file = BinaryContentFixture.createFile();
-    FileUploadDto fileDto = FileUploadDto.from(file);
+    FileUploadRequest fileDto = FileUploadRequest.from(file);
     UserResponse updated = userService.update(userId, request, fileDto);
     flushAndClear();
     Assertions.assertThat(updated)
@@ -170,7 +170,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     UUID originProfileId = originUser.getProfile().getId();
     UserUpdateRequest request = new UserUpdateRequest("leee", null, "leee1234");
     MultipartFile file = BinaryContentFixture.createFile();
-    FileUploadDto fileDto = FileUploadDto.from(file);
+    FileUploadRequest fileDto = FileUploadRequest.from(file);
     UserResponse expected = userService.update(userId, request, fileDto);
     flushAndClear();
 

@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.user.entity;
 
-import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
+import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.user.entity.constant.UserRole;
+import com.sprint.mission.discodeit.userstatus.entity.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,14 +48,14 @@ public class User extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "role")
-  private DiscodeitRole role;
+  private UserRole role;
 
   @Builder
   public User(String username,
       String email,
       BinaryContent profile,
       UserStatus status,
-      DiscodeitRole role) {
+      UserRole role) {
     this.username = username;
     this.email = email;
     this.profile = profile;

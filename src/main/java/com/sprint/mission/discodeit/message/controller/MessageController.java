@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.message.controller;
 
-import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.common.dto.response.PageResponse;
 import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.message.dto.response.MessageResponse;
@@ -42,8 +42,8 @@ public class MessageController {
       @RequestPart @Valid MessageCreateRequest messageCreateRequest,
       @RequestPart(required = false) List<MultipartFile> attachments) {
     attachments = (attachments == null) ? List.of() : attachments;
-    List<FileUploadDto> safeAttachments = attachments.stream()
-        .map(FileUploadDto::from)
+    List<FileUploadRequest> safeAttachments = attachments.stream()
+        .map(FileUploadRequest::from)
         .filter(Predicate.not(Objects::isNull))
         .toList();
     return ResponseEntity.status(HttpStatus.CREATED)

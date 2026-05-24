@@ -3,12 +3,12 @@ package com.sprint.mission.discodeit.user.mapper;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
-import com.sprint.mission.discodeit.fixture.UserFixture;
-import com.sprint.mission.discodeit.fixture.UserStatusFixture;
-import com.sprint.mission.discodeit.mapper.factory.MapperContainer;
+import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
+import com.sprint.mission.discodeit.userstatus.entity.UserStatus;
+import com.sprint.mission.discodeit.support.fixture.BinaryContentFixture;
+import com.sprint.mission.discodeit.support.fixture.UserFixture;
+import com.sprint.mission.discodeit.support.fixture.UserStatusFixture;
+import com.sprint.mission.discodeit.support.mapper.MapperContainer;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.entity.User;

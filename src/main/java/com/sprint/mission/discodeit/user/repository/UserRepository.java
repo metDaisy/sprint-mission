@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.user.repository;
 
-import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
 import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.entity.constant.UserRole;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByEmail(String email);
 
-  boolean existsByRole(DiscodeitRole role);
+  boolean existsByRole(UserRole role);
 
   Optional<User> findByUsername(String username);
 

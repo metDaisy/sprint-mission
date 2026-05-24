@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.user.service;
 
-import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
-import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.UserCredential;
-import com.sprint.mission.discodeit.event.publisher.FileUploadEventPublisher;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.auth.entity.UserCredential;
+import com.sprint.mission.discodeit.auth.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.common.storage.event.FileUploadEventPublisher;
+import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
+import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
-import com.sprint.mission.discodeit.repository.UserCredentialRepository;
-import com.sprint.mission.discodeit.service.basic.BasicDomainTemplate;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
@@ -36,7 +36,7 @@ public class UserService {
   private final UserMapper userMapper;
   private final BinaryContentMapper binaryContentMapper;
   private final UserStatusMapper userStatusMapper;
-  private final BasicDomainTemplate domainTemplate;
+  private final DomainServiceSupport domainTemplate;
   private final FileUploadEventPublisher fileUploadEventPublisher;
   private final PasswordEncoder passwordEncoder;
   private final UserCredentialRepository userCredentialRepository;
@@ -55,7 +55,7 @@ public class UserService {
   }
 
   @ServiceLogAround
-  public UserResponse create(UserCreateRequest request, @Nullable FileUploadDto profile) {
+  public UserResponse create(UserCreateRequest request, @Nullable FileUploadRequest profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     BinaryContent binaryContent = null;
     if (profile != null) {
@@ -74,7 +74,8 @@ public class UserService {
    *  distinguish whether to delete the image or not update it.
    * */
   @ServiceLogAround
-  public UserResponse update(UUID id, UserUpdateRequest request, @Nullable FileUploadDto profile) {
+  public UserResponse update(UUID id, UserUpdateRequest request,
+      @Nullable FileUploadRequest profile) {
     validateUserUniqueness(request.getUsername(), request.getEmail());
     User user = findById(id);
     BinaryContent binaryContent = null;

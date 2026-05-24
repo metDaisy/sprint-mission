@@ -10,20 +10,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.UserStatusDto;
+import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.userstatus.dto.UserStatusDto;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.userstatus.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.fixture.BinaryContentFixture;
-import com.sprint.mission.discodeit.fixture.UserFixture;
-import com.sprint.mission.discodeit.fixture.UserStatusFixture;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.support.fixture.BinaryContentFixture;
+import com.sprint.mission.discodeit.support.fixture.UserFixture;
+import com.sprint.mission.discodeit.support.fixture.UserStatusFixture;
+import com.sprint.mission.discodeit.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.user.mapper.UserMapper;
-import com.sprint.mission.discodeit.mapper.factory.MapperContainer;
-import com.sprint.mission.discodeit.service.UserStatusService;
+import com.sprint.mission.discodeit.support.mapper.MapperContainer;
+import com.sprint.mission.discodeit.userstatus.service.UserStatusService;
 import com.sprint.mission.discodeit.user.service.UserService;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -68,7 +68,7 @@ class UserControllerTest {
   private ObjectMapper objectMapper;
 
   @Captor
-  ArgumentCaptor<FileUploadDto> profileCaptor;
+  ArgumentCaptor<FileUploadRequest> profileCaptor;
 
   private final UserMapper userMapper = MapperContainer.get(UserMapper.class);
   private final BinaryContentMapper binaryContentMapper = MapperContainer.get(
@@ -80,7 +80,7 @@ class UserControllerTest {
     // given
     UserCreateRequest expectedRequest = UserFixture.createRequest();
     MockMultipartFile expectedFile = BinaryContentFixture.createMockFile();
-    FileUploadDto expectedFileDto = FileUploadDto.from(expectedFile);
+    FileUploadRequest expectedFileDto = FileUploadRequest.from(expectedFile);
     BinaryContent profile = binaryContentMapper.toEntityFrom(expectedFileDto);
     User user = userMapper.toEntityFrom(expectedRequest, UserStatusFixture.createOnline(),
         profile);
@@ -103,7 +103,7 @@ class UserControllerTest {
 
     UserCreateRequest actualRequest = requestCaptor.getValue();
     assertEqualRequest(actualRequest, expectedRequest);
-    FileUploadDto actualDto = profileCaptor.getValue();
+    FileUploadRequest actualDto = profileCaptor.getValue();
     assertEqualProfile(actualDto, expectedFileDto);
   }
 
@@ -123,7 +123,7 @@ class UserControllerTest {
     // given
     UserUpdateRequest expectedRequest = UserFixture.createUpdateRequest();
     MockMultipartFile mockProfile = BinaryContentFixture.createMockFile();
-    FileUploadDto fileDto = FileUploadDto.from(mockProfile);
+    FileUploadRequest fileDto = FileUploadRequest.from(mockProfile);
     BinaryContent expectedProfile = binaryContentMapper.toEntityFrom(fileDto);
     User user = UserFixture.createEntity();
     userMapper.partialUpdate(expectedRequest, expectedProfile, user);
@@ -225,7 +225,7 @@ class UserControllerTest {
         content.getBytes(StandardCharsets.UTF_8));
   }
 
-  private void assertEqualProfile(FileUploadDto expected, FileUploadDto actual) {
+  private void assertEqualProfile(FileUploadRequest expected, FileUploadRequest actual) {
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
         .isEqualTo(expected);

@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.channel.repository;
 
 import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.repository.BaseRepositoryTest;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.message.entity.Message;
+import com.sprint.mission.discodeit.readstatus.entity.ReadStatus;
+import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
+import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.message.repository.MessageRepository;
+import com.sprint.mission.discodeit.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.fixture.ChannelFixture;
-import com.sprint.mission.discodeit.generator.TestEntity;
+import com.sprint.mission.discodeit.support.fixture.ChannelFixture;
+import com.sprint.mission.discodeit.support.generator.TestEntity;
 import com.sprint.mission.discodeit.user.repository.UserRepository;
 import java.time.Instant;
 import java.util.List;

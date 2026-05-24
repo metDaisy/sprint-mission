@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.user.dto.response;
 
-import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.entity.constant.UserRole;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.Builder;
@@ -16,6 +16,6 @@ public record UserResponse(UUID id,
                            String email,
                            BinaryContentDto profile,
                            boolean online,
-                           DiscodeitRole role) implements Serializable {
+                           UserRole role) implements Serializable {
 
 }

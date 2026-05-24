@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.user.repository;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.fixture.UserFixture;
-import com.sprint.mission.discodeit.generator.TestEntity;
-import com.sprint.mission.discodeit.repository.BaseRepositoryTest;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
+import com.sprint.mission.discodeit.userstatus.entity.UserStatus;
+import com.sprint.mission.discodeit.support.fixture.UserFixture;
+import com.sprint.mission.discodeit.support.generator.TestEntity;
+import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
+import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.userstatus.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.user.entity.User;
 import java.time.Instant;
 import java.util.ArrayList;

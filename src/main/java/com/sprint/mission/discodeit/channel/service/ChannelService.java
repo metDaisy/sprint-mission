@@ -1,21 +1,21 @@
 package com.sprint.mission.discodeit.channel.service;
 
-import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.channel.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.entity.Channel;
 import com.sprint.mission.discodeit.channel.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.exception.ChannelException;
 import com.sprint.mission.discodeit.channel.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
-import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.service.basic.BasicDomainTemplate;
+import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
+import com.sprint.mission.discodeit.global.log.ServiceLogAround;
+import com.sprint.mission.discodeit.readstatus.entity.ReadStatus;
+import com.sprint.mission.discodeit.readstatus.mapper.ReadStatusMapper;
+import com.sprint.mission.discodeit.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.user.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +33,7 @@ public class ChannelService {
   private final ReadStatusRepository readStatusRepository;
   private final ChannelMapper channelMapper;
   private final ReadStatusMapper readStatusMapper;
-  private final BasicDomainTemplate domainTemplate;
+  private final DomainServiceSupport domainTemplate;
 
   @ServiceLogAround
   public ChannelResponse createPublic(PublicChannelCreateRequest request) {

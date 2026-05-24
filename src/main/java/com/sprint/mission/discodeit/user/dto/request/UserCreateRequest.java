@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.user.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sprint.mission.discodeit.auth.constant.DiscodeitRole;
-import com.sprint.mission.discodeit.common.validator.UpdateSafe;
+import com.sprint.mission.discodeit.global.validation.UpdateSafe;
 import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.entity.constant.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public final class UserCreateRequest {
   @NotEmpty
   private final String password;
 
-  private final DiscodeitRole role = DiscodeitRole.USER;
+  private final UserRole role = UserRole.USER;
 
   @JsonCreator
   public UserCreateRequest(

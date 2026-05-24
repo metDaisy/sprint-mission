@@ -9,6 +9,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public final class MessageUpdateRequest {
+
   @NotEmpty
   private final String content;
 

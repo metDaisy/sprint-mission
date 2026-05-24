@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.channel.dto.response;
 
-import com.sprint.mission.discodeit.channel.constant.ChannelType;
 import com.sprint.mission.discodeit.channel.entity.Channel;
+import com.sprint.mission.discodeit.channel.entity.constant.ChannelType;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
 import java.io.Serializable;
 import java.time.Instant;

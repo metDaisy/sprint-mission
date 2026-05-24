@@ -1,24 +1,24 @@
 package com.sprint.mission.discodeit.message.service;
 
+import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.channel.entity.Channel;
 import com.sprint.mission.discodeit.channel.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.exception.ChannelException;
 import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
-import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
-import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.event.publisher.FileUploadEventPublisher;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.message.mapper.MessageMapper;
+import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.common.dto.response.PageResponse;
+import com.sprint.mission.discodeit.common.storage.event.FileUploadEventPublisher;
+import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
+import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.message.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.message.entity.Message;
 import com.sprint.mission.discodeit.message.exception.MessageErrorCode;
 import com.sprint.mission.discodeit.message.exception.MessageException;
+import com.sprint.mission.discodeit.message.mapper.MessageMapper;
 import com.sprint.mission.discodeit.message.repository.MessageRepository;
-import com.sprint.mission.discodeit.service.basic.BasicDomainTemplate;
 import com.sprint.mission.discodeit.user.entity.User;
 import com.sprint.mission.discodeit.user.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.exception.UserException;
@@ -40,11 +40,11 @@ public class MessageService {
   private final UserRepository userRepository;
   private final MessageMapper messageMapper;
   private final BinaryContentMapper binaryContentMapper;
-  private final BasicDomainTemplate domainTemplate;
+  private final DomainServiceSupport domainTemplate;
   private final FileUploadEventPublisher fileUploadEventPublisher;
 
   @ServiceLogAround
-  public MessageResponse create(MessageCreateRequest request, List<FileUploadDto> attachments) {
+  public MessageResponse create(MessageCreateRequest request, List<FileUploadRequest> attachments) {
     domainTemplate.throwOrNot(request.getChannelId(), channelRepository::existsById,
         id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
     domainTemplate.throwOrNot(request.getAuthorId(), userRepository::existsById,
