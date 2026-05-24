@@ -1,11 +1,11 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.message.controller;
 
 import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.MessageDto;
-import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.message.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.message.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.message.service.MessageService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +38,7 @@ public class MessageController {
   private final MessageService messageService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MessageDto> create(
+  public ResponseEntity<MessageResponse> create(
       @RequestPart @Valid MessageCreateRequest messageCreateRequest,
       @RequestPart(required = false) List<MultipartFile> attachments) {
     attachments = (attachments == null) ? List.of() : attachments;
@@ -51,7 +51,7 @@ public class MessageController {
   }
 
   @GetMapping
-  public ResponseEntity<PageResponse<MessageDto>> findInChannel(
+  public ResponseEntity<PageResponse<MessageResponse>> findInChannel(
       @RequestParam UUID channelId,
       @PageableDefault(size = 50, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
     return ResponseEntity.status(HttpStatus.OK)
@@ -59,7 +59,7 @@ public class MessageController {
   }
 
   @PatchMapping(value = "/{messageId}")
-  public ResponseEntity<MessageDto> update(
+  public ResponseEntity<MessageResponse> update(
       @PathVariable UUID messageId,
       @RequestBody @Valid MessageUpdateRequest request) {
     return ResponseEntity.status(HttpStatus.OK).body(messageService.update(messageId, request));

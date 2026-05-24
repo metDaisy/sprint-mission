@@ -1,6 +1,9 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.message.entity;
 
+import com.sprint.mission.discodeit.channel.entity.Channel;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

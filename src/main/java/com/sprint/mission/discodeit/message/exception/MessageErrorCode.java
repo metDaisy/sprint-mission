@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception.message;
+package com.sprint.mission.discodeit.message.exception;
 
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import lombok.AllArgsConstructor;

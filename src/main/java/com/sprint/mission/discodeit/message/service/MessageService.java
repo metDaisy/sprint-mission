@@ -1,28 +1,28 @@
-package com.sprint.mission.discodeit.service.basic;
+package com.sprint.mission.discodeit.message.service;
 
+import com.sprint.mission.discodeit.channel.entity.Channel;
+import com.sprint.mission.discodeit.channel.exception.ChannelErrorCode;
+import com.sprint.mission.discodeit.channel.exception.ChannelException;
+import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.common.logging.ServiceLogAround;
 import com.sprint.mission.discodeit.dto.FileUploadDto;
-import com.sprint.mission.discodeit.dto.MessageDto;
-import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.publisher.FileUploadEventPublisher;
-import com.sprint.mission.discodeit.exception.channel.ChannelErrorCode;
-import com.sprint.mission.discodeit.exception.channel.ChannelException;
-import com.sprint.mission.discodeit.exception.message.MessageErrorCode;
-import com.sprint.mission.discodeit.exception.message.MessageException;
-import com.sprint.mission.discodeit.exception.user.UserErrorCode;
-import com.sprint.mission.discodeit.exception.user.UserException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.mapper.MessageMapper;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.message.mapper.MessageMapper;
+import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.message.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.message.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.message.entity.Message;
+import com.sprint.mission.discodeit.message.exception.MessageErrorCode;
+import com.sprint.mission.discodeit.message.exception.MessageException;
+import com.sprint.mission.discodeit.message.repository.MessageRepository;
+import com.sprint.mission.discodeit.service.basic.BasicDomainTemplate;
+import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.exception.UserErrorCode;
+import com.sprint.mission.discodeit.user.exception.UserException;
+import com.sprint.mission.discodeit.user.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +30,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
 @Transactional
-public class BasicMessageService implements MessageService {
+@RequiredArgsConstructor
+public class MessageService {
 
   private final MessageRepository messageRepository;
   private final ChannelRepository channelRepository;
@@ -43,9 +43,8 @@ public class BasicMessageService implements MessageService {
   private final BasicDomainTemplate domainTemplate;
   private final FileUploadEventPublisher fileUploadEventPublisher;
 
-  @Override
   @ServiceLogAround
-  public MessageDto create(MessageCreateRequest request, List<FileUploadDto> attachments) {
+  public MessageResponse create(MessageCreateRequest request, List<FileUploadDto> attachments) {
     domainTemplate.throwOrNot(request.getChannelId(), channelRepository::existsById,
         id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
     domainTemplate.throwOrNot(request.getAuthorId(), userRepository::existsById,
@@ -64,22 +63,19 @@ public class BasicMessageService implements MessageService {
     return messageMapper.toDto(message);
   }
 
-  @Override
   @ServiceLogAround
   @Transactional(readOnly = true)
-  public PageResponse<MessageDto> findSliceByChannelId(UUID channelId, Pageable pageable) {
+  public PageResponse<MessageResponse> findSliceByChannelId(UUID channelId, Pageable pageable) {
     return messageMapper.fromSlice(messageRepository.findSliceByChannelId(channelId, pageable));
   }
 
-  @Override
   @ServiceLogAround
-  public MessageDto update(UUID id, MessageUpdateRequest request) {
+  public MessageResponse update(UUID id, MessageUpdateRequest request) {
     Message message = findById(id);
     messageMapper.partialUpdate(request, message);
     return messageMapper.toDto(message);
   }
 
-  @Override
   @ServiceLogAround
   public void delete(UUID id) {
     domainTemplate.deleteByIdOrThrow(id, messageRepository,

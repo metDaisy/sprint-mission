@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.repository;
+package com.sprint.mission.discodeit.message.repository;
 
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.message.entity.Message;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
