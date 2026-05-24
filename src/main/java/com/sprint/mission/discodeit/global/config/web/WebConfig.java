@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -24,13 +25,13 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void configurePathMatch(PathMatchConfigurer configurer) {
     configurer.addPathPrefix(API_PREFIX,
-        HandlerTypePredicate.forBasePackage("com.sprint.mission.discodeit"));
+        HandlerTypePredicate.forAnnotation(RestController.class));
   }
 
   @Override
   public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
     converters.add(new AbstractJackson2HttpMessageConverter(objectMapper,
-        new MediaType("application", "octet-stream")) {
+        MediaType.APPLICATION_OCTET_STREAM) {
       @Override
       public boolean canRead(Class<?> clazz, MediaType mediaType) {
         return mediaType != null && mediaType.includes(MediaType.APPLICATION_OCTET_STREAM);
