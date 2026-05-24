@@ -1,13 +1,18 @@
-package com.sprint.mission.discodeit.repository;
+package com.sprint.mission.discodeit.channel.repository;
 
-import com.sprint.mission.discodeit.dto.ChannelDetailResponse;
+import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.channel.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.BaseRepositoryTest;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.user.entity.User;
 import com.sprint.mission.discodeit.fixture.ChannelFixture;
 import com.sprint.mission.discodeit.generator.TestEntity;
+import com.sprint.mission.discodeit.user.repository.UserRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +61,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     Message message = testEntity.generatorMessage();
     Channel actual = message.getChannel();
     clear();
-    ChannelDetailResponse expected = channelRepository.findChannelDetailById(actual.getId())
+    ChannelDetailDto expected = channelRepository.findChannelDetailById(actual.getId())
         .orElseThrow();
     ensureQueryCount(1);
     Assertions.assertThat(actual)
@@ -76,7 +81,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     Channel actual = testEntity.generatorPrivateChannel();
     ensureQueryCount(1);
     clear();
-    ChannelDetailResponse expected = channelRepository.findChannelDetailById(actual.getId())
+    ChannelDetailDto expected = channelRepository.findChannelDetailById(actual.getId())
         .orElseThrow();
     ensureQueryCount(1);
     Assertions.assertThat(actual)
@@ -99,7 +104,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     channelRepository.saveAllAndFlush(actual);
     ensureQueryCount(1);
     clear();
-    List<ChannelDetailResponse> expected = channelRepository.findAllChannelDetails();
+    List<ChannelDetailDto> expected = channelRepository.findAllChannelDetails();
     ensureQueryCount(1);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
@@ -125,7 +130,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     List<UUID> expectedChannelIds = List.of(privateChannel.getId(), publicChannel.getId());
 
     // when
-    List<ChannelDetailResponse> actualChannelIds
+    List<ChannelDetailDto> actualChannelIds
         = channelRepository.findVisibleChannelDetails(userId);
     ensureQueryCount(1);
 

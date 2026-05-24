@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception.channel;
+package com.sprint.mission.discodeit.channel.exception;
 
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
@@ -7,15 +7,7 @@ import java.util.UUID;
 
 public class ChannelException extends DiscodeitException {
 
-  public ChannelException(ErrorCode errorCode) {
-    super(errorCode);
-  }
-
   public ChannelException(ErrorCode errorCode, UUID id) {
     super(errorCode, Map.of("channelId", id));
-  }
-
-  public ChannelException(ErrorCode errorCode, Map<String, Object> detail) {
-    super(errorCode, detail);
   }
 }

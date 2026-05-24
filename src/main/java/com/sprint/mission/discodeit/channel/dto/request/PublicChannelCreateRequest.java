@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.dto.request;
+package com.sprint.mission.discodeit.channel.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sprint.mission.discodeit.entity.constant.ChannelType;
+import com.sprint.mission.discodeit.channel.constant.ChannelType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

@@ -1,10 +1,10 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.channel.controller;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
-import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.channel.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.service.ChannelService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -29,26 +29,26 @@ public class ChannelController {
   private final ChannelService channelService;
 
   @PostMapping(value = "/public")
-  public ResponseEntity<ChannelDto> create(@RequestBody @Valid PublicChannelCreateRequest request) {
+  public ResponseEntity<ChannelResponse> create(@RequestBody @Valid PublicChannelCreateRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(channelService.createPublic(request));
   }
 
   @PostMapping(value = "/private")
-  public ResponseEntity<ChannelDto> create(
+  public ResponseEntity<ChannelResponse> create(
       @RequestBody @Valid PrivateChannelCreateRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(channelService.createPrivate(request));
   }
 
   @GetMapping
-  public ResponseEntity<List<ChannelDto>> findByUserId(@RequestParam UUID userId) {
+  public ResponseEntity<List<ChannelResponse>> findByUserId(@RequestParam UUID userId) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(channelService.findAllByUserId(userId));
   }
 
   @PatchMapping(value = "/{id}")
-  public ResponseEntity<ChannelDto> update(
+  public ResponseEntity<ChannelResponse> update(
       @PathVariable UUID id,
       @RequestBody PublicChannelUpdateRequest request) {
     return ResponseEntity.status(HttpStatus.OK)

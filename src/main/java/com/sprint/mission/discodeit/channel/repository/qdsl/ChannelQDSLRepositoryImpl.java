@@ -1,19 +1,19 @@
-package com.sprint.mission.discodeit.repository.querydsl;
+package com.sprint.mission.discodeit.channel.repository.qdsl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sprint.mission.discodeit.dto.ChannelDetailResponse;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.constant.ChannelType;
+import com.sprint.mission.discodeit.channel.constant.ChannelType;
+import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.entity.Channel;
 import com.sprint.mission.discodeit.entity.QBinaryContent;
 import com.sprint.mission.discodeit.entity.QChannel;
 import com.sprint.mission.discodeit.entity.QMessage;
 import com.sprint.mission.discodeit.entity.QReadStatus;
 import com.sprint.mission.discodeit.entity.QUser;
 import com.sprint.mission.discodeit.entity.QUserStatus;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.user.entity.User;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-@RequiredArgsConstructor
 @Repository
+@RequiredArgsConstructor
 public class ChannelQDSLRepositoryImpl implements ChannelQDSLRepository {
 
   private final JPAQueryFactory queryFactory;
@@ -38,13 +38,13 @@ public class ChannelQDSLRepositoryImpl implements ChannelQDSLRepository {
   private final QBinaryContent qBinaryContent = QBinaryContent.binaryContent;
 
   @Override
-  public List<ChannelDetailResponse> findVisibleChannelDetails(UUID userId) {
+  public List<ChannelDetailDto> findVisibleChannelDetails(UUID userId) {
     return fetchChannelDetails(isVisibleTo(userId));
   }
 
   @Override
-  public Optional<ChannelDetailResponse> findChannelDetailById(UUID id) {
-    List<ChannelDetailResponse> result = fetchChannelDetails(qChannel.id.eq(id));
+  public Optional<ChannelDetailDto> findChannelDetailById(UUID id) {
+    List<ChannelDetailDto> result = fetchChannelDetails(qChannel.id.eq(id));
     if (result.isEmpty()) {
       return Optional.empty();
     }
@@ -52,11 +52,11 @@ public class ChannelQDSLRepositoryImpl implements ChannelQDSLRepository {
   }
 
   @Override
-  public List<ChannelDetailResponse> findAllChannelDetails() {
+  public List<ChannelDetailDto> findAllChannelDetails() {
     return fetchChannelDetails(null);
   }
 
-  private List<ChannelDetailResponse> fetchChannelDetails(BooleanExpression condition) {
+  private List<ChannelDetailDto> fetchChannelDetails(BooleanExpression condition) {
     Map<Channel, Instant> channelsWithLastMessageAt = findChannelsWithLastMessageTime(condition);
     if (channelsWithLastMessageAt.isEmpty()) {
       return List.of();
@@ -66,8 +66,8 @@ public class ChannelQDSLRepositoryImpl implements ChannelQDSLRepository {
         .map(Channel::getId)
         .toList();
     Map<UUID, List<User>> channelsWithParticipants = findParticipantsGroupedByChannel(channelIds);
-    Function<Channel, ChannelDetailResponse> toChannelDetailResponse =
-        channel -> new ChannelDetailResponse(
+    Function<Channel, ChannelDetailDto> toChannelDetailResponse =
+        channel -> new ChannelDetailDto(
             channel,
             channelsWithLastMessageAt.get(channel),
             channelsWithParticipants.get(channel.getId())

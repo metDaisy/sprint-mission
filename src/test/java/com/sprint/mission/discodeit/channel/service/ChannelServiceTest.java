@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.basic;
+package com.sprint.mission.discodeit.channel.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -7,22 +7,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.sprint.mission.discodeit.dto.ChannelDetailResponse;
-import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.channel.ChannelErrorCode;
-import com.sprint.mission.discodeit.exception.channel.ChannelException;
+import com.sprint.mission.discodeit.service.basic.BasicDomainTemplate;
+import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.channel.exception.ChannelErrorCode;
+import com.sprint.mission.discodeit.channel.exception.ChannelException;
 import com.sprint.mission.discodeit.fixture.ChannelFixture;
 import com.sprint.mission.discodeit.fixture.UserFixture;
-import com.sprint.mission.discodeit.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.channel.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.mapper.factory.MapperContainer;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,7 +37,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class BasicChannelServiceTest {
+class ChannelServiceTest {
 
   @Mock
   private ChannelRepository channelRepository;
@@ -51,13 +52,13 @@ class BasicChannelServiceTest {
   @Spy
   private ChannelMapper channelMapper = MapperContainer.get(ChannelMapper.class);
   @InjectMocks
-  private BasicChannelService channelService;
+  private ChannelService channelService;
 
   @Test
   @DisplayName("등록된 channel 조회를 위해 ChannelRepository.findChannelDetailById 1번 호출")
   void success_to_find_channel() {
     // given
-    ChannelDetailResponse channelDetail = ChannelFixture.createChannelDetail();
+    ChannelDetailDto channelDetail = ChannelFixture.createChannelDetail();
     given(channelRepository.findChannelDetailById(any(UUID.class)))
         .willReturn(Optional.of(channelDetail));
 
