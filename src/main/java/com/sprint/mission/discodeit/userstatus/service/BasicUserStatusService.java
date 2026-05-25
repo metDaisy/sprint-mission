@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.userstatus.service;
 
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
-import com.sprint.mission.discodeit.mapper.UserStatusMapper;
+import com.sprint.mission.discodeit.userstatus.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.user.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.exception.UserException;
 import com.sprint.mission.discodeit.userstatus.dto.UserStatusDto;

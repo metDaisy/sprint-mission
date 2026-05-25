@@ -33,7 +33,6 @@ public class ReadStatusService {
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
   private final ReadStatusMapper readStatusMapper;
-  private final DomainServiceSupport domainTemplate;
 
   @Transactional(readOnly = true)
   public List<ReadStatusResponse> findAllByUserId(UUID userId) {
@@ -61,18 +60,18 @@ public class ReadStatusService {
   }
 
   public void delete(UUID id) {
-    domainTemplate.deleteByIdOrThrow(id, readStatusRepository,
+    DomainServiceSupport.deleteByIdOrThrow(id, readStatusRepository,
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
   private ReadStatus findById(UUID id) {
-    return domainTemplate.getOrThrow(id, readStatusRepository::findById,
+    return DomainServiceSupport.getOrThrow(id, readStatusRepository::findById,
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
   @Transactional(readOnly = true)
   public ReadStatusResponse find(UUID userId, UUID channelId) {
-    ReadStatus status = domainTemplate.getOrThrow(
+    ReadStatus status = DomainServiceSupport.getOrThrow(
         Map.of("userId", userId, "channelId", channelId),
         map -> readStatusRepository.findByUserIdAndChannelId(map.get("userId"),
             map.get("channelId")),
@@ -83,11 +82,11 @@ public class ReadStatusService {
   private void verifyCreatable(ReadStatusCreateRequest request) {
     UUID userId = request.getUserId();
     UUID channelId = request.getChannelId();
-    domainTemplate.throwOrNot(userId, userRepository::existsById,
+    DomainServiceSupport.throwOrNot(userId, userRepository::existsById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
-    domainTemplate.throwOrNot(channelId, channelRepository::existsById,
+    DomainServiceSupport.throwOrNot(channelId, channelRepository::existsById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
-    domainTemplate.throwOrNot(Map.of("userId", userId, "channelId", channelId),
+    DomainServiceSupport.throwOrNot(Map.of("userId", userId, "channelId", channelId),
         map -> !readStatusRepository.existsByUserIdAndChannelId(map.get("userId"),
             map.get("channelId")),
         map -> new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST, map));

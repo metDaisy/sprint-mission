@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.message.service;
 
 import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
-import com.sprint.mission.discodeit.binarycontent.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.channel.entity.Channel;
 import com.sprint.mission.discodeit.channel.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.exception.ChannelException;
 import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
-import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
 import com.sprint.mission.discodeit.common.dto.response.PageResponse;
-import com.sprint.mission.discodeit.common.storage.event.FileUploadEventPublisher;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
@@ -39,20 +37,19 @@ public class MessageService {
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
   private final MessageMapper messageMapper;
-  private final BinaryContentMapper binaryContentMapper;
-  private final DomainServiceSupport domainTemplate;
-  private final FileUploadEventPublisher fileUploadEventPublisher;
+  private final BinaryContentRepository binaryContentRepository;
 
   @ServiceLogAround
-  public MessageResponse create(MessageCreateRequest request, List<FileUploadRequest> attachments) {
-    domainTemplate.throwOrNot(request.getChannelId(), channelRepository::existsById,
+  public MessageResponse create(MessageCreateRequest request) {
+    DomainServiceSupport.throwOrNot(request.getChannelId(), channelRepository::existsById,
         id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
-    domainTemplate.throwOrNot(request.getAuthorId(), userRepository::existsById,
+    DomainServiceSupport.throwOrNot(request.getAuthorId(), userRepository::existsById,
         id -> new UserException(UserErrorCode.USERID_NOT_FOUND, id));
+
+    List<UUID> attachmentIds = binaryContentRepository.filterIds(request.getAttachmentIds());
+    List<BinaryContent> binaryContents = binaryContentRepository.findAllProxy(attachmentIds);
     User author = userRepository.getReferenceById(request.getAuthorId());
     Channel channel = channelRepository.getReferenceById(request.getChannelId());
-    List<BinaryContent> binaryContents = binaryContentMapper.toEntityFrom(attachments);
-    fileUploadEventPublisher.publishAllFileUploadEvent(binaryContents, attachments);
     Message message = Message.builder()
         .content(request.getContent())
         .channel(channel)
@@ -78,12 +75,12 @@ public class MessageService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    domainTemplate.deleteByIdOrThrow(id, messageRepository,
+    DomainServiceSupport.deleteByIdOrThrow(id, messageRepository,
         messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
   }
 
   private Message findById(UUID id) {
-    return domainTemplate.getOrThrow(id, messageRepository::findById,
+    return DomainServiceSupport.getOrThrow(id, messageRepository::findById,
         messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
   }
 }

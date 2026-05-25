@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.mapper;
+package com.sprint.mission.discodeit.userstatus.mapper;
 
 import com.sprint.mission.discodeit.common.mapper.config.GlobalMapperConfig;
 import com.sprint.mission.discodeit.userstatus.dto.UserStatusDto;

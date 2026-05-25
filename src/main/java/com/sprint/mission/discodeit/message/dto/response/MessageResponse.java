@@ -11,9 +11,13 @@ import java.util.UUID;
 /**
  * DTO for {@link Message}
  */
-public record MessageResponse(UUID id, Instant createdAt, Instant updatedAt,
-                              String content, UUID channelId,
-                              UserResponse author, Set<BinaryContentDto> attachments)
+public record MessageResponse(UUID id,
+                              Instant createdAt,
+                              Instant updatedAt,
+                              String content,
+                              UUID channelId,
+                              UserResponse author,
+                              Set<BinaryContentDto> attachments)
     implements Serializable {
 
 }

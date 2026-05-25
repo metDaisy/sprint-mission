@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.user.entity.User;
 import com.sprint.mission.discodeit.user.entity.constant.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -30,16 +31,20 @@ public final class UserCreateRequest {
   @NotEmpty
   private final String password;
 
+  private final UUID profileId;
+
   private final UserRole role = UserRole.USER;
 
   @JsonCreator
   public UserCreateRequest(
       @JsonProperty("username") String username,
       @JsonProperty("email") String email,
-      @JsonProperty("password") String password) {
+      @JsonProperty("password") String password,
+      @JsonProperty("profileId") UUID profileId) {
     this.username = username;
     this.email = email;
     this.password = password;
+    this.profileId = profileId;
   }
 
 }

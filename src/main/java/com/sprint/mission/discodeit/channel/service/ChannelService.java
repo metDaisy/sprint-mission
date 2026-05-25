@@ -33,7 +33,6 @@ public class ChannelService {
   private final ReadStatusRepository readStatusRepository;
   private final ChannelMapper channelMapper;
   private final ReadStatusMapper readStatusMapper;
-  private final DomainServiceSupport domainTemplate;
 
   @ServiceLogAround
   public ChannelResponse createPublic(PublicChannelCreateRequest request) {
@@ -78,12 +77,12 @@ public class ChannelService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    domainTemplate.deleteByIdOrThrow(id, channelRepository,
+    DomainServiceSupport.deleteByIdOrThrow(id, channelRepository,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 
   private ChannelDetailDto findById(UUID id) {
-    return domainTemplate.getOrThrow(id, channelRepository::findChannelDetailById,
+    return DomainServiceSupport.getOrThrow(id, channelRepository::findChannelDetailById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 

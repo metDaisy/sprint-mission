@@ -3,12 +3,12 @@ package com.sprint.mission.discodeit.user.service;
 import com.sprint.mission.discodeit.auth.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
-import com.sprint.mission.discodeit.binarycontent.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
-import com.sprint.mission.discodeit.common.storage.event.FileUploadEventPublisher;
+import com.sprint.mission.discodeit.binarycontent.exception.BinaryContentErrorCode;
+import com.sprint.mission.discodeit.binarycontent.exception.BinaryContentException;
+import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
-import com.sprint.mission.discodeit.mapper.UserStatusMapper;
+import com.sprint.mission.discodeit.userstatus.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,12 +33,10 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-  private final BinaryContentMapper binaryContentMapper;
   private final UserStatusMapper userStatusMapper;
-  private final DomainServiceSupport domainTemplate;
-  private final FileUploadEventPublisher fileUploadEventPublisher;
   private final PasswordEncoder passwordEncoder;
   private final UserCredentialRepository userCredentialRepository;
+  private final BinaryContentRepository binaryContentRepository;
 
   @ServiceLogAround
   @Transactional(readOnly = true)
@@ -55,13 +52,11 @@ public class UserService {
   }
 
   @ServiceLogAround
-  public UserResponse create(UserCreateRequest request, @Nullable FileUploadRequest profile) {
-    validateUserUniqueness(request.getUsername(), request.getEmail());
-    BinaryContent binaryContent = null;
-    if (profile != null) {
-      binaryContent = binaryContentMapper.toEntityFrom(profile);
-      fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
-    }
+  public UserResponse create(UserCreateRequest request) {
+    checkEmailUniqueness(request.getEmail());
+    checkUsernameUniqueness(request.getUsername());
+
+    BinaryContent binaryContent = getProfileOrNot(request.getProfileId());
     User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
     userRepository.save(user);
     createUserCredential(request, user);
@@ -74,15 +69,12 @@ public class UserService {
    *  distinguish whether to delete the image or not update it.
    * */
   @ServiceLogAround
-  public UserResponse update(UUID id, UserUpdateRequest request,
-      @Nullable FileUploadRequest profile) {
-    validateUserUniqueness(request.getUsername(), request.getEmail());
+  public UserResponse update(UUID id, UserUpdateRequest request) {
+    checkEmailUniqueness(request.getEmail());
+    checkUsernameUniqueness(request.getUsername());
+
     User user = findById(id);
-    BinaryContent binaryContent = null;
-    if (profile != null) {
-      binaryContent = binaryContentMapper.toEntityFrom(profile);
-      fileUploadEventPublisher.publishFileUploadEvent(binaryContent, profile);
-    }
+    BinaryContent binaryContent = getProfileOrNot(request.getProfileId());
     userMapper.partialUpdate(request, binaryContent, user);
     updateUserCredential(user.getEmail(), request.getPassword());
     return userMapper.toDto(user);
@@ -90,27 +82,31 @@ public class UserService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    domainTemplate.deleteByIdOrThrow(id, userRepository,
+    DomainServiceSupport.deleteByIdOrThrow(id, userRepository,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
   private User findById(UUID id) {
-    return domainTemplate.getOrThrow(id, userRepository::findProfileAndStatusById,
+    return DomainServiceSupport.getOrThrow(id, userRepository::findProfileAndStatusById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
-  // todo: distinguish create and update
-  private void validateUserUniqueness(String username, String email) {
-    if (username != null) {
-      domainTemplate.throwOrNot(username, Predicate.not(userRepository::existsByUsername),
-          value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
-              Map.of("username", value)));
+  private void checkUsernameUniqueness(String username) {
+    if (username == null) {
+      return;
     }
-    if (email != null) {
-      domainTemplate.throwOrNot(email, Predicate.not(userRepository::existsByEmail),
-          value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
-              Map.of("email", value)));
+    DomainServiceSupport.throwOrNot(username, Predicate.not(userRepository::existsByUsername),
+        value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
+            Map.of("username", value)));
+  }
+
+  private void checkEmailUniqueness(String email) {
+    if (email == null) {
+      return;
     }
+    DomainServiceSupport.throwOrNot(email, Predicate.not(userRepository::existsByEmail),
+        value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
+            Map.of("email", value)));
   }
 
   private void updateUserCredential(String email, String rawPassword) {
@@ -125,5 +121,15 @@ public class UserService {
     UserCredential userCredential = new UserCredential(user,
         passwordEncoder.encode(request.getPassword()));
     userCredentialRepository.save(userCredential);
+  }
+
+  private BinaryContent getProfileOrNot(UUID profileId) {
+    if (profileId == null) {
+      return null;
+    }
+    DomainServiceSupport.throwOrNot(profileId, binaryContentRepository::existsById,
+        value -> new BinaryContentException(BinaryContentErrorCode.BINARYCONTENTID_NOT_FOUND,
+            value));
+    return binaryContentRepository.getReferenceById(profileId);
   }
 }

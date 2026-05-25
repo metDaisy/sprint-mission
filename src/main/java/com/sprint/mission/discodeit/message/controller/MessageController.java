@@ -1,16 +1,12 @@
 package com.sprint.mission.discodeit.message.controller;
 
-import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
 import com.sprint.mission.discodeit.common.dto.response.PageResponse;
 import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.message.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.message.service.MessageService;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -26,9 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/messages")
@@ -37,17 +31,11 @@ public class MessageController {
 
   private final MessageService messageService;
 
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<MessageResponse> create(
-      @RequestPart @Valid MessageCreateRequest messageCreateRequest,
-      @RequestPart(required = false) List<MultipartFile> attachments) {
-    attachments = (attachments == null) ? List.of() : attachments;
-    List<FileUploadRequest> safeAttachments = attachments.stream()
-        .map(FileUploadRequest::from)
-        .filter(Predicate.not(Objects::isNull))
-        .toList();
+      @RequestBody @Valid MessageCreateRequest messageCreateRequest) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(messageService.create(messageCreateRequest, safeAttachments));
+        .body(messageService.create(messageCreateRequest));
   }
 
   @GetMapping

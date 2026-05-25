@@ -21,4 +21,11 @@ public interface BinaryContentRepository extends JpaRepository<BinaryContent, UU
 
   @Query("select bc from BinaryContent bc where bc.id in :ids and bc.status = 'COMPLETED'")
   List<BinaryContent> findAllCompletedByIds(Collection<UUID> ids);
+
+  @Query("select bc.id from BinaryContent bc where bc.id in :ids")
+  List<UUID> filterIds(List<UUID> ids);
+
+  default List<BinaryContent> findAllProxy(List<UUID> ids) {
+    return ids.stream().map(this::getReferenceById).toList();
+  }
 }

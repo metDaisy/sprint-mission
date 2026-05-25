@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.user.controller;
 
-import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
@@ -22,9 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -44,21 +41,19 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
   }
 
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<UserResponse> create(
-      @RequestPart @Valid UserCreateRequest userCreateRequest,
-      @RequestPart(required = false) MultipartFile profile) {
+      @RequestBody @Valid UserCreateRequest userCreateRequest) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(userService.create(userCreateRequest, FileUploadRequest.from(profile)));
+        .body(userService.create(userCreateRequest));
   }
 
-  @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<UserResponse> update(
       @PathVariable UUID id,
-      @RequestPart @Valid UserUpdateRequest userUpdateRequest,
-      @RequestPart(required = false) MultipartFile profile) {
+      @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(userService.update(id, userUpdateRequest, FileUploadRequest.from(profile)));
+        .body(userService.update(id, userUpdateRequest));
   }
 
   @DeleteMapping(value = "/{id}")

@@ -20,7 +20,6 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-  private final DomainServiceSupport domainTemplate;
 
   public UserResponse updateRole(RoleUpdateRequest request) {
     User user = findById(request.getUserId());
@@ -29,7 +28,7 @@ public class AuthService {
   }
 
   private User findById(UUID id) {
-    return domainTemplate.getOrThrow(id, userRepository::findById,
+    return DomainServiceSupport.getOrThrow(id, userRepository::findById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 }

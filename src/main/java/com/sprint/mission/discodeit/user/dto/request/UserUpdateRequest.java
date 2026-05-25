@@ -5,18 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprint.mission.discodeit.global.validation.UpdateSafe;
 import com.sprint.mission.discodeit.user.entity.User;
 import jakarta.validation.constraints.Email;
-import java.io.Serial;
-import java.io.Serializable;
+import java.util.UUID;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * DTO for {@link User}
  */
 @Getter
-public final class UserUpdateRequest implements Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 1234L;
+@ToString
+public final class UserUpdateRequest {
 
   @UpdateSafe
   private final String username;
@@ -28,22 +26,18 @@ public final class UserUpdateRequest implements Serializable {
   @UpdateSafe
   private final String password;
 
+  private final UUID profileId;
+
   @JsonCreator
   public UserUpdateRequest(
       @JsonProperty("newUsername") String username,
       @JsonProperty("newEmail") String email,
-      @JsonProperty("newPassword") String password) {
+      @JsonProperty("newPassword") String password,
+      @JsonProperty("newProfileId") UUID profileId) {
     this.username = username;
     this.email = email;
     this.password = password;
-  }
-
-  @Override
-  public String toString() {
-    return "UserUpdateRequest[" +
-        "username=" + username + ", " +
-        "email=" + email + ", " +
-        "password=" + password + ']';
+    this.profileId = profileId;
   }
 
 }
