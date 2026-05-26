@@ -4,7 +4,6 @@ import useAuthStore from '../../stores/authStore'
 import SignUpModal from './SignUpModal'
 import {
   Button,
-  Checkbox,
   ErrorMessage,
   Input,
   ModalContent,
@@ -12,7 +11,6 @@ import {
   SignUpText,
   StyledLoginModal
 } from './styles'
-import styled from 'styled-components'
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -24,8 +22,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  
+
   const { login } = useAuthStore();
   const { fetchUsers } = useUserListStore();
 
@@ -34,7 +31,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     setUsernameOrEmail('');
     setPassword('');
     setError('');
-    setRememberMe(false);
     setIsSignUpOpen(false);
   }, []);
 
@@ -45,7 +41,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
   const handleLogin = async () => {
     try {
-      await login(usernameOrEmail, password, rememberMe);
+      await login(usernameOrEmail, password);
       await fetchUsers();
       clearForm();
       onClose();
@@ -82,14 +78,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <RememberMeContainer>
-             <Checkbox
-                id="rememberMe"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <RememberMeLabel htmlFor="rememberMe">로그인 유지</RememberMeLabel>
-            </RememberMeContainer>
             {error && <ErrorMessage>{error}</ErrorMessage>}
             <Button type="submit">로그인</Button>
           </form>
@@ -107,19 +95,3 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default LoginModal; 
-
-
-const RememberMeContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-  justify-content: flex-start;
-`;
-
-const RememberMeLabel = styled.label`
-  margin-left: 8px;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-  text-align: left;
-`;

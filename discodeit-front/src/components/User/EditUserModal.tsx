@@ -21,7 +21,7 @@ function EditUserModal({ isOpen, onClose, user }: EditUserModalProps): JSX.Eleme
   const [error, setError] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const {binaryContents, fetchBinaryContent} = useBinaryContentStore();
-  const {logout, fetchMe} = useAuthStore();
+  const {logout, refreshToken} = useAuthStore();
 
   useEffect(() => {
     if (user.profile?.id && !binaryContents[user.profile.id]) {
@@ -82,7 +82,7 @@ function EditUserModal({ isOpen, onClose, user }: EditUserModalProps): JSX.Eleme
         }
 
         await updateUser(user.id, formData);
-        await fetchMe();
+        await refreshToken();
         onClose();
       } else {
         onClose(); // 변경사항이 없으면 그냥 모달 닫기

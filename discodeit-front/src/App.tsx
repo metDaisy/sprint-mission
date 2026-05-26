@@ -12,7 +12,7 @@ import {eventEmitter, EventEmitterArgs} from './utils/eventEmitter';
 import useAuthStore from './stores/authStore';
 
 function App(): JSX.Element {
-  const { logout, fetchCsrfToken, fetchMe } = useAuthStore();
+  const { logout, fetchCsrfToken, refreshToken } = useAuthStore();
   const { fetchUsers } = useUserListStore();
   const [activeChannel, setActiveChannel] = useState<ChannelDto | null>(null);
     
@@ -28,7 +28,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     fetchCsrfToken();
-    fetchMe();
+    refreshToken();
   }, []);
 
   // 초기 로딩 처리

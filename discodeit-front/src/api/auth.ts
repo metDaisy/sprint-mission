@@ -1,16 +1,16 @@
-import client from './client';
-import { UserDto, Role, UserRoleUpdateRequest } from '../types/api';
+import client, {clientWithoutAuthorization} from './client';
+import {UserDto, Role, UserRoleUpdateRequest, JwtDto} from '../types/api';
 
-export const login = async (username: string, password: string, rememberMe?: boolean): Promise<UserDto> => {
+export const login = async (username: string, password: string): Promise<JwtDto> => {
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-  const response = await client.post<UserDto>('/auth/login', formData, {params: {'remember-me': rememberMe ? 'true' : 'false'}, headers: {'Content-Type': 'multipart/form-data'}});
+  const response = await clientWithoutAuthorization.post<JwtDto>('/auth/login', formData, {headers: {'Content-Type': 'multipart/form-data'}});
   return response.data;
 };
 
 export const signup = async (formData: FormData): Promise<UserDto> => {
-  const response = await client.post<UserDto>('/users', formData, {
+  const response = await clientWithoutAuthorization.post<UserDto>('/users', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
@@ -19,16 +19,16 @@ export const signup = async (formData: FormData): Promise<UserDto> => {
 };
 
 export const getCsrfToken = async (): Promise<void> => {
-  await client.get('/auth/csrf-token');
-};
-
-export const me = async (): Promise<UserDto> => {
-  const response = await client.get<UserDto>('/auth/me');
-  return response.data;
+  await clientWithoutAuthorization.get('/auth/csrf-token');
 };
 
 export const logout = async (): Promise<void> => {
-  await client.post('/auth/logout');
+  await clientWithoutAuthorization.post('/auth/logout');
+};
+
+export const refreshToken = async (): Promise<JwtDto> => {
+  const response = await clientWithoutAuthorization.post('/auth/refresh');
+  return response.data;
 };
 
 export const updateUserRole = async (userId: string, role: Role): Promise<void> => {
