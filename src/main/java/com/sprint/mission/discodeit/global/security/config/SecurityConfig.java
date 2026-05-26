@@ -2,10 +2,11 @@ package com.sprint.mission.discodeit.global.security.config;
 
 import com.sprint.mission.discodeit.auth.repository.RememberMeTokenRepository;
 import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetailsService;
+import com.sprint.mission.discodeit.auth.security.handler.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.security.handler.LoginFailureHandler;
-import com.sprint.mission.discodeit.auth.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.security.handler.LogoutSuccessHandler;
-import jakarta.servlet.http.HttpServletResponse;
+import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
+import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final LoginSuccessHandler loginSuccessHandler;
+  private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
   private final LogoutSuccessHandler logoutSuccessHandler;
   private final DiscodeitUserDetailsService userDetailsService;
@@ -58,7 +59,7 @@ public class SecurityConfig {
             form.loginProcessingUrl(resolveUrl("/auth/login"))
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .successHandler(loginSuccessHandler)
+                .successHandler(jwtLoginSuccessHandler)
                 .failureHandler(loginFailureHandler))
         .rememberMe(remember -> remember.key("discodeit-remember-key")
             .rememberMeParameter("remember-me")
@@ -84,9 +85,9 @@ public class SecurityConfig {
                         resolveUrl("/users")).permitAll()
                     .anyRequest().authenticated())
         .exceptionHandling(
-            exception -> exception.authenticationEntryPoint(
-                (request, response, authException) -> response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
+            exception -> exception
+                .authenticationEntryPoint(new UnauthenticatedEntryPoint())
+                .accessDeniedHandler(new ForbiddenAccessHandler()))
         .build();
   }
 

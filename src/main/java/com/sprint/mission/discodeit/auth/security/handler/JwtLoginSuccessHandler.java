@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class JwtLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
   private final ObjectMapper objectMapper;
 
