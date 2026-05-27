@@ -1,29 +1,32 @@
 package com.sprint.mission.discodeit.auth.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
+public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
   private final ObjectMapper objectMapper;
+  private final JwtTokenProvider jwtTokenProvider;
 
   @Override
-  public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    Map<String, String> result = Map.of("message", "logout success");
-    response.getWriter().write(objectMapper.writeValueAsString(result));
+    DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
+    String json = objectMapper.writeValueAsString(userDetails.getUserResponse());
+    response.getWriter().write(json);
   }
 }

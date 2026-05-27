@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "discodeit.jwt")
 public record JwtProperties(String secretKey,
-                            int accessTokenExpiration,
-                            int refreshTokenExpiration) {
+                            long accessTokenExpiration,
+                            long refreshTokenExpiration) {
 
 }

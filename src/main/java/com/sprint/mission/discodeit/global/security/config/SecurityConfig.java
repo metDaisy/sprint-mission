@@ -2,25 +2,23 @@ package com.sprint.mission.discodeit.global.security.config;
 
 import com.sprint.mission.discodeit.auth.repository.RememberMeTokenRepository;
 import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetailsService;
-import com.sprint.mission.discodeit.auth.security.handler.JwtLoginSuccessHandler;
-import com.sprint.mission.discodeit.auth.security.handler.LoginFailureHandler;
-import com.sprint.mission.discodeit.auth.security.handler.LogoutSuccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import java.util.List;
 import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -29,21 +27,19 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
-@EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-
-  private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
-  private final LoginFailureHandler loginFailureHandler;
-  private final LogoutSuccessHandler logoutSuccessHandler;
-  private final DiscodeitUserDetailsService userDetailsService;
-  private final RememberMeTokenRepository rememberMeTokenRepository;
 
   @Value("${discodeit.api-prefix}")
   private String API_PREFIX;
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http,
+      AuthenticationSuccessHandler loginSuccessHandler,
+      AuthenticationFailureHandler loginFailureHandler,
+      LogoutSuccessHandler logoutSuccessHandler,
+      DiscodeitUserDetailsService userDetailsService,
+      RememberMeTokenRepository rememberMeTokenRepository)
+      throws Exception {
     return http.csrf(
             csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
@@ -59,7 +55,7 @@ public class SecurityConfig {
             form.loginProcessingUrl(resolveUrl("/auth/login"))
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .successHandler(jwtLoginSuccessHandler)
+                .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler))
         .rememberMe(remember -> remember.key("discodeit-remember-key")
             .rememberMeParameter("remember-me")
