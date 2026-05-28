@@ -42,10 +42,18 @@ public class JwtTokenProvider {
     this.header = new JWSHeader(JWSAlgorithm.HS256);
   }
 
+  public String generateAccessToken(String subject, String authorities) {
+    return buildToken(subject, authorities, getAccessTokenExpiration());
+  }
+
   public String generateAccessToken(Authentication authentication) {
     String authorities = DiscodeitAuthorityUtils.serializeAuthorities(
         authentication.getAuthorities());
     return buildToken(authentication.getName(), authorities, getAccessTokenExpiration());
+  }
+
+  public String generateRefreshToken(String subject) {
+    return buildToken(subject, null, getRefreshTokenExpiration());
   }
 
   public String generateRefreshToken(Authentication authentication) {

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.auth.controller;
 
+import com.sprint.mission.discodeit.auth.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.auth.service.AuthService;
 import com.sprint.mission.discodeit.user.dto.request.RoleUpdateRequest;
@@ -12,6 +13,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,5 +39,14 @@ public class AuthController {
   @PutMapping("/role")
   public ResponseEntity<UserResponse> updateRole(@RequestBody RoleUpdateRequest request) {
     return ResponseEntity.status(HttpStatus.OK).body(authService.updateRole(request));
+  }
+
+  @GetMapping("/refresh")
+  public ResponseEntity<JwtLoginResponse> refresh(
+      @AuthenticationPrincipal DiscodeitUserDetails userDetails,
+      @RequestHeader("REFRESH_TOKEN") String token) {
+    JwtLoginResponse response = authService.refreshToken(userDetails.getUserResponse().id(), token);
+    return ResponseEntity.status(HttpStatus.OK).header("REFRESH_TOKEN", response.refreshToken())
+        .body(response);
   }
 }
