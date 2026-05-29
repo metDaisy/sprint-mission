@@ -30,13 +30,12 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
   private final AuthService authService;
 
   @Override
-  @Transactional
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
-    JwtLoginResponse result = authService.create(userDetails.getUserResponse().id());
+    JwtLoginResponse result = authService.createJwtLogin(userDetails.getUserResponse());
     String json = objectMapper.writeValueAsString(result);
     response.addCookie(getRefreshTokenCookie(result.refreshToken()));
     response.getWriter().write(json);
