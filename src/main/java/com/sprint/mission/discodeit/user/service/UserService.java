@@ -82,7 +82,7 @@ public class UserService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteByIdOrThrow(id, userRepository,
+    DomainServiceSupport.executeOrThrow(id, userRepository,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
@@ -95,7 +95,7 @@ public class UserService {
     if (username == null) {
       return;
     }
-    DomainServiceSupport.throwOrNot(username, Predicate.not(userRepository::existsByUsername),
+    DomainServiceSupport.requireOrThrow(username, Predicate.not(userRepository::existsByUsername),
         value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
             Map.of("username", value)));
   }
@@ -104,7 +104,7 @@ public class UserService {
     if (email == null) {
       return;
     }
-    DomainServiceSupport.throwOrNot(email, Predicate.not(userRepository::existsByEmail),
+    DomainServiceSupport.requireOrThrow(email, Predicate.not(userRepository::existsByEmail),
         value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
             Map.of("email", value)));
   }
@@ -127,7 +127,7 @@ public class UserService {
     if (profileId == null) {
       return null;
     }
-    DomainServiceSupport.throwOrNot(profileId, binaryContentRepository::existsById,
+    DomainServiceSupport.requireOrThrow(profileId, binaryContentRepository::existsById,
         value -> new BinaryContentException(BinaryContentErrorCode.BINARYCONTENTID_NOT_FOUND,
             value));
     return binaryContentRepository.getReferenceById(profileId);

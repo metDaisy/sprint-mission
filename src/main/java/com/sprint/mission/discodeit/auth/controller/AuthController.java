@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -30,18 +31,12 @@ public class AuthController {
     return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).build();
   }
 
-  @GetMapping("/me")
-  public ResponseEntity<UserResponse> getMe(
-      @AuthenticationPrincipal DiscodeitUserDetails userDetails) {
-    return ResponseEntity.status(HttpStatus.OK).body(userDetails.getUserResponse());
-  }
-
   @PutMapping("/role")
   public ResponseEntity<UserResponse> updateRole(@RequestBody RoleUpdateRequest request) {
     return ResponseEntity.status(HttpStatus.OK).body(authService.updateRole(request));
   }
 
-  @GetMapping("/refresh")
+  @PostMapping("/refresh")
   public ResponseEntity<JwtLoginResponse> refresh(
       @AuthenticationPrincipal DiscodeitUserDetails userDetails,
       @RequestHeader("REFRESH_TOKEN") String token) {

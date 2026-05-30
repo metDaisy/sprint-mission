@@ -60,7 +60,7 @@ public class ReadStatusService {
   }
 
   public void delete(UUID id) {
-    DomainServiceSupport.deleteByIdOrThrow(id, readStatusRepository,
+    DomainServiceSupport.executeOrThrow(id, readStatusRepository,
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
@@ -82,11 +82,11 @@ public class ReadStatusService {
   private void verifyCreatable(ReadStatusCreateRequest request) {
     UUID userId = request.getUserId();
     UUID channelId = request.getChannelId();
-    DomainServiceSupport.throwOrNot(userId, userRepository::existsById,
+    DomainServiceSupport.requireOrThrow(userId, userRepository::existsById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
-    DomainServiceSupport.throwOrNot(channelId, channelRepository::existsById,
+    DomainServiceSupport.requireOrThrow(channelId, channelRepository::existsById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
-    DomainServiceSupport.throwOrNot(Map.of("userId", userId, "channelId", channelId),
+    DomainServiceSupport.requireOrThrow(Map.of("userId", userId, "channelId", channelId),
         map -> !readStatusRepository.existsByUserIdAndChannelId(map.get("userId"),
             map.get("channelId")),
         map -> new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST, map));

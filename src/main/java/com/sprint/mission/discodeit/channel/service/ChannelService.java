@@ -77,7 +77,7 @@ public class ChannelService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteByIdOrThrow(id, channelRepository,
+    DomainServiceSupport.executeOrThrow(id, channelRepository,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 

@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.global.security.config;
 
-import com.sprint.mission.discodeit.auth.repository.RememberMeTokenRepository;
-import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import java.util.List;
@@ -36,9 +34,7 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http,
       AuthenticationSuccessHandler loginSuccessHandler,
       AuthenticationFailureHandler loginFailureHandler,
-      LogoutSuccessHandler logoutSuccessHandler,
-      DiscodeitUserDetailsService userDetailsService,
-      RememberMeTokenRepository rememberMeTokenRepository)
+      LogoutSuccessHandler logoutSuccessHandler)
       throws Exception {
     return http.csrf(
             csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -46,25 +42,16 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(
             session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .sessionConcurrency(concurrency ->
-                        concurrency.sessionRegistry(sessionRegistry())
-                            .maximumSessions(1)
-                            .maxSessionsPreventsLogin(false)))
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(form ->
             form.loginProcessingUrl(resolveUrl("/auth/login"))
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler))
-        .rememberMe(remember -> remember.key("discodeit-remember-key")
-            .rememberMeParameter("remember-me")
-            .tokenValiditySeconds(60 * 60 * 24 * 7)
-            .userDetailsService(userDetailsService)
-            .tokenRepository(rememberMeTokenRepository))
         .logout(logout -> logout.logoutUrl(resolveUrl("/auth/logout"))
             .logoutSuccessHandler(logoutSuccessHandler)
-            .deleteCookies("JSESSIONID", "XSRF-TOKEN")
+            .deleteCookies("JSESSIONID", "XSRF-TOKEN", "REFRESH_TOKEN")
             .permitAll())
         .httpBasic(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
