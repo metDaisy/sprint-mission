@@ -9,29 +9,15 @@ import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
 import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.userstatus.entity.UserStatus;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 
 @Mapper(config = GlobalMapperConfig.class, uses = BinaryContentMapper.class)
 public interface UserMapper extends BaseMapper<User, UserResponse> {
 
+  User toEntityFrom(UserCreateRequest request, BinaryContent profile);
 
-  @Mapping(target = "status", source = "status")
-  User toEntityFrom(UserCreateRequest request, UserStatus status, BinaryContent profile);
-
-  @AfterMapping
-  default void linkStatus(@MappingTarget User user) {
-    UserStatus status = user.getStatus();
-    if (status != null) {
-      status.setUser(user);
-    }
-  }
-
-  @Mapping(target = "status", ignore = true)
   User partialUpdate(UserUpdateRequest request, BinaryContent profile, @MappingTarget User user);
 
   User partialUpdate(RoleUpdateRequest request, @MappingTarget User user);

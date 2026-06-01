@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.auth.security;
 
-import com.sprint.mission.discodeit.auth.entity.UserCredential;
+import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;

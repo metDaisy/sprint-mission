@@ -20,6 +20,11 @@ discodeit:
     secret-key: ${JWT_SECRET_KEY}
     access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
     refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+    registry:
+      store-type: ${JWT_REGISTRY_STORE_TYPE} # db | in-memory
+      session:
+        max-concurrent: ${JWT_REGISTRY_MAX_CONCURRENT}
+        max-retained: ${JWT_REGISTRY_MAX_RETAINED}
 aws:
   s3:
     access-key: ${AWS_S3_ACCESS_KEY}

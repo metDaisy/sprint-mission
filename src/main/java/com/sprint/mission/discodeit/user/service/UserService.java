@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.user.service;
 
-import com.sprint.mission.discodeit.auth.entity.UserCredential;
+import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.exception.BinaryContentErrorCode;
@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.binarycontent.exception.BinaryContentExcepti
 import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
-import com.sprint.mission.discodeit.userstatus.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
@@ -33,7 +32,6 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-  private final UserStatusMapper userStatusMapper;
   private final PasswordEncoder passwordEncoder;
   private final UserCredentialRepository userCredentialRepository;
   private final BinaryContentRepository binaryContentRepository;
@@ -57,7 +55,7 @@ public class UserService {
     checkUsernameUniqueness(request.getUsername());
 
     BinaryContent binaryContent = getProfileOrNot(request.getProfileId());
-    User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
+    User user = userMapper.toEntityFrom(request, binaryContent);
     userRepository.save(user);
     createUserCredential(request, user);
     return userMapper.toDto(user);

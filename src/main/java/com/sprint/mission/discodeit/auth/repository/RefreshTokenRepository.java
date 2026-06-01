@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.auth.repository;
 
-import com.sprint.mission.discodeit.auth.entity.RefreshToken;
+import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
 import com.sprint.mission.discodeit.user.entity.User;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,5 +12,5 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
   @EntityGraph(attributePaths = {"user"})
   Optional<RefreshToken> findByUser_Id(UUID userId);
 
-  void deleteByUser(User user);
+  void deleteAllByUser(User user);
 }

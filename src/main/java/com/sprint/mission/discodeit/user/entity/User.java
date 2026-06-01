@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.user.entity;
 import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.user.entity.constant.UserRole;
-import com.sprint.mission.discodeit.userstatus.entity.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +12,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,12 +38,6 @@ public class User extends BaseUpdatableEntity {
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
 
-  @OneToOne(
-      mappedBy = "user",
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-      orphanRemoval = true)
-  private UserStatus status;
-
   @Enumerated(EnumType.STRING)
   @Column(name = "role")
   private UserRole role;
@@ -54,21 +46,10 @@ public class User extends BaseUpdatableEntity {
   public User(String username,
       String email,
       BinaryContent profile,
-      UserStatus status,
       UserRole role) {
     this.username = username;
     this.email = email;
     this.profile = profile;
-    this.status = status;
     this.role = role;
-  }
-
-  public boolean isOnline() {
-    return status.isOnline(Instant.now());
-  }
-
-  public void setStatus(UserStatus status) {
-    this.status = status;
-    status.setUser(this);
   }
 }

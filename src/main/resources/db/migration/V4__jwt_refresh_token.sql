@@ -1,9 +1,11 @@
 create table jwt_refresh_tokens
 (
-    user_id        uuid primary key,
+    id             uuid primary key,
     created_at     timestamp with time zone not null,
     updated_at     timestamp with time zone not null,
     expires_at     timestamp with time zone not null,
+    device         varchar(100)             not null,
+    user_id        uuid                     not null,
     token          varchar(512)             not null,
     previous_token varchar(512)
 );

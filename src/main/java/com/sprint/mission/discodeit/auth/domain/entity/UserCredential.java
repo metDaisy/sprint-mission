@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.auth.entity;
+package com.sprint.mission.discodeit.auth.domain.entity;
 
 import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.user.entity.User;

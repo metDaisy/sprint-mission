@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.auth.controller;
 
-import com.sprint.mission.discodeit.auth.dto.JwtLoginResponse;
+import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.auth.service.AuthService;
 import com.sprint.mission.discodeit.user.dto.request.RoleUpdateRequest;

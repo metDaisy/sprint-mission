@@ -1,9 +1,10 @@
-package com.sprint.mission.discodeit.auth.exception;
+package com.sprint.mission.discodeit.auth.domain.exception;
 
 import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Getter
 @AllArgsConstructor
@@ -15,7 +16,8 @@ public enum AuthErrorCode implements ErrorCode {
   MALFORMED_TOKEN(HttpStatus.UNAUTHORIZED.value(), "A004", "손상되거나 변조된 토큰입니다."),
   INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED.value(), "A005", "토큰의 서명이 일치하지 않습니다."),
   UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED.value(), "A006", "지원하지 않는 토큰 형식입니다."),
-  USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "A007", "토큰을 찾을 수 없습니다."),
+  USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "A007", "해당 유저는 토큰을 가지고 있지 않습니다."),
+  TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "A008", "토큰을 찾을 수 없습니다."),
   ;
   private final int status;
   private final String code;

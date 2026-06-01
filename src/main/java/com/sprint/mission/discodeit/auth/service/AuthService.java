@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.auth.service;
 
-import com.sprint.mission.discodeit.auth.dto.JwtLoginResponse;
-import com.sprint.mission.discodeit.auth.entity.RefreshToken;
-import com.sprint.mission.discodeit.auth.exception.AuthErrorCode;
-import com.sprint.mission.discodeit.auth.exception.AuthException;
+import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
+import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
+import com.sprint.mission.discodeit.auth.domain.exception.AuthErrorCode;
+import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
 import com.sprint.mission.discodeit.auth.repository.RefreshTokenRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
@@ -36,7 +36,7 @@ public class AuthService {
   public UserResponse updateRole(RoleUpdateRequest request) {
     User user = findById(request.getUserId());
     userMapper.partialUpdate(request, user);
-    refreshTokenRepository.deleteByUser(user);
+    refreshTokenRepository.deleteAllByUser(user);
     return userMapper.toDto(user);
   }
 
@@ -71,7 +71,7 @@ public class AuthService {
   }
 
   private RefreshToken createRefreshToken(User user) {
-    RefreshToken newToken = new RefreshToken(user, "", Instant.now());
+    RefreshToken newToken = new RefreshToken("", user, "", Instant.now());
     return refreshTokenRepository.save(newToken);
   }
 

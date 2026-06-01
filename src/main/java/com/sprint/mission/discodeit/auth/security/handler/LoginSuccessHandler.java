@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.auth.dto.JwtLoginResponse;
+import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.auth.service.AuthService;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
