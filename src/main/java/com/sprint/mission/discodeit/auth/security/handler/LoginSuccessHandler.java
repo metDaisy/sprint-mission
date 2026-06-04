@@ -34,7 +34,8 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
-    JwtLoginResponse result = authService.createJwtLogin(userDetails.getUserResponse());
+    String device = request.getHeader("X-Device-Id");
+    JwtLoginResponse result = authService.createJwtLogin(userDetails.getUserResponse().id(), device);
     String json = objectMapper.writeValueAsString(result);
     response.addCookie(getRefreshTokenCookie(result.refreshToken()));
     response.getWriter().write(json);

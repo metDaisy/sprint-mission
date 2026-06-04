@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthErrorCode;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
-import com.sprint.mission.discodeit.auth.repository.RefreshTokenRepository;
+import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
@@ -31,48 +31,41 @@ public class AuthService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final JwtTokenProvider jwtTokenProvider;
-  private final RefreshTokenRepository refreshTokenRepository;
+  private final JwtRegistry jwtRegistry;
 
   public UserResponse updateRole(RoleUpdateRequest request) {
     User user = findById(request.getUserId());
     userMapper.partialUpdate(request, user);
-    refreshTokenRepository.deleteAllByUser(user);
+    jwtRegistry.invalidateAllByUserId(request.getUserId());
     return userMapper.toDto(user);
   }
 
-  public JwtLoginResponse refreshToken(UUID userId, String refreshToken) {
+  public JwtLoginResponse reissue(UUID userId, String refreshToken) {
     jwtTokenProvider.validate(refreshToken);
 
-    RefreshToken refreshEntity = findToken(userId);
+    RefreshToken token = jwtRegistry.findByToken(refreshToken);
 
-    if (Objects.equals(refreshEntity.getPreviousToken(), refreshToken)) {
-      refreshTokenRepository.delete(refreshEntity);
+    if (Objects.equals(token.getPreviousToken(), refreshToken)) {
+      jwtRegistry.invalidateAllByUserId(userId);
       throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
     }
-    if (!refreshEntity.getToken().equals(refreshToken)) {
+    if (!token.getToken().equals(refreshToken)) {
       throw new AuthException(AuthErrorCode.EXPIRED_TOKEN);
     }
-    return issueTokensAndSave(refreshEntity.getUser(), refreshEntity);
+    return issueTokensAndSave(token.getUser(), token);
   }
 
-  public JwtLoginResponse createJwtLogin(UserResponse response) {
-    DomainServiceSupport.requireOrThrow(response.id(), userRepository::existsById,
+  public JwtLoginResponse createJwtLogin(UUID userId, String device) {
+    DomainServiceSupport.requireOrThrow(userId, userRepository::existsById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
-    User user = userRepository.getReferenceById(response.id());
 
-    RefreshToken refreshEntity = refreshTokenRepository.findByUser_Id(user.getId())
-        .orElseGet(() -> createRefreshToken(user));
-
+    User user = userRepository.getReferenceById(userId);
+    RefreshToken refreshEntity = new RefreshToken(user, device, "", Instant.now());
     return issueTokensAndSave(user, refreshEntity);
   }
 
   public void deleteRefreshToken(UUID userId) {
     // DomainServiceSupport;
-  }
-
-  private RefreshToken createRefreshToken(User user) {
-    RefreshToken newToken = new RefreshToken("", user, "", Instant.now());
-    return refreshTokenRepository.save(newToken);
   }
 
   private JwtLoginResponse issueTokensAndSave(User user, RefreshToken refreshEntity) {
@@ -84,13 +77,9 @@ public class AuthService {
     Instant expiresAt = Instant.now().plusSeconds(expirationSeconds);
 
     refreshEntity.rotate(newRefreshToken, expiresAt);
+    jwtRegistry.register(refreshEntity);
 
     return new JwtLoginResponse(userMapper.toDto(user), newAccessToken, newRefreshToken);
-  }
-
-  private RefreshToken findToken(UUID userId) {
-    return DomainServiceSupport.getOrThrow(userId, refreshTokenRepository::findByUser_Id,
-        value -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
   }
 
   private User findById(UUID id) {

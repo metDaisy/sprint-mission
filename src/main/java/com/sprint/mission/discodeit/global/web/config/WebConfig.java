@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.config.web;
+package com.sprint.mission.discodeit.global.web.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;

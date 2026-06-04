@@ -82,7 +82,7 @@ public class SecurityConfig {
         Stream.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PATCH, HttpMethod.DELETE,
                 HttpMethod.OPTIONS)
             .map(HttpMethod::toString).toList());
-    config.setAllowedHeaders(List.of("authorization", "content-type", "x-xsrf-token"));
+    config.setAllowedHeaders(List.of("authorization", "content-type", "x-xsrf-token", "x-device-id"));
     config.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration(resolveUrl("/**"), config);

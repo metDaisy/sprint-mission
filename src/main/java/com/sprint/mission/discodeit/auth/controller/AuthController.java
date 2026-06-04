@@ -40,7 +40,7 @@ public class AuthController {
   public ResponseEntity<JwtLoginResponse> refresh(
       @AuthenticationPrincipal DiscodeitUserDetails userDetails,
       @RequestHeader("REFRESH_TOKEN") String token) {
-    JwtLoginResponse response = authService.refreshToken(userDetails.getUserResponse().id(), token);
+    JwtLoginResponse response = authService.reissue(userDetails.getUserResponse().id(), token);
     return ResponseEntity.status(HttpStatus.OK).header("REFRESH_TOKEN", response.refreshToken())
         .body(response);
   }
