@@ -45,7 +45,7 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public List<UserResponse> findAll() {
-    List<User> users = userRepository.findAllUsersProfileAndStatusBy();
+    List<User> users = userRepository.findAllUsersProfileBy();
     return userMapper.toDto(users);
   }
 
@@ -85,7 +85,7 @@ public class UserService {
   }
 
   private User findById(UUID id) {
-    return DomainServiceSupport.getOrThrow(id, userRepository::findProfileAndStatusById,
+    return DomainServiceSupport.getOrThrow(id, userRepository::findProfileById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 

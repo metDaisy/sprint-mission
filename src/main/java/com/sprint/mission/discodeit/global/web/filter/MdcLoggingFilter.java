@@ -1,25 +1,30 @@
 package com.sprint.mission.discodeit.global.web.filter;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 import org.slf4j.MDC;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-public class MdcLoggingFilter implements Filter {
+public class MdcLoggingFilter extends OncePerRequestFilter {
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain filterChain) throws ServletException, IOException {
     String traceId = UUID.randomUUID().toString().substring(0, 8);
     MDC.put("traceId", traceId);
     try {
-      chain.doFilter(request, response);
+      filterChain.doFilter(request, response);
     } finally {
       MDC.clear();
     }
+  }
+
+  @Override
+  protected boolean shouldNotFilterErrorDispatch() {
+    return false;
   }
 }

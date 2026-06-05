@@ -47,6 +47,9 @@ public class RefreshToken extends BaseUpdatableEntity {
   }
 
   public void rotate(String newToken, Instant expiresAt) {
+    if (this.token.equals(newToken)) {
+      throw new IllegalArgumentException("existing token is same new token");
+    }
     this.previousToken = this.token;
     this.token = newToken;
     this.expiresAt = expiresAt;
@@ -54,6 +57,13 @@ public class RefreshToken extends BaseUpdatableEntity {
 
   public boolean isExpired(Instant current) {
     return expiresAt.isBefore(current);
+  }
+
+  public boolean hasToken(String token) {
+    if (token == null) {
+      return false;
+    }
+    return this.token.equals(token) || this.previousToken.equals(token);
   }
 
   @Override

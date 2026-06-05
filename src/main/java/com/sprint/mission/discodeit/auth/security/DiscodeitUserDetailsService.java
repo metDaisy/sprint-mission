@@ -20,8 +20,8 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
   @Override
   @Transactional(readOnly = true)
-  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    UserCredential credential = userCredentialRepository.findByUser_Email(email)
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    UserCredential credential = userCredentialRepository.findByUser_Email(username)
         .orElseThrow(() -> new UsernameNotFoundException("not found user credentials"));
     return new DiscodeitUserDetails(userMapper.toDto(credential.getUser()),
         credential.getPassword());

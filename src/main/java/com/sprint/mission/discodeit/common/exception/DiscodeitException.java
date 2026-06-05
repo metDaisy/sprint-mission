@@ -12,7 +12,7 @@ public abstract class DiscodeitException extends RuntimeException {
   private final Map<String, Object> details = new HashMap<>();
   private final ErrorCode errorCode;
 
-  public DiscodeitException(ErrorCode errorCode, Map<String, Object> detail) {
+  public DiscodeitException(ErrorCode errorCode, Map<String, ?> detail) {
     this(errorCode);
     details.putAll(detail);
   }

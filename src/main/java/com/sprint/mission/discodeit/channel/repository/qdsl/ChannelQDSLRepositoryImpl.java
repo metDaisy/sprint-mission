@@ -13,7 +13,6 @@ import com.sprint.mission.discodeit.message.entity.QMessage;
 import com.sprint.mission.discodeit.readstatus.entity.QReadStatus;
 import com.sprint.mission.discodeit.user.entity.QUser;
 import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.userstatus.entity.QUserStatus;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +33,6 @@ public class ChannelQDSLRepositoryImpl implements ChannelQDSLRepository {
   private final QMessage qMessage = QMessage.message;
   private final QReadStatus qReadStatus = QReadStatus.readStatus;
   private final QUser qUser = QUser.user;
-  private final QUserStatus qUserStatus = QUserStatus.userStatus;
   private final QBinaryContent qBinaryContent = QBinaryContent.binaryContent;
 
   @Override
@@ -82,7 +80,6 @@ public class ChannelQDSLRepositoryImpl implements ChannelQDSLRepository {
         .from(qReadStatus)
         .join(qReadStatus.user, qUser)
         .leftJoin(qUser.profile, qBinaryContent).fetchJoin()
-        .join(qUser.status, qUserStatus).fetchJoin()
         .where(qReadStatus.channel.id.in(channelIds))
         .fetch()
         .stream()

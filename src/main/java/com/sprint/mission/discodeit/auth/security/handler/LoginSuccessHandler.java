@@ -44,6 +44,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
   private Cookie getRefreshTokenCookie(String token) {
     Cookie cookie = new Cookie("REFRESH_TOKEN", token);
     cookie.setHttpOnly(true);
+    cookie.setPath("/");
     cookie.setSecure(false);
     cookie.setMaxAge((int) jwtProperties.refreshTokenExpiration());
     return cookie;

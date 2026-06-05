@@ -33,12 +33,12 @@ public class DiscodeitUserDetails implements UserDetails, CredentialsContainer {
 
   @Override
   public String getUsername() {
-    return userResponse.id().toString();
+    return userResponse.username();
   }
 
   @Override
   public int hashCode() {
-    return userResponse.id().hashCode();
+    return userResponse.username().hashCode();
   }
 
   @Override

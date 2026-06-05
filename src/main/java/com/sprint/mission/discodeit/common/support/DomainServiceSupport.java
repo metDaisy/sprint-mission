@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.common.exception.common.CommonErrorCode;
 import com.sprint.mission.discodeit.common.exception.common.CommonException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.AccessLevel;

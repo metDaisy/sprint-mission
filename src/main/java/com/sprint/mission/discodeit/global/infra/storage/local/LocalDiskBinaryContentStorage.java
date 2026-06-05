@@ -38,12 +38,12 @@ public class LocalDiskBinaryContentStorage extends BaseBinaryContentStorage {
   public UUID put(UUID id, byte[] bytes) {
     Path path = resolvePath(id);
     throwOrNot(path, Predicate.not(this::isPresent),
-        value -> new FileException(FileErrorCode.FILE_ALREADY_EXIST, value));
+        value -> new FileException(FileErrorCode.FILE_ALREADY_EXISTS, value));
     try {
       Files.write(path, bytes);
       return id;
     } catch (IOException exception) {
-      throw new FileException(FileErrorCode.FILE_CANT_WRITE, exception);
+      throw new FileException(FileErrorCode.FILE_WRITE_ERROR, exception);
     }
   }
 
@@ -55,7 +55,7 @@ public class LocalDiskBinaryContentStorage extends BaseBinaryContentStorage {
     try {
       return Files.newInputStream(path);
     } catch (IOException e) {
-      throw new FileException(FileErrorCode.FILE_CANT_READ, path);
+      throw new FileException(FileErrorCode.FILE_READ_ERROR, path);
     }
   }
 
@@ -73,7 +73,7 @@ public class LocalDiskBinaryContentStorage extends BaseBinaryContentStorage {
     try {
       Files.createDirectories(root);
     } catch (IOException e) {
-      throw new FileException(FileErrorCode.ROOT_DIRECTORY_FAILED_TO_CREATE, root);
+      throw new FileException(FileErrorCode.ROOT_DIRECTORY_CREATION_FAILED, root);
     }
   }
 

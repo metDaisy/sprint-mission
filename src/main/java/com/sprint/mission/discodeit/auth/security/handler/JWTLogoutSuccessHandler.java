@@ -27,7 +27,7 @@ public class JWTLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
   @Override
   public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
-    deleteRefreshToken(request);
+    deleteRefreshToken(request, response);
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     Map<String, String> result = Map.of("message", "logout success");
@@ -35,11 +35,14 @@ public class JWTLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
     log.info("logout - {}", authentication.getName());
   }
 
-  private void deleteRefreshToken(HttpServletRequest request) {
+  private void deleteRefreshToken(HttpServletRequest request, HttpServletResponse response) {
     Cookie cookie = WebUtils.getCookie(request, "REFRESH_TOKEN");
-    if (cookie == null) {
-      return;
+    if (cookie != null) {
+      authService.deleteRefreshToken(cookie.getValue());
     }
-    authService.deleteRefreshToken(cookie.getValue());
+    Cookie deleteCookie = new Cookie("REFRESH_TOKEN", null);
+    deleteCookie.setMaxAge(0);
+    deleteCookie.setPath("/");
+    response.addCookie(deleteCookie);
   }
 }

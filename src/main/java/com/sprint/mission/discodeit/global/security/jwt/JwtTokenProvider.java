@@ -112,12 +112,14 @@ public class JwtTokenProvider {
     }
 
     SignedJWT signedJWT = new SignedJWT(header, builder.build());
-    runOrThrow(() -> signedJWT.sign(signer), new JwtAuthenticationException(JwtAuthenticationErrorCode.INVALID_TOKEN));
+    runOrThrow(() -> signedJWT.sign(signer),
+        new JwtAuthenticationException(JwtAuthenticationErrorCode.INVALID_TOKEN));
 
     return signedJWT.serialize();
   }
 
-  private <T> T getOrThrow(JwtCheckedExceptionSupplier<T> supplier, JwtAuthenticationException exception) {
+  private <T> T getOrThrow(JwtCheckedExceptionSupplier<T> supplier,
+      JwtAuthenticationException exception) {
     try {
       return supplier.get();
     } catch (Exception e) {
@@ -126,7 +128,8 @@ public class JwtTokenProvider {
     }
   }
 
-  private void runOrThrow(JwtCheckedExceptionRunnable runnable, JwtAuthenticationException exception) {
+  private void runOrThrow(JwtCheckedExceptionRunnable runnable,
+      JwtAuthenticationException exception) {
     try {
       runnable.run();
     } catch (Exception e) {

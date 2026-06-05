@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.config.aws;
+package com.sprint.mission.discodeit.global.infra.storage.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;

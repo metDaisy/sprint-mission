@@ -35,9 +35,10 @@ public class InMemoryJwtRegistry implements JwtRegistry {
   @Override
   public RefreshToken findByToken(String refreshToken) {
     return retainedDevice.values().stream().flatMap(Collection::stream)
-        .filter(token -> token.getToken().equals(refreshToken))
+        .filter(token -> token.hasToken(refreshToken))
         .findFirst()
-        .orElseThrow(() -> new JwtAuthenticationException(JwtAuthenticationErrorCode.TOKEN_NOT_FOUND));
+        .orElseThrow(
+            () -> new JwtAuthenticationException(JwtAuthenticationErrorCode.TOKEN_NOT_FOUND));
   }
 
   @Override

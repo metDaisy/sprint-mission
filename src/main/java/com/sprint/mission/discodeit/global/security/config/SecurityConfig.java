@@ -1,25 +1,23 @@
 package com.sprint.mission.discodeit.global.security.config;
 
+import com.sprint.mission.discodeit.global.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import java.util.List;
 import java.util.stream.Stream;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,10 +29,13 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http,
       AuthenticationSuccessHandler loginSuccessHandler,
       AuthenticationFailureHandler loginFailureHandler,
-      LogoutSuccessHandler logoutSuccessHandler)
+      LogoutSuccessHandler logoutSuccessHandler,
+      JwtAuthenticationFilter jwtAuthenticationFilter)
       throws Exception {
+    CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+    csrfRepository.setCookiePath("/");
     return http.csrf(
-            csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            csrf -> csrf.csrfTokenRepository(csrfRepository)
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(
@@ -64,6 +65,7 @@ public class SecurityConfig {
                         "/auth/login",
                         "/users").permitAll()
                     .anyRequest().authenticated())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
             exception -> exception
                 .authenticationEntryPoint(new UnauthenticatedEntryPoint())
@@ -79,20 +81,11 @@ public class SecurityConfig {
         Stream.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PATCH, HttpMethod.DELETE,
                 HttpMethod.OPTIONS)
             .map(HttpMethod::toString).toList());
-    config.setAllowedHeaders(List.of("authorization", "content-type", "x-xsrf-token", "x-device-id"));
+    config.setAllowedHeaders(
+        List.of("authorization", "content-type", "x-xsrf-token", "x-device-id"));
     config.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
     return source;
-  }
-
-  @Bean
-  public HttpSessionEventPublisher httpSessionEventPublisher() {
-    return new HttpSessionEventPublisher();
-  }
-
-  @Bean
-  public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
   }
 }
