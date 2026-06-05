@@ -27,9 +27,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
-  @Value("${discodeit.api-prefix}")
-  private String API_PREFIX;
-
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http,
       AuthenticationSuccessHandler loginSuccessHandler,
@@ -44,12 +41,12 @@ public class SecurityConfig {
             session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(form ->
-            form.loginProcessingUrl(resolveUrl("/auth/login"))
+            form.loginProcessingUrl("/auth/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler))
-        .logout(logout -> logout.logoutUrl(resolveUrl("/auth/logout"))
+        .logout(logout -> logout.logoutUrl("/auth/logout")
             .logoutSuccessHandler(logoutSuccessHandler)
             .deleteCookies("JSESSIONID", "XSRF-TOKEN", "REFRESH_TOKEN")
             .permitAll())
@@ -57,15 +54,15 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(HttpMethod.GET,
-                        resolveUrl("/auth/csrf-token"),
+                        "/auth/csrf-token",
                         "/actuator/**",
                         "/swagger-ui.html",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/api.json").permitAll()
                     .requestMatchers(HttpMethod.POST,
-                        resolveUrl("/auth/login"),
-                        resolveUrl("/users")).permitAll()
+                        "/auth/login",
+                        "/users").permitAll()
                     .anyRequest().authenticated())
         .exceptionHandling(
             exception -> exception
@@ -85,7 +82,7 @@ public class SecurityConfig {
     config.setAllowedHeaders(List.of("authorization", "content-type", "x-xsrf-token", "x-device-id"));
     config.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration(resolveUrl("/**"), config);
+    source.registerCorsConfiguration("/**", config);
     return source;
   }
 
@@ -97,9 +94,5 @@ public class SecurityConfig {
   @Bean
   public SessionRegistry sessionRegistry() {
     return new SessionRegistryImpl();
-  }
-
-  private String resolveUrl(String url) {
-    return API_PREFIX + url;
   }
 }

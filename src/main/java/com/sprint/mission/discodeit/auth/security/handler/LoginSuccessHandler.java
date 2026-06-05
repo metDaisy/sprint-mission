@@ -21,9 +21,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-  @Value("${discodeit.api-prefix}")
-  private String apiPrefix;
-
   private final ObjectMapper objectMapper;
   private final JwtProperties jwtProperties;
   private final AuthService authService;
@@ -46,7 +43,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     cookie.setHttpOnly(true);
     cookie.setSecure(false);
     cookie.setMaxAge((int) jwtProperties.refreshTokenExpiration());
-    cookie.setPath(apiPrefix);
     return cookie;
   }
 }
