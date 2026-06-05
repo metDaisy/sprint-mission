@@ -11,12 +11,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -32,10 +33,12 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
     String device = request.getHeader("X-Device-Id");
-    JwtLoginResponse result = authService.createJwtLogin(userDetails.getUserResponse().id(), device);
+    JwtLoginResponse result = authService.createJwtLogin(userDetails.getUserResponse().id(),
+        device);
     String json = objectMapper.writeValueAsString(result);
     response.addCookie(getRefreshTokenCookie(result.refreshToken()));
     response.getWriter().write(json);
+    log.info("login - [user - {}]", authentication.getName());
   }
 
   private Cookie getRefreshTokenCookie(String token) {

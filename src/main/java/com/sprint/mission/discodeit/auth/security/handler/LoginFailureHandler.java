@@ -27,6 +27,6 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     Map<String, String> simpleErrorResponse = Map.of("message", "login failed");
     response.getWriter().write(objectMapper.writeValueAsString(simpleErrorResponse));
-    log.error("{}: {}", exception.getClass().getSimpleName(), exception.getMessage());
+    log.error("{}: {}", exception.getClass().getSimpleName(), exception.getMessage(), exception);
   }
 }

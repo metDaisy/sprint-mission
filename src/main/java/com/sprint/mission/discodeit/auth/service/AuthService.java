@@ -64,8 +64,8 @@ public class AuthService {
     return issueTokensAndSave(user, refreshEntity);
   }
 
-  public void deleteRefreshToken(UUID userId) {
-    // DomainServiceSupport;
+  public void deleteRefreshToken(String token) {
+    jwtRegistry.invalidateByToken(token);
   }
 
   private JwtLoginResponse issueTokensAndSave(User user, RefreshToken refreshEntity) {
