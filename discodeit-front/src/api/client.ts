@@ -2,6 +2,9 @@ import axios, {AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestCon
 import config from '@/config';
 import {eventEmitter} from '../utils/eventEmitter';
 import useAuthStore from "@/stores/authStore.ts";
+import {getOrCreateDeviceId} from "@/utils/device.ts";
+
+const deviceId = getOrCreateDeviceId();
 
 // 실패한 요청 캐시
 let failedRequestsQueue: Array<{
@@ -26,16 +29,22 @@ const client: AxiosInstance = axios.create({
   baseURL: config.apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
+    'X-Device-Id': deviceId,
   },
   withCredentials: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
 export const clientWithoutAuthorization: AxiosInstance = axios.create({
   baseURL: config.apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
+    'X-Device-Id': deviceId,
   },
   withCredentials: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
 // 요청 인터셉터 추가
