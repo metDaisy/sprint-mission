@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,17 +37,17 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
   }
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserResponse> create(
-      @RequestBody @Valid UserCreateRequest userCreateRequest) {
+      @RequestPart @Valid UserCreateRequest userCreateRequest) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(userService.create(userCreateRequest));
   }
 
-  @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserResponse> update(
       @PathVariable UUID id,
-      @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
+      @RequestPart @Valid UserUpdateRequest userUpdateRequest) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(userService.update(id, userUpdateRequest));
   }

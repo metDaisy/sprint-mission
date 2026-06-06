@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -38,10 +39,8 @@ public class AuthController {
 
   @PostMapping("/refresh")
   public ResponseEntity<JwtLoginResponse> refresh(
-      @AuthenticationPrincipal DiscodeitUserDetails userDetails,
-      @RequestHeader("REFRESH_TOKEN") String token) {
-    JwtLoginResponse response = authService.reissue(userDetails.getUserResponse().id(), token);
-    return ResponseEntity.status(HttpStatus.OK).header("REFRESH_TOKEN", response.refreshToken())
-        .body(response);
+      @CookieValue(value = "REFRESH_TOKEN", required = false) String token) {
+    JwtLoginResponse response = authService.reissue(token);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }

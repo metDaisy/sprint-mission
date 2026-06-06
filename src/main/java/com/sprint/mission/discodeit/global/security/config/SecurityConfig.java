@@ -63,7 +63,8 @@ public class SecurityConfig {
                         "/api.json").permitAll()
                     .requestMatchers(HttpMethod.POST,
                         "/auth/login",
-                        "/users").permitAll()
+                        "/users",
+                        "/auth/refresh").permitAll()
                     .anyRequest().authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
@@ -76,7 +77,7 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost"));
+    config.setAllowedOrigins(List.of("http://localhost", "http://localhost:5173"));
     config.setAllowedMethods(
         Stream.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PATCH, HttpMethod.DELETE,
                 HttpMethod.OPTIONS)

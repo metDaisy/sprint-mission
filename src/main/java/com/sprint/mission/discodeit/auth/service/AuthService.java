@@ -40,13 +40,13 @@ public class AuthService {
     return userMapper.toDto(user);
   }
 
-  public JwtLoginResponse reissue(UUID userId, String refreshToken) {
+  public JwtLoginResponse reissue(String refreshToken) {
     jwtTokenProvider.validate(refreshToken);
 
     RefreshToken token = jwtRegistry.findByToken(refreshToken);
 
     if (Objects.equals(token.getPreviousToken(), refreshToken)) {
-      jwtRegistry.invalidateAllByUserId(userId);
+      jwtRegistry.invalidateAllByUserId(token.getUser().getId());
       throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
     }
     if (!token.getToken().equals(refreshToken)) {

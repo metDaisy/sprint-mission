@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throw new JwtAuthenticationException(JwtAuthenticationErrorCode.ACTIVE_DEVICE_CHANGED);
     }
     SecurityContextHolder.getContext().setAuthentication(authToken);
+    filterChain.doFilter(request, response);
   }
 
   private String parseToken(HttpServletRequest request) {
