@@ -46,18 +46,8 @@ public class JwtTokenProvider {
     return buildToken(subject, authorities, getAccessTokenExpiration());
   }
 
-  public String generateAccessToken(Authentication authentication) {
-    String authorities = DiscodeitAuthorityUtils.serializeAuthorities(
-        authentication.getAuthorities());
-    return buildToken(authentication.getName(), authorities, getAccessTokenExpiration());
-  }
-
   public String generateRefreshToken(String subject) {
     return buildToken(subject, null, getRefreshTokenExpiration());
-  }
-
-  public String generateRefreshToken(Authentication authentication) {
-    return buildToken(authentication.getName(), null, getRefreshTokenExpiration());
   }
 
   public Authentication getAuthentication(String token) {
@@ -151,10 +141,10 @@ public class JwtTokenProvider {
   }
 
   private long getAccessTokenExpiration() {
-    return jwtProperties.accessTokenExpiration() * 1000;
+    return jwtProperties.accessToken().expiration() * 1000;
   }
 
   private long getRefreshTokenExpiration() {
-    return jwtProperties.refreshTokenExpiration() * 1000;
+    return jwtProperties.refreshToken().expiration() * 1000;
   }
 }

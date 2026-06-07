@@ -73,7 +73,7 @@ public class AuthService {
         user.getId().toString(), user.getRole().name());
     String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString());
 
-    long expirationSeconds = jwtProperties.refreshTokenExpiration();
+    long expirationSeconds = jwtProperties.refreshToken().expiration();
     Instant expiresAt = Instant.now().plusSeconds(expirationSeconds);
 
     refreshEntity.rotate(newRefreshToken, expiresAt);

@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.auth.service.AuthService;
-import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
+import com.sprint.mission.discodeit.global.security.jwt.CookieProvider;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
   private final ObjectMapper objectMapper;
-  private final JwtProperties jwtProperties;
+  private final CookieProvider cookieProvider;
   private final AuthService authService;
 
   @Override
@@ -36,17 +36,9 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     JwtLoginResponse result = authService.createJwtLogin(userDetails.getUserResponse().id(),
         device);
     String json = objectMapper.writeValueAsString(result);
-    response.addCookie(getRefreshTokenCookie(result.refreshToken()));
+    response.addHeader(HttpHeaders.SET_COOKIE,
+        cookieProvider.createRefreshTokenCookie(result.refreshToken()).toString());
     response.getWriter().write(json);
     log.info("login - [user - {}]", authentication.getName());
-  }
-
-  private Cookie getRefreshTokenCookie(String token) {
-    Cookie cookie = new Cookie("REFRESH_TOKEN", token);
-    cookie.setHttpOnly(true);
-    cookie.setPath("/");
-    cookie.setSecure(false);
-    cookie.setMaxAge((int) jwtProperties.refreshTokenExpiration());
-    return cookie;
   }
 }
