@@ -3,6 +3,7 @@ import config from '@/config';
 import {eventEmitter} from '../utils/eventEmitter';
 import useAuthStore from "@/stores/authStore.ts";
 import {getOrCreateDeviceId} from "@/utils/device.ts";
+import {getCookieValue} from "@/utils/cookieUtils.ts";
 
 const deviceId = getOrCreateDeviceId();
 
@@ -53,6 +54,10 @@ client.interceptors.request.use(
     const accessToken = useAuthStore.getState().accessToken;
     if (accessToken) {
       config.headers['Authorization'] = `Bearer ${accessToken}`
+    }
+    const csrfToken = getCookieValue('XSRF-TOKEN');
+    if (csrfToken) {
+      config.headers['X-XSRF-TOKEN'] = csrfToken;
     }
     return config;
   },
