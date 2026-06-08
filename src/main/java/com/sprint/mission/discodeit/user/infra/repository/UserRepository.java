@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.user.repository;
+package com.sprint.mission.discodeit.user.infra.repository;
 
-import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.user.entity.constant.UserRole;
+import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

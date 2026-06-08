@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.user.controller;
 
-import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.user.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.controller.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.controller.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
 import com.sprint.mission.discodeit.user.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;

@@ -1,10 +1,12 @@
-package com.sprint.mission.discodeit.user.dto.request;
+package com.sprint.mission.discodeit.user.controller.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprint.mission.discodeit.global.validation.UpdateSafe;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.ToString;
@@ -14,26 +16,31 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-public final class UserUpdateRequest {
+public final class UserCreateRequest {
 
   @UpdateSafe
+  @NotEmpty
   private final String username;
 
   @UpdateSafe
+  @NotEmpty
   @Email
   private final String email;
 
   @UpdateSafe
+  @NotEmpty
   private final String password;
 
   private final UUID profileId;
 
+  private final UserRole role = UserRole.USER;
+
   @JsonCreator
-  public UserUpdateRequest(
-      @JsonProperty("newUsername") String username,
-      @JsonProperty("newEmail") String email,
-      @JsonProperty("newPassword") String password,
-      @JsonProperty("newProfileId") UUID profileId) {
+  public UserCreateRequest(
+      @JsonProperty("username") String username,
+      @JsonProperty("email") String email,
+      @JsonProperty("password") String password,
+      @JsonProperty("profileId") UUID profileId) {
     this.username = username;
     this.email = email;
     this.password = password;

@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.user.entity;
+package com.sprint.mission.discodeit.user.domain.entity;
 
 import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.user.entity.constant.UserRole;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,10 +16,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.util.Assert;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "users")
@@ -39,7 +38,7 @@ public class User extends BaseUpdatableEntity {
   private BinaryContent profile;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "role")
+  @Column(name = "role", nullable = false, length = 20)
   private UserRole role;
 
   @Builder
@@ -47,9 +46,29 @@ public class User extends BaseUpdatableEntity {
       String email,
       BinaryContent profile,
       UserRole role) {
+    Assert.hasText(username, "username is necessary");
+    Assert.hasText(email, "email is necessary");
+    Assert.notNull(role, "role is necessary");
+
     this.username = username;
     this.email = email;
     this.profile = profile;
     this.role = role;
+  }
+
+  public boolean updateUsername(String username) {
+    return update(this.username, username, value -> this.username = value);
+  }
+
+  public boolean updateEmail(String email) {
+    return update(this.email, email, value -> this.email = value);
+  }
+
+  public boolean updateProfile(BinaryContent profile) {
+    return update(this.profile, profile, value -> this.profile = value);
+  }
+
+  public boolean updateRole(UserRole role) {
+    return update(this.role, role, value -> this.role = value);
   }
 }

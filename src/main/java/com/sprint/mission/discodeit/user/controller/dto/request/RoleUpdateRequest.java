@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.user.dto.request;
+package com.sprint.mission.discodeit.user.controller.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sprint.mission.discodeit.user.entity.constant.UserRole;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.Getter;
