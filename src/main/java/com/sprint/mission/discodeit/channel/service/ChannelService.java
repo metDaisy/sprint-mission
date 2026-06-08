@@ -46,7 +46,7 @@ public class ChannelService {
   public ChannelResponse createPrivate(PrivateChannelCreateRequest request) {
     Channel channel = channelMapper.toEntityFrom(request);
     channelRepository.save(channel);
-    List<User> participants = userRepository.findProfileAndStatusByIdIn(
+    List<User> participants = userRepository.findProfileByIdIn(
         request.getParticipantIds());
     List<ReadStatus> readStatuses = readStatusMapper.toEntityFrom(channel, participants);
     readStatusRepository.saveAll(readStatuses);
@@ -77,7 +77,7 @@ public class ChannelService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteByIdOrThrow(id, channelRepository,
+    DomainServiceSupport.executeOrThrow(id, channelRepository,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 

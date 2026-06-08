@@ -4,7 +4,7 @@ springdoc:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
+    url: jdbc:postgresql://localhost:5432/${DB_NAME}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
@@ -40,6 +40,5 @@ logging:
       clean-history-on-start: true
       max-history: 30
   pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %clr(%-5level) [%logger{36}] - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-
+    console: "%d{HH:mm:ss.SSS} [%thread] %clr(%-5level) [traceId: %X{traceId}] [%logger{36}] - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [traceId: %X{traceId}] [%logger{36}] - %msg%n"

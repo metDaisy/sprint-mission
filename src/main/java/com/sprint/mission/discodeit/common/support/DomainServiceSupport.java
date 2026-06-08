@@ -7,9 +7,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DomainServiceSupport {
 
   public static <T, R> R getOrThrow(T value, Function<T, Optional<R>> action,
@@ -17,7 +20,7 @@ public final class DomainServiceSupport {
     return action.apply(value).orElseThrow(() -> exception.apply(value));
   }
 
-  public static <T> void deleteByIdOrThrow(UUID id, JpaRepository<T, UUID> repository,
+  public static <T> void executeOrThrow(UUID id, JpaRepository<T, UUID> repository,
       Function<UUID, DiscodeitException> exception) {
     T entity = repository.findById(id).orElseThrow(() -> exception.apply(id));
     try {
@@ -28,7 +31,15 @@ public final class DomainServiceSupport {
     }
   }
 
-  public static <T> void throwOrNot(T value, Predicate<T> condition,
+  /*
+  public static <T> void doOrThrow(T value, Consumer<T> action, Function<T, DiscodeitException> exception) {
+    try {
+      action.accept(value);
+    } catch ()
+  }
+  */
+
+  public static <T> void requireOrThrow(T value, Predicate<T> condition,
       Function<T, DiscodeitException> exception) {
     if (!condition.test(value)) {
       throw exception.apply(value);

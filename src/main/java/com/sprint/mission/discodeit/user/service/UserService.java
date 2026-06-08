@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.user.service;
 
-import com.sprint.mission.discodeit.auth.entity.UserCredential;
+import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.exception.BinaryContentErrorCode;
@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.binarycontent.exception.BinaryContentExcepti
 import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
-import com.sprint.mission.discodeit.userstatus.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
@@ -33,7 +32,6 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-  private final UserStatusMapper userStatusMapper;
   private final PasswordEncoder passwordEncoder;
   private final UserCredentialRepository userCredentialRepository;
   private final BinaryContentRepository binaryContentRepository;
@@ -47,7 +45,7 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public List<UserResponse> findAll() {
-    List<User> users = userRepository.findAllUsersProfileAndStatusBy();
+    List<User> users = userRepository.findAllUsersProfileBy();
     return userMapper.toDto(users);
   }
 
@@ -57,7 +55,7 @@ public class UserService {
     checkUsernameUniqueness(request.getUsername());
 
     BinaryContent binaryContent = getProfileOrNot(request.getProfileId());
-    User user = userMapper.toEntityFrom(request, userStatusMapper.createDefault(), binaryContent);
+    User user = userMapper.toEntityFrom(request, binaryContent);
     userRepository.save(user);
     createUserCredential(request, user);
     return userMapper.toDto(user);
@@ -82,12 +80,12 @@ public class UserService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteByIdOrThrow(id, userRepository,
+    DomainServiceSupport.executeOrThrow(id, userRepository,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
   private User findById(UUID id) {
-    return DomainServiceSupport.getOrThrow(id, userRepository::findProfileAndStatusById,
+    return DomainServiceSupport.getOrThrow(id, userRepository::findProfileById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
@@ -95,7 +93,7 @@ public class UserService {
     if (username == null) {
       return;
     }
-    DomainServiceSupport.throwOrNot(username, Predicate.not(userRepository::existsByUsername),
+    DomainServiceSupport.requireOrThrow(username, Predicate.not(userRepository::existsByUsername),
         value -> new UserException(UserErrorCode.USERNAME_ALREADY_EXIST,
             Map.of("username", value)));
   }
@@ -104,7 +102,7 @@ public class UserService {
     if (email == null) {
       return;
     }
-    DomainServiceSupport.throwOrNot(email, Predicate.not(userRepository::existsByEmail),
+    DomainServiceSupport.requireOrThrow(email, Predicate.not(userRepository::existsByEmail),
         value -> new UserException(UserErrorCode.EMAIL_ALREADY_EXIST,
             Map.of("email", value)));
   }
@@ -127,7 +125,7 @@ public class UserService {
     if (profileId == null) {
       return null;
     }
-    DomainServiceSupport.throwOrNot(profileId, binaryContentRepository::existsById,
+    DomainServiceSupport.requireOrThrow(profileId, binaryContentRepository::existsById,
         value -> new BinaryContentException(BinaryContentErrorCode.BINARYCONTENTID_NOT_FOUND,
             value));
     return binaryContentRepository.getReferenceById(profileId);

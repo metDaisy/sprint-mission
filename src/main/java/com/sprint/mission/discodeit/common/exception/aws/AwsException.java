@@ -7,10 +7,6 @@ import java.util.UUID;
 
 public class AwsException extends DiscodeitException {
 
-  public AwsException(ErrorCode errorCode) {
-    super(errorCode);
-  }
-
   public AwsException(ErrorCode errorCode, Exception exception) {
     super(errorCode, exception);
   }

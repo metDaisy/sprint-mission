@@ -4,9 +4,6 @@ import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
 import com.sprint.mission.discodeit.user.service.UserService;
-import com.sprint.mission.discodeit.userstatus.dto.UserStatusDto;
-import com.sprint.mission.discodeit.userstatus.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.userstatus.service.UserStatusService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -19,8 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
 
   @GetMapping(value = "/{id}")
   public ResponseEntity<UserResponse> find(@PathVariable UUID id) {
@@ -41,17 +37,17 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
   }
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserResponse> create(
-      @RequestBody @Valid UserCreateRequest userCreateRequest) {
+      @RequestPart @Valid UserCreateRequest userCreateRequest) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(userService.create(userCreateRequest));
   }
 
-  @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserResponse> update(
       @PathVariable UUID id,
-      @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
+      @RequestPart @Valid UserUpdateRequest userUpdateRequest) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(userService.update(id, userUpdateRequest));
   }
@@ -61,12 +57,4 @@ public class UserController {
     userService.delete(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
-
-  @PatchMapping(value = "/{userId}/userStatus")
-  public ResponseEntity<UserStatusDto> updateUserStatus(
-      @PathVariable UUID userId,
-      @RequestBody @Valid UserStatusUpdateRequest request) {
-    return ResponseEntity.status(HttpStatus.OK).body(userStatusService.update(userId, request));
-  }
-
 }

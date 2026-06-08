@@ -46,7 +46,7 @@ const formatFileSize = (bytes: number): string => {
 
 function MessageList({ channel }: MessageListProps): JSX.Element {
   const { messages, fetchMessages, loadMoreMessages, pagination, startPolling, stopPolling, updateMessage, deleteMessage } = useMessageStore();
-  const {binaryContents, fetchBinaryContent} = useBinaryContentStore();
+  const {binaryContents, fetchBinaryContent, clearBinaryContents} = useBinaryContentStore();
   const { currentUser } = useAuthStore();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -72,6 +72,14 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
       });
     });
   }, [messages, binaryContents, fetchBinaryContent]);
+
+  useEffect(() => {
+    return () => {
+      const toRevokeContentIds = messages
+      .map(message => message.attachments?.map(attachment => attachment.id)).flat();
+      clearBinaryContents(toRevokeContentIds)
+    }
+  }, [clearBinaryContents]);
 
   useEffect(() => {
     const handleClickOutside = () => {

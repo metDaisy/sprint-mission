@@ -1,24 +1,26 @@
-import { getCsrfToken, login, logout, me, updateUserRole } from "@/api/auth";
+import { getCsrfToken, login, logout, updateUserRole, refreshToken } from "@/api/auth";
 import { Role, UserDto } from "@/types/api";
 import { create } from "zustand";
 
 
 interface AuthStore {
     currentUser: UserDto | null;
-    login: (username: string, password: string, rememberMe: boolean) => Promise<void>;
+    accessToken: string | null;
+    login: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     fetchCsrfToken: () => Promise<void>;
-    fetchMe: () => Promise<void>;
+    refreshToken: () => Promise<void>;
     clear: () => void;
     updateUserRole: (userId: string, role: Role) => Promise<void>;
 }
 
 const useAuthStore = create<AuthStore>((set, get) => ({
     currentUser: null,
-    login: async (username: string, password: string, rememberMe: boolean = false) => {
-        const response = await login(username, password, rememberMe);
+    accessToken: null,
+    login: async (username: string, password: string) => {
+        const {userDto, accessToken} = await login(username, password);
         await get().fetchCsrfToken();
-        set({ currentUser: response });
+        set({ currentUser: userDto, accessToken });
     },
     logout: async () => {
         await logout();
@@ -28,12 +30,13 @@ const useAuthStore = create<AuthStore>((set, get) => ({
     fetchCsrfToken: async () => {
         await getCsrfToken();
     },
-    fetchMe: async () => {
-        const response = await me();
-        set({ currentUser: response });
+    refreshToken: async () => {
+        get().clear();
+        const {userDto, accessToken} = await refreshToken();
+        set({ currentUser: userDto, accessToken });
     },
     clear: () => {
-        set({ currentUser: null });
+        set({ currentUser: null, accessToken: null });
     },
     updateUserRole: async (userId: string, role: Role) => {
         await updateUserRole(userId, role);

@@ -1,7 +1,7 @@
 services:
   app:
     build: .
-    image: discodeit-backend:2.0-M9
+    image: discodeit-backend:2.1-M10
     restart: always
     ports:
       - "8080:8080"
@@ -22,11 +22,17 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION}
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION}
+      JWT_REGISTRY_STORE_TYPE: ${JWT_REGISTRY_STORE_TYPE}
+      JWT_REGISTRY_MAX_CONCURRENT: ${JWT_REGISTRY_MAX_CONCURRENT}
+      JWT_REGISTRY_MAX_RETAINED: ${JWT_REGISTRY_MAX_RETAINED}
 
   web-server:
     build:
       context: discodeit-front
-    image: discodeit-frontend:2.0.7
+    image: discodeit-frontend:2.1.2
     restart: always
     depends_on:
       - app

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.auth.repository;
 
-import com.sprint.mission.discodeit.auth.entity.UserCredential;
+import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;

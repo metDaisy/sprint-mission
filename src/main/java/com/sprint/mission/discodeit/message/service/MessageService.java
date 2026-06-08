@@ -41,9 +41,9 @@ public class MessageService {
 
   @ServiceLogAround
   public MessageResponse create(MessageCreateRequest request) {
-    DomainServiceSupport.throwOrNot(request.getChannelId(), channelRepository::existsById,
+    DomainServiceSupport.requireOrThrow(request.getChannelId(), channelRepository::existsById,
         id -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, id));
-    DomainServiceSupport.throwOrNot(request.getAuthorId(), userRepository::existsById,
+    DomainServiceSupport.requireOrThrow(request.getAuthorId(), userRepository::existsById,
         id -> new UserException(UserErrorCode.USERID_NOT_FOUND, id));
 
     List<UUID> attachmentIds = binaryContentRepository.filterIds(request.getAttachmentIds());
@@ -75,7 +75,7 @@ public class MessageService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteByIdOrThrow(id, messageRepository,
+    DomainServiceSupport.executeOrThrow(id, messageRepository,
         messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
   }
 

@@ -3,18 +3,22 @@ package com.sprint.mission.discodeit.common.exception.file;
 import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
 public enum FileErrorCode implements ErrorCode {
-  FILE_CANT_READ(500, "C001", "Failed to read file"),
-  ROOT_DIRECTORY_FAILED_TO_CREATE(500, "C002", "Failed to create root directories"),
-  FILE_CANT_WRITE(500, "C003", "Failed to save file"),
-  FILE_ALREADY_EXIST(500, "C004", "File already exists"),
-  FILE_NOT_FOUND(500, "C005", "File not found"),
+  FILE_READ_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F001",
+      "An error occurred while reading the file from the server."),
+  ROOT_DIRECTORY_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "F002",
+      "Failed to initialize the root file storage directory."),
+  FILE_WRITE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F003",
+      "An error occurred while saving the file to the server."),
+  FILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "F004", "A file with the same name already exists."),
+  FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "F005", "The requested file could not be found."),
   ;
 
-  private final int status;
+  private final HttpStatus status;
   private final String code;
   private final String message;
 }

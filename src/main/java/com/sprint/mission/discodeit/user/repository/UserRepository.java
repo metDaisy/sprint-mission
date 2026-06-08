@@ -24,12 +24,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   @Query("select u.id from User u where u.id in :ids")
   List<UUID> filterExistingIds(@Param("ids") Collection<UUID> ids);
 
-  @EntityGraph(attributePaths = {"profile", "status"})
-  Optional<User> findProfileAndStatusById(UUID id);
+  @EntityGraph(attributePaths = {"profile"})
+  Optional<User> findProfileById(UUID id);
 
-  @EntityGraph(attributePaths = {"profile", "status"})
-  List<User> findAllUsersProfileAndStatusBy();
+  @EntityGraph(attributePaths = {"profile"})
+  List<User> findAllUsersProfileBy();
 
-  @EntityGraph(attributePaths = {"profile", "status"})
-  List<User> findProfileAndStatusByIdIn(Collection<UUID> id);
+  @EntityGraph(attributePaths = {"profile"})
+  List<User> findProfileByIdIn(Collection<UUID> id);
 }

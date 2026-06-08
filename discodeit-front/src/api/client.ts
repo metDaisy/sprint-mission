@@ -1,6 +1,19 @@
 import axios, {AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
 import config from '@/config';
 import {eventEmitter} from '../utils/eventEmitter';
+import useAuthStore from "@/stores/authStore.ts";
+import {getOrCreateDeviceId} from "@/utils/device.ts";
+import {getCookieValue} from "@/utils/cookieUtils.ts";
+
+const deviceId = getOrCreateDeviceId();
+
+// 실패한 요청 캐시
+let failedRequestsQueue: Array<{
+  config: InternalAxiosRequestConfig;
+  resolve: (value?: any) => void;
+  reject: (error?: any) => void;
+}> = [];
+let isRefreshing = false;
 
 // 서버 에러 응답 타입 정의
 export interface ErrorResponse {
@@ -17,13 +30,35 @@ const client: AxiosInstance = axios.create({
   baseURL: config.apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
+    'X-Device-Id': deviceId,
   },
   withCredentials: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+});
+
+export const clientWithoutAuthorization: AxiosInstance = axios.create({
+  baseURL: config.apiBaseUrl,
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Device-Id': deviceId,
+  },
+  withCredentials: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
 // 요청 인터셉터 추가
 client.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const accessToken = useAuthStore.getState().accessToken;
+    if (accessToken) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`
+    }
+    const csrfToken = getCookieValue('XSRF-TOKEN');
+    if (csrfToken) {
+      config.headers['X-XSRF-TOKEN'] = csrfToken;
+    }
     return config;
   },
   (error: AxiosError) => {
@@ -36,7 +71,7 @@ client.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     // 서버 에러 응답을 ErrorResponse 타입으로 매핑
     const errorResponse = error.response?.data as ErrorResponse | undefined;
     
@@ -57,7 +92,54 @@ client.interceptors.response.use(
     
     // 401 에러 처리 (인증 실패)
     if (error.response && error.response.status === 401) {
-      eventEmitter.emit('auth-error');
+      const originalRequest = error.config;
+      
+      // 이미 재시도된 요청이면 더 이상 처리하지 않음
+      if (originalRequest && originalRequest.headers && originalRequest.headers['_retry']) {
+        eventEmitter.emit('auth-error');
+        return Promise.reject(error);
+      }
+      
+      // 토큰 새로고침이 진행 중이면 대기열에 추가
+      if (isRefreshing && originalRequest) {
+        return new Promise((resolve, reject) => {
+          failedRequestsQueue.push({ config: originalRequest, resolve, reject });
+        });
+      }
+      
+      // 토큰 새로고침 시작
+      if (originalRequest) {
+        isRefreshing = true;
+        
+        try {
+          await useAuthStore.getState().refreshToken();
+          
+          // 대기 중인 모든 요청 재시도
+          failedRequestsQueue.forEach(({ config, resolve, reject }) => {
+            config.headers = config.headers || {};
+            config.headers['_retry'] = 'true';
+            client(config).then(resolve).catch(reject);
+          });
+          
+          // 원본 요청 재시도
+          originalRequest.headers = originalRequest.headers || {};
+          originalRequest.headers['_retry'] = 'true';
+          
+          // 대기열 및 플래그 초기화
+          failedRequestsQueue = [];
+          isRefreshing = false;
+          
+          return client(originalRequest);
+        } catch (refreshError) {
+          // 토큰 새로고침 실패
+          failedRequestsQueue.forEach(({ reject }) => reject(refreshError));
+          failedRequestsQueue = [];
+          isRefreshing = false;
+          
+          eventEmitter.emit('auth-error');
+          return Promise.reject(refreshError);
+        }
+      }
     }
     
     return Promise.reject(error);

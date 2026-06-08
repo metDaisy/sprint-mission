@@ -37,7 +37,7 @@ public record FileUploadRequest(
       return new FileUploadRequest(filename, contentType, size, bytes);
     } catch (IOException e) {
       Map<String, Object> details = Map.of("fileName", filename, "IOException", e.getMessage());
-      throw new FileException(FileErrorCode.FILE_CANT_READ, details);
+      throw new FileException(FileErrorCode.FILE_READ_ERROR, details);
     }
   }
 }

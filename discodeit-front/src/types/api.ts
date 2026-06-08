@@ -121,3 +121,8 @@ export interface UserRoleUpdateRequest {
   userId: string;
   newRole: Role;
 }
+
+export interface JwtDto {
+  userDto: UserDto,
+  accessToken: string;
+}
