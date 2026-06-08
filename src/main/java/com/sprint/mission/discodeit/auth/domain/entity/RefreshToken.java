@@ -63,7 +63,7 @@ public class RefreshToken extends BaseUpdatableEntity {
     if (token == null) {
       return false;
     }
-    return this.token.equals(token) || this.previousToken.equals(token);
+    return this.token.equals(token) || Objects.equals(this.previousToken, token);
   }
 
   @Override

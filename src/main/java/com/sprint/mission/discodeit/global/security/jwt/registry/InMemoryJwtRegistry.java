@@ -19,17 +19,17 @@ import org.springframework.stereotype.Component;
 public class InMemoryJwtRegistry implements JwtRegistry {
 
   @Value("${discodeit.jwt.registry.session.max-retained}")
-  private int SESSION_MAX_RETAINED;
+  private int sessionMaxRetained;
   @Value("${discodeit.jwt.registry.session.max-concurrent}")
-  private int SESSION_MAX_CONCURRENT;
+  private int sessionMaxConcurrent;
 
   private final Map<UUID, Queue<RefreshToken>> retainedDevice = new ConcurrentHashMap<>();
   private final Map<UUID, Queue<RefreshToken>> activeSessions = new ConcurrentHashMap<>();
 
   @Override
   public void register(RefreshToken refreshToken) {
-    register(refreshToken, retainedDevice, SESSION_MAX_RETAINED);
-    register(refreshToken, activeSessions, SESSION_MAX_CONCURRENT);
+    register(refreshToken, retainedDevice, sessionMaxRetained);
+    register(refreshToken, activeSessions, sessionMaxConcurrent);
   }
 
   @Override
@@ -86,11 +86,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
   private void invalidate(String refreshToken, Map<UUID, Queue<RefreshToken>> storage) {
     for (Queue<RefreshToken> queue : storage.values()) {
-      for (RefreshToken token : queue) {
-        if (token.getToken().equals(refreshToken)) {
-          queue.remove(token);
-          return;
-        }
+      if (queue.removeIf(token -> token.getToken().equals(refreshToken))) {
+        return;
       }
     }
   }

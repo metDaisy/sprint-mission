@@ -25,7 +25,7 @@ public class JWTLogoutHandler implements LogoutHandler {
   @Override
   public void logout(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) {
-    Cookie cookie = WebUtils.getCookie(request, "REFRESH_TOKEN");
+    Cookie cookie = WebUtils.getCookie(request, cookieProvider.getRefreshTokenName());
     if (cookie != null) {
       authService.deleteRefreshToken(cookie.getValue());
     }

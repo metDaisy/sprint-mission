@@ -45,7 +45,7 @@ public class AuthController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
     JwtLoginResponse response = authService.reissue(token);
-    ResponseCookie cookie = cookieProvider.createRefreshTokenCookie(token);
+    ResponseCookie cookie = cookieProvider.createRefreshTokenCookie(response.refreshToken());
     return ResponseEntity.status(HttpStatus.OK)
         .header(HttpHeaders.SET_COOKIE, cookie.toString())
         .body(response);

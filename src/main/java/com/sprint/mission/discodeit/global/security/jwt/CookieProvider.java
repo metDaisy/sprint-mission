@@ -32,4 +32,8 @@ public class CookieProvider {
         .sameSite(cookieProps.sameSite())
         .build();
   }
+
+  public String getRefreshTokenName() {
+    return jwtProperties.refreshToken().cookie().name();
+  }
 }
