@@ -1,9 +1,8 @@
 package com.sprint.mission.discodeit.user.domain.provider;
 
 import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
-import java.util.UUID;
+import com.sprint.mission.discodeit.common.provider.EntityReferenceProvider;
 
-public interface UserProfileProvider {
+public interface UserProfileProvider extends EntityReferenceProvider<BinaryContent> {
 
-  BinaryContent getProxyOrNot(UUID id);
 }

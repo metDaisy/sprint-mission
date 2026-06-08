@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.user.infra.repository;
 
+import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.util.Collection;
@@ -7,11 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends DomainRepository<User> {
 
   boolean existsByUsername(String username);
 
@@ -20,9 +18,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   boolean existsByRole(UserRole role);
 
   Optional<User> findByUsername(String username);
-
-  @Query("select u.id from User u where u.id in :ids")
-  List<UUID> filterExistingIds(@Param("ids") Collection<UUID> ids);
 
   @EntityGraph(attributePaths = {"profile"})
   Optional<User> findProfileById(UUID id);

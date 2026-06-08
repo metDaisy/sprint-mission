@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.entity;
+package com.sprint.mission.discodeit.common.jpa;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
