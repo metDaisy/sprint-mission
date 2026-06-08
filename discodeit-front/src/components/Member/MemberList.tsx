@@ -2,9 +2,10 @@ import useUserListStore from '@/stores/userListStore';
 import {UserDto} from '@/types/api';
 import {useEffect, useState} from 'react';
 import MemberItem from './MemberItem';
-import {MemberHeader, StyledMemberList} from './styles';
+import {MemberHeader, StyledMemberList, MemberHeaderContent} from './styles';
 import useAuthStore from '@/stores/authStore';
 import MemberDetailModal from './MemberDetailModal';
+import NotificationIcon from '../Notification/NotificationIcon';
 
 function MemberList(): JSX.Element {
   const users = useUserListStore((state) => state.users);
@@ -32,7 +33,12 @@ function MemberList(): JSX.Element {
 
   return (
       <StyledMemberList>
-        <MemberHeader>멤버 목록 - {users.length}</MemberHeader>
+        <MemberHeader>
+          <MemberHeaderContent>
+            멤버 목록 - {users.length}
+            <NotificationIcon />
+          </MemberHeaderContent>
+        </MemberHeader>
         {sortedUsers.map(user => (
             <div key={user.id} onClick={() => setSelectedMember(user)}>
               <MemberItem key={user.id} member={user} />

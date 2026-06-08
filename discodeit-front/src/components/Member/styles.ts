@@ -6,14 +6,25 @@ export const StyledMemberList = styled.div`
   width: 240px;
   background: ${theme.colors.background.secondary};
   border-left: 1px solid ${theme.colors.border.primary};
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 `
 
 export const MemberHeader = styled.div`
-  padding: 16px;
+  padding: 0px 16px;
+  height: 48px;
   font-size: 14px;
   font-weight: bold;
   color: ${theme.colors.text.muted};
   text-transform: uppercase;
+  border-bottom: 1px solid ${theme.colors.border.primary};
+`
+
+export const MemberHeaderContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 export const StyledMemberItem = styled.div`

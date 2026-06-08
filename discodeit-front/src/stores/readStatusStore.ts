@@ -6,6 +6,7 @@ import useAuthStore from './authStore';
 interface ReadStatusInfo {
   id: string;
   lastReadAt: string;
+  notificationEnabled: boolean;
 }
 
 interface ReadStatusMap {
@@ -16,6 +17,7 @@ interface ReadStatusStore {
   readStatuses: ReadStatusMap;
   fetchReadStatuses: (currentUser?: UserDto) => Promise<void>;
   updateReadStatus: (channelId: string, currentUser?: UserDto) => Promise<void>;
+  updateNotificationEnabled: (channelId: string, enabled: boolean) => Promise<void>;
   hasUnreadMessages: (channelId: string, lastMessageAt: string) => boolean;
 }
 
@@ -33,7 +35,8 @@ const useReadStatusStore = create<ReadStatusStore>((set, get) => ({
       const statusMap = statuses.reduce<ReadStatusMap>((acc, status) => {
         acc[status.channelId] = {
           id: status.id,
-          lastReadAt: status.lastReadAt
+          lastReadAt: status.lastReadAt,
+          notificationEnabled: status.notificationEnabled
         };
         return acc;
       }, {});
@@ -56,7 +59,10 @@ const useReadStatusStore = create<ReadStatusStore>((set, get) => ({
         // 이미 존재하는 ReadStatus 업데이트
         updatedStatus = await apiUpdateReadStatus(
           existingStatus.id, 
-          new Date().toISOString()
+          {
+            newLastReadAt: new Date().toISOString(),
+            newNotificationEnabled: null
+          }
         );
       } else {
         // 새로운 ReadStatus 생성
@@ -72,12 +78,49 @@ const useReadStatusStore = create<ReadStatusStore>((set, get) => ({
           ...state.readStatuses,
           [channelId]: {
             id: updatedStatus.id,
-            lastReadAt: updatedStatus.lastReadAt
+            lastReadAt: updatedStatus.lastReadAt,
+            notificationEnabled: updatedStatus.notificationEnabled
           }
         }
       }));
     } catch (error) {
       console.error('읽음 상태 업데이트 실패:', error);
+    }
+  },
+
+  updateNotificationEnabled: async (channelId, enabled) => {
+    try {
+      const { currentUser } = useAuthStore.getState();
+      if (!currentUser) return;
+
+      const existingStatus = get().readStatuses[channelId];
+      let updatedStatus: ReadStatusDto;
+
+      if (existingStatus) {
+        // 이미 존재하는 ReadStatus 업데이트
+        updatedStatus = await apiUpdateReadStatus(
+          existingStatus.id,
+          {
+            newLastReadAt: null,
+            newNotificationEnabled: enabled
+          }
+        );
+      } else {
+        return;
+      }
+
+      set((state) => ({
+        readStatuses: {
+          ...state.readStatuses,
+          [channelId]: {
+            id: updatedStatus.id,
+            lastReadAt: updatedStatus.lastReadAt,
+            notificationEnabled: updatedStatus.notificationEnabled
+          }
+        }
+      }));
+    } catch (error) {
+      console.error('알림 상태 업데이트 실패:', error);
     }
   },
 

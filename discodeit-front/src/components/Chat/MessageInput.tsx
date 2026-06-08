@@ -7,6 +7,7 @@ import {
     AttachmentPreviewList,
     ImagePreviewItem,
     Input,
+    LoadingSpinner,
     PreviewFileIcon,
     PreviewFileName,
     RemoveButton,
@@ -20,6 +21,7 @@ interface MessageInputProps {
 function MessageInput({ channel }: MessageInputProps): JSX.Element | null {
   const [content, setContent] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const createMessage = useMessageStore((state) => state.createMessage);
   const { currentUser } = useAuthStore();
 
@@ -27,6 +29,9 @@ function MessageInput({ channel }: MessageInputProps): JSX.Element | null {
     e.preventDefault();
     
     if (!content.trim() && attachments.length === 0) return;
+    if (isLoading) return;
+
+    setIsLoading(true);
 
     try {
       await createMessage({
@@ -40,6 +45,8 @@ function MessageInput({ channel }: MessageInputProps): JSX.Element | null {
       setAttachments([]);
     } catch (error) {
       console.error('메시지 전송 실패:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -102,7 +109,7 @@ function MessageInput({ channel }: MessageInputProps): JSX.Element | null {
 
   return (
     <>
-      {attachments.length > 0 && (
+      {attachments.length > 0 && !isLoading && (
         <AttachmentPreviewList>
           {attachments.map((file, index) => renderPreview(file, index))}
         </AttachmentPreviewList>
@@ -121,12 +128,16 @@ function MessageInput({ channel }: MessageInputProps): JSX.Element | null {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
+          disabled={isLoading}
           placeholder={
-            channel.type === 'PUBLIC' 
-              ? `#${channel.name}에 메시지 보내기` 
-              : '메시지 보내기'
+            isLoading 
+              ? '메시지 전송 중...'
+              : channel.type === 'PUBLIC' 
+                ? `#${channel.name}에 메시지 보내기` 
+                : '메시지 보내기'
           }
         />
+        {isLoading && <LoadingSpinner />}
       </StyledMessageInput>
     </>
   );

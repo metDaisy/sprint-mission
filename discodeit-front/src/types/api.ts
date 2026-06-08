@@ -77,6 +77,7 @@ export interface ReadStatusDto {
   userId: string; // UUID
   channelId: string; // UUID
   lastReadAt: string;
+  notificationEnabled: boolean; // 알림 설정 여부
 }
 
 export interface ReadStatusCreateRequest {
@@ -86,7 +87,8 @@ export interface ReadStatusCreateRequest {
 }
 
 export interface ReadStatusUpdateRequest {
-  newLastReadAt: string;
+  newLastReadAt: string | null;
+  newNotificationEnabled: boolean | null;
 }
 
 // BinaryContent 관련 타입
@@ -95,6 +97,13 @@ export interface BinaryContentDto {
   fileName: string;
   size: number;
   contentType: string;
+  status: BinaryContentStatus;
+}
+
+export enum BinaryContentStatus {
+  PROCESSING= 'PROCESSING',
+  SUCCESS= 'SUCCESS',
+  FAIL= 'FAIL',
 }
 
 // Auth 관련 타입
@@ -125,4 +134,12 @@ export interface UserRoleUpdateRequest {
 export interface JwtDto {
   userDto: UserDto,
   accessToken: string;
+}
+
+export interface NotificationDto {
+  id: string;
+  createdAt: string;
+  receiverId: string;
+  title: string;
+  content: string;
 }

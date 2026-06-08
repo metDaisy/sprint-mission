@@ -370,6 +370,21 @@ export const RemoveButton = styled.button`
   }
 `
 
+export const LoadingSpinner = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid ${({ theme }) => theme.colors.background.tertiary};
+  border-top: 2px solid ${({ theme }) => theme.colors.brand.primary};
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`
+
 export const MessageMenuContainer = styled.div`
   position: relative;
   margin-left: auto;
@@ -501,4 +516,23 @@ export const MessageEditButton = styled.button<{ variant?: 'primary' | 'secondar
       }
     `;
   }}
-` 
+`
+
+export const NotificationIconButton = styled.button<{ $enabled: boolean }>`
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: ${({ theme, $enabled }) =>
+    $enabled ? theme.colors.brand.primary : theme.colors.text.muted};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.background.hover};
+    color: ${({ theme }) => theme.colors.brand.primary};
+  }
+`;

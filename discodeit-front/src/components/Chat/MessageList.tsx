@@ -46,7 +46,7 @@ const formatFileSize = (bytes: number): string => {
 
 function MessageList({ channel }: MessageListProps): JSX.Element {
   const { messages, fetchMessages, loadMoreMessages, pagination, startPolling, stopPolling, updateMessage, deleteMessage } = useMessageStore();
-  const {binaryContents, fetchBinaryContent, clearBinaryContents} = useBinaryContentStore();
+  const {binaryContents, fetchBinaryContent, clearBinaryContents, startPolling: startBinaryPolling, clearAllPolling: clearAllBinaryPolling} = useBinaryContentStore();
   const { currentUser } = useAuthStore();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -59,27 +59,33 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
 
       return () => {
         stopPolling(channel.id);
+        clearAllBinaryPolling();
       };
     }
-  }, [channel?.id, fetchMessages, startPolling, stopPolling]);
+  }, [channel?.id, fetchMessages, startPolling, stopPolling, clearAllBinaryPolling]);
 
   useEffect(() => {
     messages.forEach(message => {
       message.attachments?.forEach(attachment => {
         if (!binaryContents[attachment.id]) {
-          fetchBinaryContent(attachment.id);
+          fetchBinaryContent(attachment.id).then((result) => {
+            if (result && result.status === 'PROCESSING') {
+              startBinaryPolling(attachment.id);
+            }
+          });
         }
       });
     });
-  }, [messages, binaryContents, fetchBinaryContent]);
+  }, [messages, fetchBinaryContent, startBinaryPolling]);
 
   useEffect(() => {
     return () => {
       const toRevokeContentIds = messages
       .map(message => message.attachments?.map(attachment => attachment.id)).flat();
-      clearBinaryContents(toRevokeContentIds)
+      clearBinaryContents(toRevokeContentIds);
+      clearAllBinaryPolling();
     }
-  }, [clearBinaryContents]);
+  }, [clearBinaryContents, clearAllBinaryPolling]);
 
   useEffect(() => {
     const handleClickOutside = () => {
@@ -97,6 +103,7 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
   const handleDownload = async (attachment: BinaryContentInfo) => {
     try {
       const { url, fileName } = attachment;
+      if (url == undefined) return
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName;
@@ -140,40 +147,98 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
   const renderAttachments = (attachments?: BinaryContentDto[]) => {
     if (!attachments?.length) return null;
 
+    console.log('renderAttachments 호출됨', { attachments: attachments.map(a => ({ id: a.id, binaryContent: binaryContents[a.id]?.status })) });
+
     return attachments.map((_attachment) => {
       const attachment = binaryContents[_attachment.id];
       if (!attachment) return null;
 
       const isImage = attachment.contentType.startsWith('image/');
-      
-      if (isImage) {
+      const status = attachment.status; // binaryContents에서 가져온 최신 상태 사용
+      // 업로드 실패한 파일 처리
+      if (status === 'FAIL') {
+        return (
+          <AttachmentList key={_attachment.id}>
+            <FileItem 
+              href="#"
+              style={{ opacity: 0.5, backgroundColor: '#fff2f2' }}
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <FileIcon>
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                  <path d="M8 3C8 1.89543 8.89543 1 10 1H22L32 11V37C32 38.1046 31.1046 39 30 39H10C8.89543 39 8 38.1046 8 37V3Z" fill="#ef4444" fillOpacity="0.1"/>
+                  <path d="M22 1L32 11H24C22.8954 11 22 10.1046 22 9V1Z" fill="#ef4444" fillOpacity="0.3"/>
+                  <path d="M13 19H27M13 25H27M13 31H27" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </FileIcon>
+              <FileInfo>
+                <FileName style={{ color: '#ef4444' }}>{_attachment.fileName}</FileName>
+                <FileSize style={{ color: '#ef4444' }}>업로드 실패</FileSize>
+              </FileInfo>
+            </FileItem>
+          </AttachmentList>
+        );
+      }
+
+      // 업로드 중인 파일 처리
+      if (status === 'PROCESSING') {
+        return (
+          <AttachmentList key={_attachment.id}>
+            <FileItem 
+              href="#"
+              style={{ opacity: 0.7, backgroundColor: '#fef3c7' }}
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <FileIcon>
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                  <path d="M8 3C8 1.89543 8.89543 1 10 1H22L32 11V37C32 38.1046 31.1046 39 30 39H10C8.89543 39 8 38.1046 8 37V3Z" fill="#f59e0b" fillOpacity="0.1"/>
+                  <path d="M22 1L32 11H24C22.8954 11 22 10.1046 22 9V1Z" fill="#f59e0b" fillOpacity="0.3"/>
+                  <path d="M13 19H27M13 25H27M13 31H27" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </FileIcon>
+              <FileInfo>
+                <FileName style={{ color: '#f59e0b' }}>{_attachment.fileName}</FileName>
+                <FileSize style={{ color: '#f59e0b' }}>업로드 중...</FileSize>
+              </FileInfo>
+            </FileItem>
+          </AttachmentList>
+        );
+      }
+
+      // 성공한 파일 처리 (url이 있는 경우에만)
+      if (attachment.url) {
+        if (isImage) {
+          return (
+            <AttachmentList key={attachment.url}>
+              <ImagePreview 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDownload(attachment);
+                }}
+              >
+                <img 
+                  src={attachment.url}
+                  alt={attachment.fileName}
+                />
+              </ImagePreview>
+            </AttachmentList>
+          );
+        }
+
         return (
           <AttachmentList key={attachment.url}>
-            <ImagePreview 
+            <FileItem 
               href="#"
               onClick={(e) => {
                 e.preventDefault();
                 handleDownload(attachment);
               }}
             >
-              <img 
-                src={attachment.url}
-                alt={attachment.fileName}
-              />
-            </ImagePreview>
-          </AttachmentList>
-        );
-      }
-
-      return (
-        <AttachmentList key={attachment.url}>
-          <FileItem 
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handleDownload(attachment);
-            }}
-          >
             <FileIcon>
               <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
                 <path d="M8 3C8 1.89543 8.89543 1 10 1H22L32 11V37C32 38.1046 31.1046 39 30 39H10C8.89543 39 8 38.1046 8 37V3Z" fill="#0B93F6" fillOpacity="0.1"/>
@@ -187,7 +252,11 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
             </FileInfo>
           </FileItem>
         </AttachmentList>
-      );
+        );
+      }
+      
+      // url이 없는 경우 null 반환 (PROCESSING이면서 아직 다운로드되지 않은 상태)
+      return null;
     });
   };
 

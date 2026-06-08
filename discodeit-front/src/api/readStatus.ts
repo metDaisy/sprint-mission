@@ -8,9 +8,10 @@ export const getReadStatuses = async (userId: string): Promise<ReadStatusDto[]> 
   return response.data;
 };
 
-export const updateReadStatus = async (readStatusId: string, newLastReadAt: string): Promise<ReadStatusDto> => {
+export const updateReadStatus = async (readStatusId: string, {newLastReadAt, newNotificationEnabled}: {newLastReadAt: string | null, newNotificationEnabled: boolean | null}): Promise<ReadStatusDto> => {
   const updateRequest: ReadStatusUpdateRequest = {
-    newLastReadAt
+    newLastReadAt,
+    newNotificationEnabled
   };
   const response = await client.patch<ReadStatusDto>(`/readStatuses/${readStatusId}`, updateRequest);
   return response.data;
