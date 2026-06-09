@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.auth.security;
 
+import com.sprint.mission.discodeit.auth.controller.mapper.AuthMapper;
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
+import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
+import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;
 import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
-import com.sprint.mission.discodeit.user.controller.mapper.UserMapper;
+import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,15 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DiscodeitUserDetailsService implements UserDetailsService {
 
-  private final UserCredentialRepository userCredentialRepository;
-  private final UserMapper userMapper;
+  private final UserCredentialRepository repository;
+  private final AuthMapper mapper;
 
   @Override
   @Transactional(readOnly = true)
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    UserCredential credential = userCredentialRepository.findByUser_Email(username)
-        .orElseThrow(() -> new UsernameNotFoundException("not found user credentials"));
-    return new DiscodeitUserDetails(userMapper.toDto(credential.getUser()),
+    UserCredential credential = DomainServiceSupport.getOrThrow(username,
+        repository::findByUser_Email,
+        value -> new AuthException(UserCredentialErrorCode.USERNAME_NOT_FOUND, "email", value));
+    return new DiscodeitUserDetails(mapper.toUserResponse(credential.getUser()),
         credential.getPassword());
   }
 

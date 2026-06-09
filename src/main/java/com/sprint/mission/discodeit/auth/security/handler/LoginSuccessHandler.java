@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.auth.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
-import com.sprint.mission.discodeit.auth.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.auth.service.JwtTokenService;
 import com.sprint.mission.discodeit.global.security.jwt.CookieProvider;
 import jakarta.servlet.ServletException;
@@ -31,10 +30,8 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
       Authentication authentication) throws IOException, ServletException {
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
     String device = request.getHeader("X-Device-Id");
-    JwtLoginResponse result = jwtTokenService.createJwtLogin(userDetails.getUserResponse().id(),
-        device);
+    JwtLoginResponse result = jwtTokenService.createJwtLogin(authentication.getName(), device);
     String json = objectMapper.writeValueAsString(result);
     response.addHeader(HttpHeaders.SET_COOKIE,
         cookieProvider.createRefreshTokenCookie(result.refreshToken()).toString());

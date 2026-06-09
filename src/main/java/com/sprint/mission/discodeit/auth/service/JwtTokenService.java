@@ -12,7 +12,7 @@ import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
-import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -29,7 +29,7 @@ public class JwtTokenService {
   private final JwtTokenProvider jwtTokenProvider;
   private final JwtRegistry jwtRegistry;
   private final UserCredentialRepository repository;
-  private final AuthMapper authMapper;
+  private final AuthMapper mapper;
 
   public JwtLoginResponse reissue(String refreshToken) {
     jwtTokenProvider.validate(refreshToken);
@@ -42,33 +42,36 @@ public class JwtTokenService {
     if (!token.getToken().equals(refreshToken)) {
       throw new AuthException(JWTErrorCode.EXPIRED_TOKEN);
     }
-    return issueTokensAndSave(token.getUser(), token);
+    return issueTokensAndSave(token);
   }
 
-  public JwtLoginResponse createJwtLogin(UUID userId, String device) {
-    UserCredential userCredential = DomainServiceSupport.getOrThrow(userId,
-        repository::findByUser_Id,
-        value -> new AuthException(UserCredentialErrorCode.USER_CREDENTIAL_NOT_FOUND));
-    RefreshToken refreshEntity = new RefreshToken(userCredential.getUser(), device, "",
-        Instant.now());
-    return issueTokensAndSave(userCredential.getUser(), refreshEntity);
+  public JwtLoginResponse createJwtLogin(String username, String device) {
+    UserCredential userCredential = DomainServiceSupport.getOrThrow(username,
+        repository::findByUser_Email,
+        value -> new AuthException(UserCredentialErrorCode.USER_CREDENTIAL_NOT_FOUND, "username",
+            value));
+    RefreshToken refreshEntity = RefreshToken.builder()
+        .user(userCredential.getUser())
+        .token("")
+        .device(device)
+        .expiresAt(null)
+        .build();
+    return issueTokensAndSave(refreshEntity);
   }
 
   public void deleteRefreshToken(String token) {
     jwtRegistry.invalidateByToken(token);
   }
 
-  private JwtLoginResponse issueTokensAndSave(User user, RefreshToken refreshEntity) {
-    String newAccessToken = jwtTokenProvider.generateAccessToken(
-        user.getId().toString(), user.getRole().name());
-    String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString());
-
+  private JwtLoginResponse issueTokensAndSave(RefreshToken token) {
+    UUID userId = token.getUser().getId();
+    UserRole role = token.getUser().getRole();
+    String newAccessToken = jwtTokenProvider.generateAccessToken(userId, role);
+    String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId);
     long expirationSeconds = jwtProperties.refreshToken().expiration();
     Instant expiresAt = Instant.now().plusSeconds(expirationSeconds);
-
-    refreshEntity.rotate(newRefreshToken, expiresAt);
-    jwtRegistry.register(refreshEntity);
-
-    return new JwtLoginResponse(authMapper.toUserResponse(user), newAccessToken, newRefreshToken);
+    token.rotate(newRefreshToken, expiresAt);
+    jwtRegistry.register(token);
+    return mapper.toDtoFrom(token, newAccessToken, newRefreshToken);
   }
 }

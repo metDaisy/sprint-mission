@@ -3,14 +3,12 @@ package com.sprint.mission.discodeit.auth.security;
 import com.sprint.mission.discodeit.global.security.utils.DiscodeitAuthorityUtils;
 import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
 import java.util.Collection;
-import lombok.Getter;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class DiscodeitUserDetails implements UserDetails, CredentialsContainer {
 
-  @Getter
   private final UserResponse userResponse;
   private String password;
   private final Collection<GrantedAuthority> authorities;
