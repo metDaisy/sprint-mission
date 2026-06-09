@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
-public class UserReferenceServiceAbstract extends AbstractDomainReferenceService<User> {
+public class UserReferenceService extends AbstractDomainReferenceService<User> {
 
-  public UserReferenceServiceAbstract(
+  public UserReferenceService(
       DomainRepository<User> repository) {
     super(repository);
   }
