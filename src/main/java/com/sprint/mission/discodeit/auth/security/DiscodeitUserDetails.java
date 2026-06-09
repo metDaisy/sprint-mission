@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth.security;
 
 import com.sprint.mission.discodeit.global.security.utils.DiscodeitAuthorityUtils;
-import com.sprint.mission.discodeit.user.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
 import java.util.Collection;
 import lombok.Getter;
 import org.springframework.security.core.CredentialsContainer;

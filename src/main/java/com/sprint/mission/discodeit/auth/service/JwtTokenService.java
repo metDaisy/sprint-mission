@@ -1,20 +1,18 @@
 package com.sprint.mission.discodeit.auth.service;
 
 import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
+import com.sprint.mission.discodeit.auth.controller.mapper.AuthMapper;
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
-import com.sprint.mission.discodeit.auth.domain.exception.AuthErrorCode;
+import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
+import com.sprint.mission.discodeit.auth.domain.exception.JWTErrorCode;
+import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;
+import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
-import com.sprint.mission.discodeit.user.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.user.dto.response.UserResponse;
-import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.user.exception.UserErrorCode;
-import com.sprint.mission.discodeit.user.exception.UserException;
-import com.sprint.mission.discodeit.user.mapper.UserMapper;
-import com.sprint.mission.discodeit.user.repository.UserRepository;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -25,43 +23,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AuthService {
+public class JwtTokenService {
 
   private final JwtProperties jwtProperties;
-  private final UserRepository userRepository;
-  private final UserMapper userMapper;
   private final JwtTokenProvider jwtTokenProvider;
   private final JwtRegistry jwtRegistry;
-
-  public UserResponse updateRole(RoleUpdateRequest request) {
-    User user = findById(request.getUserId());
-    userMapper.partialUpdate(request, user);
-    jwtRegistry.invalidateAllByUserId(request.getUserId());
-    return userMapper.toDto(user);
-  }
+  private final UserCredentialRepository repository;
+  private final AuthMapper authMapper;
 
   public JwtLoginResponse reissue(String refreshToken) {
     jwtTokenProvider.validate(refreshToken);
 
     RefreshToken token = jwtRegistry.findByToken(refreshToken);
-
     if (Objects.equals(token.getPreviousToken(), refreshToken)) {
       jwtRegistry.invalidateAllByUserId(token.getUser().getId());
-      throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+      throw new AuthException(JWTErrorCode.INVALID_REFRESH_TOKEN);
     }
     if (!token.getToken().equals(refreshToken)) {
-      throw new AuthException(AuthErrorCode.EXPIRED_TOKEN);
+      throw new AuthException(JWTErrorCode.EXPIRED_TOKEN);
     }
     return issueTokensAndSave(token.getUser(), token);
   }
 
   public JwtLoginResponse createJwtLogin(UUID userId, String device) {
-    DomainServiceSupport.requireOrThrow(userId, userRepository::existsById,
-        value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
-
-    User user = userRepository.getReferenceById(userId);
-    RefreshToken refreshEntity = new RefreshToken(user, device, "", Instant.now());
-    return issueTokensAndSave(user, refreshEntity);
+    UserCredential userCredential = DomainServiceSupport.getOrThrow(userId,
+        repository::findByUser_Id,
+        value -> new AuthException(UserCredentialErrorCode.USER_CREDENTIAL_NOT_FOUND));
+    RefreshToken refreshEntity = new RefreshToken(userCredential.getUser(), device, "",
+        Instant.now());
+    return issueTokensAndSave(userCredential.getUser(), refreshEntity);
   }
 
   public void deleteRefreshToken(String token) {
@@ -79,11 +69,6 @@ public class AuthService {
     refreshEntity.rotate(newRefreshToken, expiresAt);
     jwtRegistry.register(refreshEntity);
 
-    return new JwtLoginResponse(userMapper.toDto(user), newAccessToken, newRefreshToken);
-  }
-
-  private User findById(UUID id) {
-    return DomainServiceSupport.getOrThrow(id, userRepository::findById,
-        value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
+    return new JwtLoginResponse(authMapper.toUserResponse(user), newAccessToken, newRefreshToken);
   }
 }

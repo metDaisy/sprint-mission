@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.auth.security;
 
-import com.sprint.mission.discodeit.user.entity.constant.UserRole;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.io.Serial;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

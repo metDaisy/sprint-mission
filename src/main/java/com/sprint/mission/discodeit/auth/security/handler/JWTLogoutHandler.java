@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.auth.security.handler;
 
-import com.sprint.mission.discodeit.auth.service.AuthService;
+import com.sprint.mission.discodeit.auth.service.JwtTokenService;
 import com.sprint.mission.discodeit.global.security.jwt.CookieProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import org.springframework.web.util.WebUtils;
 @RequiredArgsConstructor
 public class JWTLogoutHandler implements LogoutHandler {
 
-  private final AuthService authService;
+  private final JwtTokenService jwtTokenService;
   private final CookieProvider cookieProvider;
 
   @Override
@@ -27,7 +27,7 @@ public class JWTLogoutHandler implements LogoutHandler {
       Authentication authentication) {
     Cookie cookie = WebUtils.getCookie(request, cookieProvider.getRefreshTokenName());
     if (cookie != null) {
-      authService.deleteRefreshToken(cookie.getValue());
+      jwtTokenService.deleteRefreshToken(cookie.getValue());
     }
     ResponseCookie deleteCookie = cookieProvider.createDeleteCookie();
     response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());

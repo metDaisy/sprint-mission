@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum AuthErrorCode implements ErrorCode {
+public enum JWTErrorCode implements ErrorCode {
 
   COMPROMISED_TOKEN_DETECTED(HttpStatus.UNAUTHORIZED, "A001",
       "Compromised token detected. You have been logged out from all devices for security."),
@@ -18,7 +18,7 @@ public enum AuthErrorCode implements ErrorCode {
       "The token is malformed or has been tampered with."),
   INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED, "A005", "The token signature is invalid."),
   UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "A006", "The token format is not supported."),
-  USER_NOT_FOUND(HttpStatus.NOT_FOUND, "A007", "No active tokens found for this user."),
+  USER_HAVE_NO_TOKEN(HttpStatus.NOT_FOUND, "A007", "No active tokens found for this user."),
   ;
   private final HttpStatus status;
   private final String code;

@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth.domain.entity;
 
-import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.common.jpa.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

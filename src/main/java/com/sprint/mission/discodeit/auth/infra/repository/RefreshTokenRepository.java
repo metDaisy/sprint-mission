@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.auth.repository;
+package com.sprint.mission.discodeit.auth.infra.repository;
 
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;

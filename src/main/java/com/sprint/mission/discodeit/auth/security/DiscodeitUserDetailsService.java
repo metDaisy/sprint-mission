@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.auth.security;
 
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
-import com.sprint.mission.discodeit.auth.repository.UserCredentialRepository;
-import com.sprint.mission.discodeit.user.mapper.UserMapper;
+import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.user.controller.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

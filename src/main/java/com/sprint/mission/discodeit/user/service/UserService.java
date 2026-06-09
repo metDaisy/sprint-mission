@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.user.controller.dto.request.UserUpdateReques
 import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
 import com.sprint.mission.discodeit.user.controller.mapper.UserMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import com.sprint.mission.discodeit.user.domain.event.UserCreatedEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserUpdatedEvent;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
@@ -82,6 +83,13 @@ public class UserService {
   public void delete(UUID id) {
     DomainServiceSupport.executeOrThrow(id, repository,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
+  }
+
+  @ServiceLogAround
+  public UserResponse updateRole(UUID id, UserRole role) {
+    User user = findById(id);
+    user.updateRole(role);
+    return mapper.toDto(user);
   }
 
   private User findById(UUID id) {
