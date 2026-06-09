@@ -1,28 +1,23 @@
-package com.sprint.mission.discodeit.channel.dto.request;
+package com.sprint.mission.discodeit.channel.controller.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sprint.mission.discodeit.channel.entity.constant.ChannelType;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-public final class PublicChannelCreateRequest {
+public final class PublicChannelUpdateRequest {
 
-  @NotNull
   private final ChannelType type = ChannelType.PUBLIC;
 
-  @NotEmpty
   private final String name;
 
-  @NotEmpty
   private final String description;
 
   @JsonCreator
-  public PublicChannelCreateRequest(
+  public PublicChannelUpdateRequest(
       @JsonProperty("name") String name,
       @JsonProperty("description") String description) {
     this.name = name;

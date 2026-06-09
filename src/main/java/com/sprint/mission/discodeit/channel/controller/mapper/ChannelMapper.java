@@ -1,15 +1,15 @@
-package com.sprint.mission.discodeit.channel.mapper;
+package com.sprint.mission.discodeit.channel.controller.mapper;
 
-import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.dto.response.ChannelResponse;
-import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.common.mapper.BaseMapper;
 import com.sprint.mission.discodeit.common.mapper.config.GlobalMapperConfig;
-import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.user.mapper.UserMapper;
+import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.controller.mapper.UserMapper;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

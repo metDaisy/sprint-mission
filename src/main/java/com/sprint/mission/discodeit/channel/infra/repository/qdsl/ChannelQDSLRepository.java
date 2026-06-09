@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.channel.repository.qdsl;
+package com.sprint.mission.discodeit.channel.infra.repository.qdsl;
 
-import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

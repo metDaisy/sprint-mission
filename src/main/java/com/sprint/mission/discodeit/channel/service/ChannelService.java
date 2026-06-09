@@ -1,22 +1,22 @@
 package com.sprint.mission.discodeit.channel.service;
 
-import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.dto.response.ChannelResponse;
-import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.channel.exception.ChannelErrorCode;
-import com.sprint.mission.discodeit.channel.exception.ChannelException;
-import com.sprint.mission.discodeit.channel.mapper.ChannelMapper;
-import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
-import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
+import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
+import com.sprint.mission.discodeit.channel.controller.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.channel.infra.repository.ChannelRepository;
+import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
-import com.sprint.mission.discodeit.readstatus.entity.ReadStatus;
-import com.sprint.mission.discodeit.readstatus.mapper.ReadStatusMapper;
-import com.sprint.mission.discodeit.readstatus.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.user.repository.UserRepository;
+import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
+import com.sprint.mission.discodeit.readstatus.controller.mapper.ReadStatusMapper;
+import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ChannelService {
+public class ChannelService implements DomainReferenceService<Channel> {
 
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
@@ -79,6 +79,17 @@ public class ChannelService {
   public void delete(UUID id) {
     DomainServiceSupport.executeOrThrow(id, channelRepository,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
+  }
+
+  @Override
+  public void existsOrThrow(UUID id) {
+    DomainServiceSupport.requireOrThrow(id, channelRepository::existsById,
+        value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
+  }
+
+  @Override
+  public Channel getProxy(UUID id) {
+    return channelRepository.getReferenceById(id);
   }
 
   private ChannelDetailDto findById(UUID id) {

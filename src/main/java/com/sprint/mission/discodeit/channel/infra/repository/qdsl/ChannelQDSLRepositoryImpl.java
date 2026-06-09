@@ -1,18 +1,18 @@
-package com.sprint.mission.discodeit.channel.repository.qdsl;
+package com.sprint.mission.discodeit.channel.infra.repository.qdsl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.mission.discodeit.binarycontent.entity.QBinaryContent;
-import com.sprint.mission.discodeit.channel.entity.Channel;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.entity.QChannel;
-import com.sprint.mission.discodeit.channel.entity.constant.ChannelType;
-import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
+import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.message.entity.QMessage;
 import com.sprint.mission.discodeit.readstatus.entity.QReadStatus;
 import com.sprint.mission.discodeit.user.entity.QUser;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;

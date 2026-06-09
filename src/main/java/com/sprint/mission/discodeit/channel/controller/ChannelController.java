@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.channel.controller;
 
-import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.channel.controller.dto.response.ChannelResponse;
 import com.sprint.mission.discodeit.channel.service.ChannelService;
 import jakarta.validation.Valid;
 import java.util.List;
