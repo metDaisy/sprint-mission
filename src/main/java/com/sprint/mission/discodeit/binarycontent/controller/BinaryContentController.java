@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.binarycontent.controller;
 
-import com.sprint.mission.discodeit.binarycontent.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.binarycontent.service.BinaryContentService;
-import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.common.api.request.FileUploadRequest;
 import com.sprint.mission.discodeit.global.infra.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;

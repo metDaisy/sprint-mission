@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.binarycontent.dto.response;
+package com.sprint.mission.discodeit.binarycontent.controller.dto.response;
 
-import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;

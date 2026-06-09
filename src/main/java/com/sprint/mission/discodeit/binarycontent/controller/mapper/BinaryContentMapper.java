@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.binarycontent.mapper;
+package com.sprint.mission.discodeit.binarycontent.controller.mapper;
 
-import com.sprint.mission.discodeit.binarycontent.dto.response.BinaryContentDto;
-import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
-import com.sprint.mission.discodeit.common.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.common.api.request.FileUploadRequest;
 import com.sprint.mission.discodeit.common.mapper.BaseMapper;
 import com.sprint.mission.discodeit.common.mapper.config.GlobalMapperConfig;
 import java.util.List;
