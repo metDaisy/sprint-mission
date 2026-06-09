@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.message.dto.request;
+package com.sprint.mission.discodeit.message.controller.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

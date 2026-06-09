@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.message.exception;
+package com.sprint.mission.discodeit.message.domain.exception;
 
 import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import lombok.AllArgsConstructor;

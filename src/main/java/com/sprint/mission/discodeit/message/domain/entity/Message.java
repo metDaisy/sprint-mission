@@ -1,9 +1,9 @@
-package com.sprint.mission.discodeit.message.entity;
+package com.sprint.mission.discodeit.message.domain.entity;
 
-import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
-import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.common.jpa.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,15 +29,15 @@ import lombok.Setter;
 @Table(name = "messages")
 public class Message extends BaseUpdatableEntity {
 
-  @Column(nullable = false)
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String content;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "channel_id")
+  @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "author_id")
+  @JoinColumn(name = "author_id", nullable = false)
   private User author;
 
   @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
@@ -49,7 +49,9 @@ public class Message extends BaseUpdatableEntity {
   private Set<BinaryContent> attachments = new LinkedHashSet<>();
 
   @Builder
-  public Message(String content, Channel channel, User author,
+  public Message(String content,
+      Channel channel,
+      User author,
       Collection<BinaryContent> attachments) {
     this.content = content;
     this.channel = channel;

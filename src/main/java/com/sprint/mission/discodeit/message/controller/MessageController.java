@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.message.controller;
 
-import com.sprint.mission.discodeit.common.dto.response.PageResponse;
-import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.message.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.message.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.common.api.response.PageResponse;
+import com.sprint.mission.discodeit.message.controller.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.message.controller.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.message.controller.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.message.service.MessageService;
 import jakarta.validation.Valid;
 import java.util.UUID;
