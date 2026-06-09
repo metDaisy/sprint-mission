@@ -36,7 +36,8 @@ public class ReadStatusService {
   }
 
   public ReadStatusResponse create(ReadStatusCreateRequest request) {
-    verifyCreatable(request);
+    verifyCreatable(request.getChannelId(), request.getUserId());
+
     User user = userProvider.getProxyOrThrow(request.getUserId());
     Channel channel = channelProvider.getProxyOrThrow(request.getChannelId());
     ReadStatus status = ReadStatus.builder()
@@ -64,17 +65,31 @@ public class ReadStatusService {
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
+  public void create(UUID channelId, List<UUID> participantIds) {
+    verifyCreatable(channelId, participantIds);
+
+    Channel channel = channelProvider.getProxy(channelId);
+    List<User> users = userProvider.getProxy(participantIds);
+    List<ReadStatus> statuses = mapper.toEntityFrom(channel, users);
+    repository.saveAll(statuses);
+  }
+
   private ReadStatus findById(UUID id) {
     return DomainServiceSupport.getOrThrow(id, repository::findById,
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
-  private void verifyCreatable(ReadStatusCreateRequest request) {
-    UUID userId = request.getUserId();
-    UUID channelId = request.getChannelId();
-    DomainServiceSupport.requireOrThrow(Map.of("userId", userId, "channelId", channelId),
-        map -> !repository.existsByUserIdAndChannelId(map.get("userId"),
-            map.get("channelId")),
-        map -> new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST, map));
+  private void verifyCreatable(UUID channelId, UUID userId) {
+    if (repository.existsByChannel_IdAndUser_Id(channelId, userId)) {
+      throw new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST,
+          Map.of("userId", userId, "channelId", channelId));
+    }
+  }
+
+  private void verifyCreatable(UUID channelId, List<UUID> userIds) {
+    long count = repository.countByChannel_IdAndUser_IdIn(channelId, userIds);
+    if (userIds.size() != count) {
+      throw new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST);
+    }
   }
 }

@@ -15,4 +15,8 @@ public class ReadStatusException extends DiscodeitException {
       Map<String, ?> detail) {
     super(errorCode, detail);
   }
+
+  public ReadStatusException(ErrorCode errorCode) {
+    super(errorCode);
+  }
 }

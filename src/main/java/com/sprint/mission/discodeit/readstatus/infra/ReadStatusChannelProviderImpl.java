@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.common.provider.AbstractServiceReferenceProvider;
 import com.sprint.mission.discodeit.common.service.DomainReferenceService;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusChannelProvider;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,5 +15,10 @@ public class ReadStatusChannelProviderImpl
   public ReadStatusChannelProviderImpl(
       DomainReferenceService<Channel> service) {
     super(service);
+  }
+
+  @Override
+  public Channel getProxy(UUID id) {
+    return service.getProxy(id);
   }
 }
