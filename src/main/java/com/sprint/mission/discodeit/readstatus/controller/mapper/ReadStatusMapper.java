@@ -1,12 +1,12 @@
-package com.sprint.mission.discodeit.readstatus.mapper;
+package com.sprint.mission.discodeit.readstatus.controller.mapper;
 
-import com.sprint.mission.discodeit.channel.entity.Channel;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.common.mapper.BaseMapper;
 import com.sprint.mission.discodeit.common.mapper.config.GlobalMapperConfig;
-import com.sprint.mission.discodeit.readstatus.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.readstatus.dto.response.ReadStatusResponse;
-import com.sprint.mission.discodeit.readstatus.entity.ReadStatus;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.readstatus.controller.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.readstatus.controller.dto.response.ReadStatusResponse;
+import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;

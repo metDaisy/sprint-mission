@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.readstatus.dto.response;
+package com.sprint.mission.discodeit.readstatus.controller.dto.response;
 
-import com.sprint.mission.discodeit.readstatus.entity.ReadStatus;
+import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;

@@ -1,10 +1,11 @@
-package com.sprint.mission.discodeit.readstatus.entity;
+package com.sprint.mission.discodeit.readstatus.domain.entity;
 
-import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.common.jpa.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,12 +23,12 @@ import lombok.Setter;
 @Table(name = "read_statuses")
 public class ReadStatus extends BaseUpdatableEntity {
 
-  @ManyToOne
-  @JoinColumn(name = "user_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @ManyToOne
-  @JoinColumn(name = "channel_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
 
   @Column

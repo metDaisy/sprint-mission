@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.readstatus.exception;
+package com.sprint.mission.discodeit.readstatus.domain.exception;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.common.exception.ErrorCode;

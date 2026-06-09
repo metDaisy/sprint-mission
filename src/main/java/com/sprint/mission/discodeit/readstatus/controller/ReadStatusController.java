@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.readstatus.controller;
 
-import com.sprint.mission.discodeit.readstatus.dto.request.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.readstatus.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.readstatus.dto.response.ReadStatusResponse;
+import com.sprint.mission.discodeit.readstatus.controller.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.readstatus.controller.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.readstatus.controller.dto.response.ReadStatusResponse;
 import com.sprint.mission.discodeit.readstatus.service.ReadStatusService;
 import jakarta.validation.Valid;
 import java.util.List;
