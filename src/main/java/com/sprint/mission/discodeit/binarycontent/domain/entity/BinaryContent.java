@@ -12,13 +12,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.proxy.HibernateProxy;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Entity
 @Table(name = "binary_contents")
+@SQLDelete(sql = "update binary_contents set status = 'DELETED' where id = ?")
 public class BinaryContent extends BaseUpdatableEntity {
 
   @Column(nullable = false)
@@ -30,12 +32,11 @@ public class BinaryContent extends BaseUpdatableEntity {
   @Column(nullable = false, length = 100)
   private String contentType;
 
-  @Setter
+  @Builder.Default
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false, length = 20)
-  private BinaryContentStatus status;
+  private BinaryContentStatus status = BinaryContentStatus.PROCESSING;
 
-  @Builder
   public BinaryContent(String fileName,
       Long size,
       String contentType,

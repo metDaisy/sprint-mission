@@ -18,7 +18,7 @@ public final class DomainServiceSupport {
     return action.apply(value).orElseThrow(() -> exception.apply(value));
   }
 
-  public static <T> void executeOrThrow(UUID id,
+  public static <T> void deleteOrThrow(UUID id,
       JpaRepository<T, UUID> repository,
       Function<UUID, DiscodeitException> exception) {
     T entity = repository.findById(id).orElseThrow(() -> exception.apply(id));

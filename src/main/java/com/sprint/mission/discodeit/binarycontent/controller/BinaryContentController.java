@@ -27,10 +27,9 @@ class BinaryContentController {
   private final BinaryContentStorage binaryContentStorage;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<List<String>> create(@RequestParam List<MultipartFile> files) {
+  public ResponseEntity<List<BinaryContentDto>> create(@RequestParam List<MultipartFile> files) {
     List<FileUploadRequest> request = files.stream().map(FileUploadRequest::from).toList();
-    List<String> urls = binaryContentService.create(request);
-    return ResponseEntity.status(HttpStatus.OK).body(urls);
+    return ResponseEntity.status(HttpStatus.OK).body(binaryContentService.create(request));
   }
 
   @GetMapping(value = "/{binaryContentId}")

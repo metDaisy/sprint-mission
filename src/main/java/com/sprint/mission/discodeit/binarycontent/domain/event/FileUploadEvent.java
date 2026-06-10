@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.storage.event;
+package com.sprint.mission.discodeit.binarycontent.domain.event;
 
 import java.util.Map;
 import java.util.UUID;
