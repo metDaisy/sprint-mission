@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { getUsers } from '../api/user';
-import { UserDto } from '../types/api';
+import {create} from 'zustand';
+import {getUsers} from '../api/user';
+import {UserDto} from '../types/api';
 
 
 interface UserListStore {
@@ -17,7 +17,7 @@ const useUserListStore = create<UserListStore>((set) => ({
     } catch (error) {
       console.error('사용자 목록 조회 실패:', error);
     }
-  }
+  },
 }));
 
 export default useUserListStore; 

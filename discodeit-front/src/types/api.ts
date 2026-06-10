@@ -18,12 +18,14 @@ export interface UserCreateRequest {
   username: string;
   email: string;
   password: string;
+  profileId?: string;
 }
 
 export interface UserUpdateRequest {
   newUsername?: string;
   newEmail?: string;
   newPassword?: string;
+  newProfileId?: string;
 }
 
 // Channel 관련 타입
@@ -65,6 +67,7 @@ export interface MessageCreateRequest {
   content: string;
   channelId: string; // UUID
   authorId: string; // UUID
+  attachmentIds?: string[];
 }
 
 export interface MessageUpdateRequest {

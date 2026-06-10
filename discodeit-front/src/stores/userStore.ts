@@ -2,13 +2,13 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import useUserListStore from './userListStore';
 import { updateUser } from '../api/user';
-import { UserDto } from '../types/api';
+import {UserDto, UserUpdateRequest} from '../types/api';
 
 interface UserStore {
-  currentUserId: string | null;
   setCurrentUser: (user: UserDto) => void;
+  currentUserId: string | null;
   logout: () => void;
-  updateUser: (userId: string, formData: FormData) => Promise<UserDto>;
+  updateUser: (userId: string, request: UserUpdateRequest) => Promise<UserDto>;
 }
 
 const useUserStore = create<UserStore>()(
@@ -17,15 +17,15 @@ const useUserStore = create<UserStore>()(
       currentUserId: null,
       setCurrentUser: (user) => set({ currentUserId: user.id }),
       logout: () => {
-        const currentUserId = useUserStore.getState().currentUserId;
-        if (currentUserId) {
-          useUserListStore.getState().updateUserStatus(currentUserId);
-        }
+        // const currentUserId = useUserStore.getState().currentUserId;
+        // if (currentUserId) {
+        //   useUserListStore.getState().updateUserStatus(currentUserId);
+        // }
         set({ currentUserId: null });
       },
-      updateUser: async (userId, formData) => {
+      updateUser: async (userId, request) => {
         try {
-          const userData = await updateUser(userId, formData);
+          const userData = await updateUser(userId, request);
           await useUserListStore.getState().fetchUsers();
           return userData;
         } catch (error) {
