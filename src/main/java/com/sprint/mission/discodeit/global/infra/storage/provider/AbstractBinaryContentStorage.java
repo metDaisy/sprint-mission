@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.global.infra.storage;
+package com.sprint.mission.discodeit.global.infra.storage.provider;
 
-import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
 import java.util.List;
 import java.util.Map;
@@ -8,27 +7,18 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-public abstract class BaseBinaryContentStorage implements BinaryContentStorage {
+public abstract class AbstractBinaryContentStorage implements BinaryContentStorage {
 
   protected final Executor fileUploadWorker;
   protected final String internalPath;
 
-  protected BaseBinaryContentStorage(
+  protected AbstractBinaryContentStorage(
       @Qualifier("fileUploadWorker") Executor fileUploadWorker,
       String internalPath) {
     this.fileUploadWorker = fileUploadWorker;
     this.internalPath = internalPath;
-  }
-
-  protected <T> void throwOrNot(T value, Predicate<T> condition,
-      Function<T, DiscodeitException> exception) {
-    if (!condition.test(value)) {
-      throw exception.apply(value);
-    }
   }
 
   protected CompletableFuture<FileUploadResult> putAsync(Entry<UUID, byte[]> entry) {
@@ -46,7 +36,7 @@ public abstract class BaseBinaryContentStorage implements BinaryContentStorage {
         .toList();
   }
 
-  protected String convertToInternalPath(String path) {
+  protected String resolvePath(String path) {
     return String.join("/", internalPath, path);
   }
 }

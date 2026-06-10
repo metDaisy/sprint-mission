@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.global.infra.storage;
+package com.sprint.mission.discodeit.global.infra.storage.provider;
 
-import com.sprint.mission.discodeit.binarycontent.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
 import java.io.InputStream;
 import java.util.List;

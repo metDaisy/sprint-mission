@@ -1,9 +1,10 @@
-package com.sprint.mission.discodeit.global.infra.storage.s3;
+package com.sprint.mission.discodeit.global.infra.storage.provider.s3;
 
-import com.sprint.mission.discodeit.binarycontent.dto.response.BinaryContentDto;
-import com.sprint.mission.discodeit.common.exception.aws.AwsErrorCode;
-import com.sprint.mission.discodeit.common.exception.aws.AwsException;
-import com.sprint.mission.discodeit.global.infra.storage.BaseBinaryContentStorage;
+import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.global.infra.storage.exception.s3.AwsErrorCode;
+import com.sprint.mission.discodeit.global.infra.storage.exception.s3.AwsException;
+import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
+import com.sprint.mission.discodeit.global.infra.storage.provider.AbstractBinaryContentStorage;
 import com.sprint.mission.discodeit.global.infra.storage.config.AwsProperties;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import java.io.InputStream;
@@ -32,7 +33,7 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 
 @Component
 @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
-public class S3BinaryContentStorage extends BaseBinaryContentStorage {
+public class S3BinaryContentStorage extends AbstractBinaryContentStorage {
 
   private final Duration s3ActiveDuration;
 
@@ -55,7 +56,7 @@ public class S3BinaryContentStorage extends BaseBinaryContentStorage {
 
   @Override
   public UUID put(UUID id, byte[] bytes) {
-    throwOrNot(id, Predicate.not(this::isPresent),
+    DomainServiceSupport.requireOrThrow(id, Predicate.not(this::isPresent),
         value -> new AwsException(AwsErrorCode.FILE_ALREADY_EXIST, value));
     try {
       s3Client.putObject(buildPutObjectRequest(id), RequestBody.fromBytes(bytes));
@@ -76,12 +77,12 @@ public class S3BinaryContentStorage extends BaseBinaryContentStorage {
   public ResponseEntity<?> download(BinaryContentDto dto) {
     URL presignedUrl = generatePresignedUrl(dto.id());
     return ResponseEntity.status(HttpStatus.OK)
-        .header("X-Accel-Redirect", convertToInternalPath(presignedUrl.getFile()))
+        .header("X-Accel-Redirect", resolvePath(presignedUrl.getFile()))
         .build();
   }
 
   @Override
-  protected String convertToInternalPath(String path) {
+  protected String resolvePath(String path) {
     return Strings.concat(internalPath, path);
   }
 

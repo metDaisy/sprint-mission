@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.exception.aws;
+package com.sprint.mission.discodeit.global.infra.storage.exception.s3;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.common.exception.ErrorCode;

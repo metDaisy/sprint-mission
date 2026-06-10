@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.global.infra.storage.event;
 
-import com.sprint.mission.discodeit.common.storage.event.FileUploadEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
 import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
-import com.sprint.mission.discodeit.global.infra.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.global.infra.storage.provider.BinaryContentStorage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -11,10 +11,10 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-public class FileUploadEventListener {
+public class StorageEventHandler {
 
   private final BinaryContentStorage binaryContentStorage;
-  private final FileUploadEventResultHandler resultHandler;
+  private final StorageCallback resultHandler;
 
   @Async("fileUploadExecutor")
   @TransactionalEventListener

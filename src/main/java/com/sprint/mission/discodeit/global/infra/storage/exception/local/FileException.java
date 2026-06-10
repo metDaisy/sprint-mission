@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.exception.file;
+package com.sprint.mission.discodeit.global.infra.storage.exception.local;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.common.exception.ErrorCode;
