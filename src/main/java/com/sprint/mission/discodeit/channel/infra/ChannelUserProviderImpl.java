@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.channel.infra;
 
 import com.sprint.mission.discodeit.channel.domain.provider.ChannelUserProvider;
-import com.sprint.mission.discodeit.common.provider.AbstractServiceReferenceProvider;
+import com.sprint.mission.discodeit.common.provider.AbstractEntityReferenceProvider;
 import com.sprint.mission.discodeit.common.service.DomainReferenceService;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.Collection;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ChannelUserProviderImpl
-    extends AbstractServiceReferenceProvider<User>
+    extends AbstractEntityReferenceProvider<User>
     implements ChannelUserProvider {
 
   public ChannelUserProviderImpl(

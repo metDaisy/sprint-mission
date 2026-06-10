@@ -60,6 +60,8 @@ create table read_statuses
     last_read_at timestamp with time zone
 );
 
+create index idx_read_statuses_channel_id_user_id on read_statuses (channel_id, user_id);
+
 create table message_attachments
 (
     message_id    uuid not null,

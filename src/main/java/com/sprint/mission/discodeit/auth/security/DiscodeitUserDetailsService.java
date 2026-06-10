@@ -23,11 +23,11 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
   @Override
   @Transactional(readOnly = true)
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    UserCredential credential = DomainServiceSupport.getOrThrow(username,
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    UserCredential credential = DomainServiceSupport.getOrThrow(email,
         repository::findByUser_Email,
         value -> new AuthException(UserCredentialErrorCode.USERNAME_NOT_FOUND, "email", value));
-    return new DiscodeitUserDetails(mapper.toUserResponse(credential.getUser()),
+    return new DiscodeitUserDetails(mapper.toUserResponse(credential),
         credential.getPassword());
   }
 

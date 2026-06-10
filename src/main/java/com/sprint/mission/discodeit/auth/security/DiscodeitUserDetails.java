@@ -31,7 +31,7 @@ public class DiscodeitUserDetails implements UserDetails, CredentialsContainer {
 
   @Override
   public String getUsername() {
-    return userResponse.username();
+    return userResponse.email();
   }
 
   @Override

@@ -15,7 +15,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(config = GlobalMapperConfig.class, uses = UserMapper.class)
+@Mapper(config = GlobalMapperConfig.class)
 public interface ChannelMapper extends BaseMapper<ChannelDetailDto, ChannelResponse> {
 
   Channel toEntityFrom(PublicChannelCreateRequest request);

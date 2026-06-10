@@ -7,10 +7,12 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
+import lombok.Builder;
 
 /**
  * DTO for {@link Message}
  */
+@Builder
 public record MessageResponse(UUID id,
                               Instant createdAt,
                               Instant updatedAt,
