@@ -10,8 +10,12 @@ import lombok.Builder;
  * DTO for {@link BinaryContent}
  */
 @Builder
-public record BinaryContentDto(UUID id, Instant createdAt, String fileName, Long size,
-                               String contentType)
+public record BinaryContentDto(UUID id,
+                               Instant createdAt,
+                               String fileName,
+                               Long size,
+                               String contentType
+)
     implements Serializable {
 
 }

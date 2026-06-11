@@ -1,14 +1,11 @@
 package com.sprint.mission.discodeit.global.infra.storage.provider.local;
 
-import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.infra.storage.exception.local.FileErrorCode;
 import com.sprint.mission.discodeit.global.infra.storage.exception.local.FileException;
-import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.infra.storage.provider.AbstractBinaryContentStorage;
-import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -17,9 +14,6 @@ import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,9 +23,10 @@ public class LocalDiskBinaryContentStorage extends AbstractBinaryContentStorage 
   private final Path root;
 
   public LocalDiskBinaryContentStorage(
-      @Value("${discodeit.storage.local.root-path}") Path rootPath,
-      @Qualifier("fileUploadWorker") Executor fileUploadWorker) {
-    super(fileUploadWorker, "/internal-local");
+      @Qualifier("fileUploadWorker") Executor fileUploadWorker,
+      @Value("${discodeit.storage.local.internal-path}") String internalPath,
+      @Value("${discodeit.storage.local.root-path}") Path rootPath) {
+    super(fileUploadWorker, internalPath);
     this.root = rootPath;
   }
 
@@ -48,27 +43,6 @@ public class LocalDiskBinaryContentStorage extends AbstractBinaryContentStorage 
     }
   }
 
-  @Override
-  public InputStream get(UUID id) {
-    Path path = resolvePath(id);
-    DomainServiceSupport.requireOrThrow(path, this::isPresent,
-        value -> new FileException(FileErrorCode.FILE_NOT_FOUND, value));
-    try {
-      return Files.newInputStream(path);
-    } catch (IOException e) {
-      throw new FileException(FileErrorCode.FILE_READ_ERROR, path);
-    }
-  }
-
-  @Override
-  @ServiceLogAround
-  public ResponseEntity<Resource> download(BinaryContentDto dto) {
-    return ResponseEntity.status(HttpStatus.OK)
-        .header("X-Accel-Redirect",
-            resolvePath(dto.id().toString()))
-        .build();
-  }
-
   @PostConstruct
   public void init() {
     try {
@@ -76,6 +50,18 @@ public class LocalDiskBinaryContentStorage extends AbstractBinaryContentStorage 
     } catch (IOException e) {
       throw new FileException(FileErrorCode.ROOT_DIRECTORY_CREATION_FAILED, root);
     }
+  }
+
+  @Override
+  protected String resolveUrl(UUID id) {
+    return String.join("/", internalPath, id.toString());
+  }
+
+  @Override
+  protected void existsOrThrow(UUID id) {
+    Path path = resolvePath(id);
+    DomainServiceSupport.requireOrThrow(path, this::isPresent,
+        value -> new FileException(FileErrorCode.FILE_NOT_FOUND, value));
   }
 
   private Path resolvePath(UUID id) {

@@ -14,6 +14,9 @@ discodeit:
     type: ${STORAGE_TYPE:local} # local | s3
     local:
       root-path: ${LOCAL_STORAGE_ROOT_PATH:.discodeit/storage}
+      internal-path: ${LOCAL_STORAGE_INTERNAL_PATH}
+    s3:
+      internal-path: ${S3_STORAGE_INTERNAL_PATH}
   admin:
     username: ${ADMIN_USERNAME}
     email: ${ADMIN_EMAIL}

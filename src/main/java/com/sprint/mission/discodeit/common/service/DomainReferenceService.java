@@ -13,4 +13,8 @@ public interface DomainReferenceService<T> {
   T getProxy(UUID id);
 
   List<T> getProxy(Collection<UUID> ids);
+
+  T getOrThrow(UUID id);
+
+  List<T> getOrThrow(Collection<UUID> ids);
 }

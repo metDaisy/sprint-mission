@@ -18,7 +18,7 @@ spring:
     defer-datasource-initialization: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         jdbc.batch_size: 100
         order_inserts: true
         order_updates: true
@@ -41,4 +41,5 @@ logging:
       clean-history-on-start: true
       max-history: 30
   pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%thread] %clr(%-5level) [%logger{36}] - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [traceId: %X{traceId}] [%logger{36}] - %msg%n"

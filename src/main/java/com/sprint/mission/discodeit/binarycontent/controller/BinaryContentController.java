@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.binarycontent.controller;
 
+import com.sprint.mission.discodeit.binarycontent.controller.dto.request.FileUploadRequest;
 import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.binarycontent.service.BinaryContentService;
-import com.sprint.mission.discodeit.common.api.request.FileUploadRequest;
-import com.sprint.mission.discodeit.global.infra.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.global.infra.storage.constant.StorageHeaders;
+import com.sprint.mission.discodeit.global.infra.storage.provider.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,21 +34,25 @@ class BinaryContentController {
     return ResponseEntity.status(HttpStatus.OK).body(binaryContentService.create(request));
   }
 
-  @GetMapping(value = "/{binaryContentId}")
-  public ResponseEntity<BinaryContentDto> find(@PathVariable UUID binaryContentId) {
-    return ResponseEntity.status(HttpStatus.OK).body(binaryContentService.find(binaryContentId));
+  @GetMapping(value = "/{id}")
+  public ResponseEntity<BinaryContentDto> find(@PathVariable UUID id) {
+    return ResponseEntity.status(HttpStatus.OK).body(binaryContentService.find(id));
   }
 
   @GetMapping
   public ResponseEntity<List<BinaryContentDto>> findMany(
-      @RequestParam List<UUID> binaryContentIds) {
+      @RequestParam List<UUID> ids) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(binaryContentService.findAllByIdIn(binaryContentIds));
+        .body(binaryContentService.findAllByIdIn(ids));
   }
 
-  @GetMapping(value = "/{binaryContentId}/download")
-  public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
-    BinaryContentDto dto = binaryContentService.find(binaryContentId);
-    return binaryContentStorage.download(dto);
+  @Profile("prod")
+  @GetMapping(value = "/{id}/download")
+  public ResponseEntity<?> download(@PathVariable UUID id) {
+    binaryContentService.existsOrThrow(id);
+    String url = binaryContentStorage.downloadUrl(id);
+    return ResponseEntity.status(HttpStatus.OK)
+        .header(StorageHeaders.X_ACCEL_REDIRECT, url)
+        .build();
   }
 }

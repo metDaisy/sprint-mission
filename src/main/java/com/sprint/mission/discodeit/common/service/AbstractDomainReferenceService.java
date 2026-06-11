@@ -14,6 +14,7 @@ public abstract class AbstractDomainReferenceService<T> implements DomainReferen
   private final DomainRepository<T> repository;
 
   protected abstract DiscodeitException notFoundException(UUID id);
+
   protected abstract DiscodeitException notFoundException(Collection<UUID> ids);
 
   @Override
@@ -37,5 +38,16 @@ public abstract class AbstractDomainReferenceService<T> implements DomainReferen
   @Override
   public List<T> getProxy(Collection<UUID> ids) {
     return ids.stream().map(repository::getReferenceById).toList();
+  }
+
+  @Override
+  public T getOrThrow(UUID id) {
+    return DomainServiceSupport.getOrThrow(id, repository::findById, this::notFoundException);
+  }
+
+  @Override
+  public List<T> getOrThrow(Collection<UUID> ids) {
+    existsOrThrow(ids);
+    return repository.findAllById(ids);
   }
 }

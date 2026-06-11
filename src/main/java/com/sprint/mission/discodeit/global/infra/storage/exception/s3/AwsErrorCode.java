@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum AwsErrorCode implements ErrorCode {
   FILE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "A001", "File already exists"),
   S3_CONNECTION_FAILED(HttpStatus.BAD_REQUEST, "A002", "S3 connection failed"),
+  FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "A003", "File not found"),
   ;
   private final HttpStatus status;
   private final String code;

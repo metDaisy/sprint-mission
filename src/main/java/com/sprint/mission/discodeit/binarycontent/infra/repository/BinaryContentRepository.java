@@ -16,13 +16,12 @@ public interface BinaryContentRepository extends DomainRepository<BinaryContent>
   @Query("update BinaryContent b set b.status = :status where b.id in :ids")
   int updateStatus(Collection<UUID> ids, BinaryContentStatus status);
 
-  @Query("select bc from BinaryContent bc where bc.id = :id and bc.status = 'COMPLETED'")
-  Optional<BinaryContent> findCompletedById(UUID id);
+  @Query("select bc from BinaryContent bc where bc.id = :id and bc.status = 'SUCCESS'")
+  Optional<BinaryContent> findSuccessById(UUID id);
 
-  @Query("select bc from BinaryContent bc where bc.id in :ids and bc.status = 'COMPLETED'")
-  List<BinaryContent> findAllCompletedByIds(Collection<UUID> ids);
+  @Query("select bc from BinaryContent bc where bc.id in :ids and bc.status = 'SUCCESS'")
+  List<BinaryContent> findAllSuccessByIds(Collection<UUID> ids);
 
-  default List<BinaryContent> findAllProxy(List<UUID> ids) {
-    return ids.stream().map(this::getReferenceById).toList();
-  }
+  @Query("select count(b) > 0 from BinaryContent b where b.id = :id and b.status = 'SUCCESS'")
+  boolean existsSuccessById(UUID id);
 }

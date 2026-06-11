@@ -1,12 +1,9 @@
 package com.sprint.mission.discodeit.global.infra.storage.provider;
 
-import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.http.ResponseEntity;
 
 public interface BinaryContentStorage {
 
@@ -14,7 +11,5 @@ public interface BinaryContentStorage {
 
   List<FileUploadResult> putAll(Map<UUID, byte[]> files);
 
-  InputStream get(UUID id);
-
-  ResponseEntity<?> download(BinaryContentDto dto);
+  String downloadUrl(UUID id);
 }

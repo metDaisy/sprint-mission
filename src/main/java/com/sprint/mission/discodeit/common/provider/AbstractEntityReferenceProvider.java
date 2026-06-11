@@ -7,9 +7,9 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public abstract class AbstractServiceReferenceProvider<T> implements EntityReferenceProvider<T> {
+public abstract class AbstractEntityReferenceProvider<T> implements EntityReferenceProvider<T> {
 
-  private final DomainReferenceService<T> service;
+  protected final DomainReferenceService<T> service;
 
   @Override
   public List<T> getProxyOrThrow(Collection<UUID> ids) {
