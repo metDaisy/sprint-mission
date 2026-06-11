@@ -1,5 +1,11 @@
 import client from './client';
-import { MessageDto, MessageCreateRequest, MessageUpdateRequest, Pageable, PageResponse } from '../types/api';
+import {
+  MessageCreateRequest,
+  MessageDto,
+  MessageUpdateRequest,
+  Pageable,
+  PageResponse
+} from '../types/api';
 
 export const getMessages = async (channelId: string, cursor: string | null, pageable: Pageable): Promise<PageResponse<MessageDto>> => {
   const response = await client.get<PageResponse<MessageDto>>(`/messages`, {
@@ -13,30 +19,10 @@ export const getMessages = async (channelId: string, cursor: string | null, page
   return response.data;
 };
 
-export const createMessage = async (messageData: MessageCreateRequest, attachments?: File[]): Promise<MessageDto> => {
-  const formData = new FormData();
-  
-  // JSON 데이터 추가
-  const messageRequest = {
-    content: messageData.content,
-    channelId: messageData.channelId,
-    authorId: messageData.authorId
-  };
-  
-  formData.append('messageCreateRequest', new Blob([JSON.stringify(messageRequest)], { 
-    type: 'application/json' 
-  }));
-  
-  // 첨부 파일 추가
-  if (attachments && attachments.length > 0) {
-    attachments.forEach(file => {
-      formData.append('attachments', file);
-    });
-  }
-  
-  const response = await client.post<MessageDto>('/messages', formData, {
+export const createMessage = async (messageData: MessageCreateRequest): Promise<MessageDto> => {
+  const response = await client.post<MessageDto>('/messages', messageData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'application/json'
     }
   });
   return response.data;

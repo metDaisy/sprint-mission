@@ -5,7 +5,7 @@ import useAuthStore from '@/stores/authStore';
 import { BinaryContentDto, ChannelDto } from '@/types/api';
 import { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Avatar } from '../../styles/common';
+import { Avatar } from '@/styles/common.ts';
 import {
   AttachmentList,
   AuthorAvatarContainer,

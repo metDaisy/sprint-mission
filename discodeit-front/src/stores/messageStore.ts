@@ -22,7 +22,7 @@ interface MessageStore {
   loadMoreMessages: (channelId: string) => Promise<void>;
   startPolling: (channelId: string) => void;
   stopPolling: (channelId: string) => void;
-  createMessage: (messageData: MessageCreateRequest, attachments?: File[]) => Promise<MessageDto>;
+  createMessage: (messageData: MessageCreateRequest) => Promise<MessageDto>;
   updateMessage: (messageId: string, newContent: string) => Promise<MessageDto>;
   deleteMessage: (messageId: string) => Promise<void>;
   isCreating: boolean;
@@ -184,10 +184,10 @@ const useMessageStore = create<MessageStore>((set, get) => ({
     }
   },
 
-  createMessage: async (messageData, attachments) => {
+  createMessage: async (messageData) => {
     try {
       set({ isCreating: true }); // 메시지 생성 시작 상태 설정
-      const newMessage = await apiCreateMessage(messageData, attachments);
+      const newMessage = await apiCreateMessage(messageData);
 
       // 메시지 전송 성공 시 readStatus 업데이트
       const updateReadStatus = useReadStatusStore.getState().updateReadStatus;
