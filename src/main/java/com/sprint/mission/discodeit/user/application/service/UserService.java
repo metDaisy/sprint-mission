@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.user.application.service;
 
+import com.sprint.mission.discodeit.auth.domain.event.UserRoleUpdateEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
+import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
@@ -13,7 +15,7 @@ import com.sprint.mission.discodeit.user.domain.event.UserCreatedEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserUpdatedEvent;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.domain.exception.UserException;
-import com.sprint.mission.discodeit.user.domain.provider.UserProfileProvider;
+import com.sprint.mission.discodeit.user.domain.provider.UserProfileResolver;
 import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ public class UserService {
 
   private final UserRepository repository;
   private final UserMapper mapper;
-  private final UserProfileProvider userProfileProvider;
+  private final UserProfileResolver profileProvider;
   private final ApplicationEventPublisher eventPublisher;
 
   @ServiceLogAround
@@ -73,7 +75,7 @@ public class UserService {
       checkUsernameUniqueness(request.getUsername());
     }
     if (request.getProfileId() != null) {
-      BinaryContent profile = userProfileProvider.getProxyOrThrow(request.getProfileId());
+      BinaryContent profile = profileProvider.getProxyOrThrow(request.getProfileId());
       user.updateProfile(profile);
     }
     if (StringUtils.hasText(request.getPassword())) {
@@ -89,9 +91,13 @@ public class UserService {
   }
 
   @ServiceLogAround
-  public UserResponse updateRole(UUID id, UserRole role) {
-    User user = findByIdWithLazy(id);
-    user.updateRole(role);
+  public UserResponse updateRole(RoleUpdateRequest request) {
+    UUID id = request.getId();
+    User user = findById(id);
+    UserRole oldRole = user.getRole();
+    UserRole newRole = request.getRole();
+    user.updateRole(newRole);
+    eventPublisher.publishEvent(new UserRoleUpdateEvent(id, oldRole, newRole));
     return mapper.toDto(user);
   }
 

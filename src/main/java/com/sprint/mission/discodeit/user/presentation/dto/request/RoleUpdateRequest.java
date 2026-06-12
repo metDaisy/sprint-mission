@@ -12,14 +12,14 @@ import lombok.ToString;
 public class RoleUpdateRequest {
 
   @NotNull
-  private final UUID userId;
+  private final UUID id;
   @NotNull
   private final UserRole role;
 
   public RoleUpdateRequest(
-      @JsonProperty("userId") UUID userId,
+      @JsonProperty("userId") UUID id,
       @JsonProperty("newRole") UserRole role) {
-    this.userId = userId;
+    this.id = id;
     this.role = role;
   }
 }

@@ -1,11 +1,8 @@
 package com.sprint.mission.discodeit.auth.presentation.controller;
 
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
-import com.sprint.mission.discodeit.auth.service.AuthRoleService;
-import com.sprint.mission.discodeit.auth.service.JwtTokenService;
+import com.sprint.mission.discodeit.auth.application.service.JwtTokenService;
 import com.sprint.mission.discodeit.auth.infra.web.CookieProvider;
-import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,8 +12,6 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-  private final AuthRoleService authRoleService;
   private final JwtTokenService jwtTokenService;
   private final CookieProvider cookieProvider;
 
@@ -33,11 +27,6 @@ public class AuthController {
   public ResponseEntity<Void> csrfToken(CsrfToken token) {
     token.getToken();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-  }
-
-  @PutMapping("/role")
-  public ResponseEntity<UserResponse> updateRole(@RequestBody RoleUpdateRequest request) {
-    return ResponseEntity.status(HttpStatus.OK).body(authRoleService.updateRole(request));
   }
 
   @PostMapping("/refresh")
