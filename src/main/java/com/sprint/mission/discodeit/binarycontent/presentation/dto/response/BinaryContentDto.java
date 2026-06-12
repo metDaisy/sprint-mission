@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.binarycontent.controller.dto.response;
+package com.sprint.mission.discodeit.binarycontent.presentation.dto.response;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.domain.entity.constant.BinaryContentStatus;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
 
@@ -11,11 +11,10 @@ import lombok.Builder;
  */
 @Builder
 public record BinaryContentDto(UUID id,
-                               Instant createdAt,
                                String fileName,
                                Long size,
-                               String contentType
-)
+                               String contentType,
+                               BinaryContentStatus status)
     implements Serializable {
 
 }

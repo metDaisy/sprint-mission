@@ -1,13 +1,13 @@
-package com.sprint.mission.discodeit.binarycontent.service;
+package com.sprint.mission.discodeit.binarycontent.application.service;
 
-import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
-import com.sprint.mission.discodeit.binarycontent.controller.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.binarycontent.presentation.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.presentation.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentErrorCode;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentException;
 import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.binarycontent.controller.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.binarycontent.presentation.dto.request.FileUploadRequest;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import java.util.HashMap;

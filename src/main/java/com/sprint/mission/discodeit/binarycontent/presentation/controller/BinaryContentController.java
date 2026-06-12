@@ -1,14 +1,13 @@
-package com.sprint.mission.discodeit.binarycontent.controller;
+package com.sprint.mission.discodeit.binarycontent.presentation.controller;
 
-import com.sprint.mission.discodeit.binarycontent.controller.dto.request.FileUploadRequest;
-import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
-import com.sprint.mission.discodeit.binarycontent.service.BinaryContentService;
-import com.sprint.mission.discodeit.global.infra.storage.constant.StorageHeaders;
-import com.sprint.mission.discodeit.global.infra.storage.provider.BinaryContentStorage;
+import com.sprint.mission.discodeit.binarycontent.presentation.dto.request.FileUploadRequest;
+import com.sprint.mission.discodeit.binarycontent.presentation.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.application.service.BinaryContentService;
+import com.sprint.mission.discodeit.global.infra.storage.download.StorageDownloader;
+import com.sprint.mission.discodeit.binarycontent.domain.provider.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +26,7 @@ class BinaryContentController {
 
   private final BinaryContentService binaryContentService;
   private final BinaryContentStorage binaryContentStorage;
+  private final StorageDownloader downloader;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<List<BinaryContentDto>> create(@RequestParam List<MultipartFile> files) {
@@ -46,13 +46,10 @@ class BinaryContentController {
         .body(binaryContentService.findAllByIdIn(ids));
   }
 
-  @Profile("prod")
   @GetMapping(value = "/{id}/download")
   public ResponseEntity<?> download(@PathVariable UUID id) {
     binaryContentService.existsOrThrow(id);
     String url = binaryContentStorage.downloadUrl(id);
-    return ResponseEntity.status(HttpStatus.OK)
-        .header(StorageHeaders.X_ACCEL_REDIRECT, url)
-        .build();
+    return downloader.download(url);
   }
 }

@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.binarycontent.service;
+package com.sprint.mission.discodeit.binarycontent.application.handler;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.constant.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
+import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
 import com.sprint.mission.discodeit.global.infra.storage.event.StorageCallback;
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.binarycontent.controller.dto.request;
+package com.sprint.mission.discodeit.binarycontent.presentation.dto.request;
 
 import com.sprint.mission.discodeit.global.infra.storage.exception.local.FileErrorCode;
 import com.sprint.mission.discodeit.global.infra.storage.exception.local.FileException;
