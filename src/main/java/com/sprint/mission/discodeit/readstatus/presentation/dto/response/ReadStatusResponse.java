@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.readstatus.controller.dto.response;
+package com.sprint.mission.discodeit.readstatus.presentation.dto.response;
 
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
 import java.io.Serializable;

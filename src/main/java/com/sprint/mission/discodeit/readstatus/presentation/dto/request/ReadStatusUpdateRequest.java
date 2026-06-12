@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.readstatus.controller.dto.request;
+package com.sprint.mission.discodeit.readstatus.presentation.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

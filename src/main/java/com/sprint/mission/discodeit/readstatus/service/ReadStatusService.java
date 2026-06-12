@@ -2,14 +2,14 @@ package com.sprint.mission.discodeit.readstatus.service;
 
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
-import com.sprint.mission.discodeit.readstatus.controller.dto.request.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.readstatus.controller.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.readstatus.controller.dto.response.ReadStatusResponse;
-import com.sprint.mission.discodeit.readstatus.controller.mapper.ReadStatusMapper;
+import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
+import com.sprint.mission.discodeit.readstatus.presentation.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorCode;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusException;
-import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusChannelProvider;
+import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusChannelResolver;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusUserProvider;
 import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.user.domain.entity.User;
@@ -28,7 +28,7 @@ public class ReadStatusService {
   private final ReadStatusRepository repository;
   private final ReadStatusMapper mapper;
   private final ReadStatusUserProvider userProvider;
-  private final ReadStatusChannelProvider channelProvider;
+  private final ReadStatusChannelResolver channelProvider;
 
   @Transactional(readOnly = true)
   public List<ReadStatusResponse> findAllByUserId(UUID userId) {
@@ -61,7 +61,7 @@ public class ReadStatusService {
   }
 
   public void delete(UUID id) {
-    DomainServiceSupport.executeOrThrow(id, repository,
+    DomainServiceSupport.deleteOrThrow(id, repository,
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
