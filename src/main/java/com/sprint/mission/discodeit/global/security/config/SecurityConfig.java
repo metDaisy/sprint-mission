@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.global.security.filter.JwtAuthenticationFilt
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
+import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import java.util.List;
 import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;

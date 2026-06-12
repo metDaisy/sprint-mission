@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/binaryContents")
 @RequiredArgsConstructor
-class BinaryContentController {
+public class BinaryContentController {
 
   private final BinaryContentService binaryContentService;
   private final BinaryContentStorage binaryContentStorage;

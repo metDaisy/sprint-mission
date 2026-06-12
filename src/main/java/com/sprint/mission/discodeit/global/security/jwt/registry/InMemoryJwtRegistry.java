@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.global.security.jwt.registry;
 
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
+import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationErrorCode;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationException;
 import java.time.Instant;
