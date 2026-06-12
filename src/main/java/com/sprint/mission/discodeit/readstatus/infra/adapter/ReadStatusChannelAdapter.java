@@ -8,11 +8,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReadStatusChannelResolverAdapter
+public class ReadStatusChannelAdapter
     extends AbstractEntityReferenceResolver<Channel>
     implements ReadStatusChannelResolver {
 
-  public ReadStatusChannelResolverAdapter(
+  public ReadStatusChannelAdapter(
       EntityReferenceSupplier<Channel> service) {
     super(service);
   }

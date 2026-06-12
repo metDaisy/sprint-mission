@@ -8,11 +8,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AuthUserResolverAdapter
+public class AuthUserAdapter
     extends AbstractEntityReferenceResolver<User>
     implements AuthUserResolver {
 
-  public AuthUserResolverAdapter(EntityReferenceSupplier<User> service) {
+  public AuthUserAdapter(EntityReferenceSupplier<User> service) {
     super(service);
   }
 

@@ -10,11 +10,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChannelUserResolverAdapter
+public class ChannelUserAdapter
     extends AbstractEntityReferenceResolver<User>
     implements ChannelUserResolver {
 
-  public ChannelUserResolverAdapter(
+  public ChannelUserAdapter(
       EntityReferenceSupplier<User> service) {
     super(service);
   }
