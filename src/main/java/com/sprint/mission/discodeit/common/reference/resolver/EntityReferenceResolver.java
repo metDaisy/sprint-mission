@@ -1,10 +1,10 @@
-package com.sprint.mission.discodeit.common.provider;
+package com.sprint.mission.discodeit.common.reference.resolver;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public interface EntityReferenceProvider<T> {
+public interface EntityReferenceResolver<T> {
 
   T getProxyOrThrow(UUID id);
 

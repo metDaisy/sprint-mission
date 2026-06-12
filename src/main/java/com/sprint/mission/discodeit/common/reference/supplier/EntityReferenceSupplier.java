@@ -1,10 +1,10 @@
-package com.sprint.mission.discodeit.common.service;
+package com.sprint.mission.discodeit.common.reference.supplier;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public interface DomainReferenceService<T> {
+public interface EntityReferenceSupplier<T> {
 
   void existsOrThrow(UUID id);
 

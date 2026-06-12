@@ -1,15 +1,15 @@
-package com.sprint.mission.discodeit.common.provider;
+package com.sprint.mission.discodeit.common.reference.resolver;
 
-import com.sprint.mission.discodeit.common.service.DomainReferenceService;
+import com.sprint.mission.discodeit.common.reference.supplier.EntityReferenceSupplier;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public abstract class AbstractEntityReferenceProvider<T> implements EntityReferenceProvider<T> {
+public abstract class AbstractEntityReferenceResolver<T> implements EntityReferenceResolver<T> {
 
-  protected final DomainReferenceService<T> service;
+  protected final EntityReferenceSupplier<T> service;
 
   @Override
   public List<T> getProxyOrThrow(Collection<UUID> ids) {
