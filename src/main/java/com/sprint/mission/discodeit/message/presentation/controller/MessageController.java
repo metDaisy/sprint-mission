@@ -1,9 +1,9 @@
-package com.sprint.mission.discodeit.message.controller;
+package com.sprint.mission.discodeit.message.presentation.controller;
 
 import com.sprint.mission.discodeit.common.api.response.PageResponse;
-import com.sprint.mission.discodeit.message.controller.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.message.controller.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.message.controller.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.message.presentation.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.message.presentation.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.message.presentation.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.message.service.MessageService;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -46,7 +46,7 @@ public class MessageController {
         .body(messageService.findSliceByChannelId(channelId, pageable));
   }
 
-  @PatchMapping(value = "/{messageId}")
+  @PatchMapping(value = "/{messageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<MessageResponse> update(
       @PathVariable UUID messageId,
       @RequestBody @Valid MessageUpdateRequest request) {

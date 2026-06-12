@@ -16,7 +16,6 @@ public interface MessageRepository extends DomainRepository<Message> {
   @Query("select m from Message m join fetch m.channel c where c.id = :channelId")
   Slice<Message> findSliceByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
 
-  @EntityGraph(attributePaths = {"author", "channel", "attachments", "author.status",
-      "author.profile"})
+  @EntityGraph(attributePaths = {"author", "channel", "attachments", "author.profile"})
   Optional<Message> findWithFetchJoinById(UUID uuid);
 }

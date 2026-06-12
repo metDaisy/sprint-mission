@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.message.controller.dto.response;
+package com.sprint.mission.discodeit.message.presentation.dto.response;
 
-import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.presentation.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.message.domain.entity.Message;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;

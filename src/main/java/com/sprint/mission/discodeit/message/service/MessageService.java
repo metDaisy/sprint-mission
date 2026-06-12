@@ -5,16 +5,16 @@ import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.common.api.response.PageResponse;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
-import com.sprint.mission.discodeit.message.controller.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.message.controller.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.message.controller.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.message.presentation.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.message.presentation.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.message.presentation.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.message.domain.entity.Message;
 import com.sprint.mission.discodeit.message.domain.exception.MessageErrorCode;
 import com.sprint.mission.discodeit.message.domain.exception.MessageException;
-import com.sprint.mission.discodeit.message.controller.mapper.MessageMapper;
-import com.sprint.mission.discodeit.message.domain.provider.MessageBinaryContentProvider;
-import com.sprint.mission.discodeit.message.domain.provider.MessageChannelProvider;
-import com.sprint.mission.discodeit.message.domain.provider.MessageUserProvider;
+import com.sprint.mission.discodeit.message.presentation.mapper.MessageMapper;
+import com.sprint.mission.discodeit.message.domain.provider.MessageBinaryContentResolver;
+import com.sprint.mission.discodeit.message.domain.provider.MessageChannelResolver;
+import com.sprint.mission.discodeit.message.domain.provider.MessageUserResolver;
 import com.sprint.mission.discodeit.message.infra.repository.MessageRepository;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
@@ -31,9 +31,9 @@ public class MessageService {
 
   private final MessageRepository repository;
   private final MessageMapper mapper;
-  private final MessageChannelProvider channelProvider;
-  private final MessageUserProvider userProvider;
-  private final MessageBinaryContentProvider binaryContentProvider;
+  private final MessageChannelResolver channelProvider;
+  private final MessageUserResolver userProvider;
+  private final MessageBinaryContentResolver binaryContentProvider;
 
   @ServiceLogAround
   public MessageResponse create(MessageCreateRequest request) {
@@ -66,7 +66,7 @@ public class MessageService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.executeOrThrow(id, repository,
+    DomainServiceSupport.deleteOrThrow(id, repository,
         messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
   }
 
