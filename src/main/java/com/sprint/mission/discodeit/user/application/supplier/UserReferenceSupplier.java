@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.user.service;
+package com.sprint.mission.discodeit.user.application.supplier;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
-import com.sprint.mission.discodeit.common.service.AbstractDomainReferenceService;
+import com.sprint.mission.discodeit.common.reference.supplier.AbstractEntityReferenceSupplier;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.domain.exception.UserException;
@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
-public class UserReferenceService extends AbstractDomainReferenceService<User> {
+public class UserReferenceSupplier extends AbstractEntityReferenceSupplier<User> {
 
-  public UserReferenceService(
+  public UserReferenceSupplier(
       DomainRepository<User> repository) {
     super(repository);
   }

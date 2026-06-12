@@ -1,9 +1,9 @@
-package com.sprint.mission.discodeit.user.controller;
+package com.sprint.mission.discodeit.user.presentation.controller;
 
-import com.sprint.mission.discodeit.user.controller.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.user.controller.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
-import com.sprint.mission.discodeit.user.service.UserService;
+import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.application.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,17 +37,17 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
   }
 
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<UserResponse> create(
-      @RequestPart @Valid UserCreateRequest userCreateRequest) {
+      @RequestBody @Valid UserCreateRequest userCreateRequest) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(userService.create(userCreateRequest));
   }
 
-  @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<UserResponse> update(
       @PathVariable UUID id,
-      @RequestPart @Valid UserUpdateRequest userUpdateRequest) {
+      @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(userService.update(id, userUpdateRequest));
   }

@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.user.controller.dto.response;
+package com.sprint.mission.discodeit.user.presentation.dto.response;
 
-import com.sprint.mission.discodeit.binarycontent.controller.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.presentation.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.io.Serializable;

@@ -1,12 +1,12 @@
-package com.sprint.mission.discodeit.user.service;
+package com.sprint.mission.discodeit.user.application.service;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
-import com.sprint.mission.discodeit.user.controller.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.user.controller.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
-import com.sprint.mission.discodeit.user.controller.mapper.UserMapper;
+import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.mapper.UserMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import com.sprint.mission.discodeit.user.domain.event.UserCreatedEvent;
@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -52,12 +53,10 @@ public class UserService {
     checkEmailUniqueness(request.getEmail());
     checkUsernameUniqueness(request.getUsername());
 
-    BinaryContent profile = userProfileProvider.getProxyOrThrow(request.getProfileId());
     User user = User.builder()
         .username(request.getUsername())
         .email(request.getEmail())
-        .profile(profile)
-        .role(request.getRole())
+        .role(UserRole.USER)
         .build();
     repository.save(user);
     eventPublisher.publishEvent(new UserCreatedEvent(user.getId(), request.getPassword()));
@@ -66,34 +65,43 @@ public class UserService {
 
   @ServiceLogAround
   public UserResponse update(UUID id, UserUpdateRequest request) {
-    User user = findById(id);
+    User user = findByIdWithLazy(id);
     if (user.updateEmail(request.getEmail())) {
       checkEmailUniqueness(request.getEmail());
     }
     if (user.updateUsername(request.getUsername())) {
       checkUsernameUniqueness(request.getUsername());
     }
-    BinaryContent profile = userProfileProvider.getProxyOrThrow(request.getProfileId());
-    user.updateProfile(profile);
-    eventPublisher.publishEvent(new UserUpdatedEvent(id, request.getPassword()));
+    if (request.getProfileId() != null) {
+      BinaryContent profile = userProfileProvider.getProxyOrThrow(request.getProfileId());
+      user.updateProfile(profile);
+    }
+    if (StringUtils.hasText(request.getPassword())) {
+      eventPublisher.publishEvent(new UserUpdatedEvent(id, request.getPassword()));
+    }
     return mapper.toDto(user);
   }
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.executeOrThrow(id, repository,
+    DomainServiceSupport.deleteOrThrow(id, repository,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 
   @ServiceLogAround
   public UserResponse updateRole(UUID id, UserRole role) {
-    User user = findById(id);
+    User user = findByIdWithLazy(id);
     user.updateRole(role);
     return mapper.toDto(user);
   }
 
   private User findById(UUID id) {
     return DomainServiceSupport.getOrThrow(id, repository::findProfileById,
+        value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
+  }
+
+  private User findByIdWithLazy(UUID id) {
+    return DomainServiceSupport.getOrThrow(id, repository::findById,
         value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
   }
 

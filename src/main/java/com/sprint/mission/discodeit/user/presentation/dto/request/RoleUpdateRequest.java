@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.user.controller.dto.request;
+package com.sprint.mission.discodeit.user.presentation.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
