@@ -12,6 +12,7 @@ interface AuthStore {
     refreshToken: () => Promise<void>;
     clear: () => void;
     updateUserRole: (userId: string, role: Role) => Promise<void>;
+    updateCurrentUser: (user: UserDto) => void;
 }
 
 const useAuthStore = create<AuthStore>((set, get) => ({
@@ -40,6 +41,9 @@ const useAuthStore = create<AuthStore>((set, get) => ({
     },
     updateUserRole: async (userId: string, role: Role) => {
         await updateUserRole(userId, role);
+    },
+    updateCurrentUser: (user: UserDto) => {
+        set({ currentUser: user });
     },
 }));
 

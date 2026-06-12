@@ -107,6 +107,7 @@ export enum BinaryContentStatus {
   PROCESSING= 'PROCESSING',
   SUCCESS= 'SUCCESS',
   FAIL= 'FAIL',
+  DELETED = 'DELETED',
 }
 
 // Auth 관련 타입

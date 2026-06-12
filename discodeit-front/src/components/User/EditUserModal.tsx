@@ -22,7 +22,7 @@ function EditUserModal({isOpen, onClose, user}: EditUserModalProps): JSX.Element
   const [error, setError] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const {binaryContents, fetchBinaryContent} = useBinaryContentStore();
-  const {logout, refreshToken} = useAuthStore();
+  const {logout} = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ function EditUserModal({isOpen, onClose, user}: EditUserModalProps): JSX.Element
             }
           }
         }));
-        useUserStore.getState().setCurrentUser({
+        useAuthStore.getState().updateCurrentUser({
           ...user,
           profile: { id: tempProfileId } as unknown as BinaryContentDto
         });
@@ -105,7 +105,7 @@ function EditUserModal({isOpen, onClose, user}: EditUserModalProps): JSX.Element
         try {
           const profileDto = await uploadProfile(profileImage);
           const updatedUser = await useUserStore.getState().updateUser(user.id, { newProfileId: profileDto.id });
-          useUserStore.getState().setCurrentUser(updatedUser); // 진짜 데이터로 교체
+          useAuthStore.getState().updateCurrentUser(updatedUser); // 진짜 데이터로 교체
         } catch (err) {
           console.error('백그라운드 프로필 업데이트 실패:', err);
         }
@@ -136,9 +136,8 @@ function EditUserModal({isOpen, onClose, user}: EditUserModalProps): JSX.Element
 
       // 🌟 백엔드 서버의 검증 로직이 끝날 때까지 얌전히 기다립니다 (await)
       const updatedUser = await useUserStore.getState().updateUser(user.id, updateRequest);
-      useUserStore.getState().setCurrentUser(updatedUser);
+      useAuthStore.getState().updateCurrentUser(updatedUser);
 
-      await refreshToken();
       onClose(); // 성공적으로 갱신되었을 때만 모달을 닫습니다.
 
     } catch (error: any) {
