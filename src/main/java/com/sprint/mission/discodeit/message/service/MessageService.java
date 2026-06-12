@@ -54,7 +54,7 @@ public class MessageService {
   @ServiceLogAround
   @Transactional(readOnly = true)
   public PageResponse<MessageResponse> findSliceByChannelId(UUID channelId, Pageable pageable) {
-    return mapper.fromSlice(repository.findSliceByChannelId(channelId, pageable));
+    return mapper.fromSlice(repository.findSliceByChannel_Id(channelId, pageable));
   }
 
   @ServiceLogAround

@@ -88,7 +88,7 @@ public class ReadStatusService {
 
   private void verifyCreatable(UUID channelId, List<UUID> userIds) {
     long count = repository.countByChannel_IdAndUser_IdIn(channelId, userIds);
-    if (userIds.size() != count) {
+    if (count > 0) {
       throw new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST);
     }
   }

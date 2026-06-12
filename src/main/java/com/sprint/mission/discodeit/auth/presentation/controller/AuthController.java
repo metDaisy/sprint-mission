@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.auth.presentation.controller;
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.service.AuthRoleService;
 import com.sprint.mission.discodeit.auth.service.JwtTokenService;
-import com.sprint.mission.discodeit.global.security.jwt.CookieProvider;
+import com.sprint.mission.discodeit.auth.infra.web.CookieProvider;
 import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;

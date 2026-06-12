@@ -6,6 +6,6 @@ import org.springframework.data.domain.Slice;
 
 public interface PageResponseMapper<T, R> {
 
-  @Mapping(target = "content", defaultExpression = "java(java.util.List.of())")
+  @Mapping(target = "content", source = "content", defaultExpression = "java(java.util.Collections.emptyList())")
   PageResponse<R> fromSlice(Slice<T> slice);
 }

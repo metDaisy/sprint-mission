@@ -7,14 +7,11 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends DomainRepository<Message> {
 
-  @EntityGraph(attributePaths = {"author", "author.status", "author.profile"})
-  @Query("select m from Message m join fetch m.channel c where c.id = :channelId")
-  Slice<Message> findSliceByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
+  @EntityGraph(attributePaths = {"author", "author.profile"})
+  Slice<Message> findSliceByChannel_Id(UUID channelId, Pageable pageable);
 
   @EntityGraph(attributePaths = {"author", "channel", "attachments", "author.profile"})
   Optional<Message> findWithFetchJoinById(UUID uuid);

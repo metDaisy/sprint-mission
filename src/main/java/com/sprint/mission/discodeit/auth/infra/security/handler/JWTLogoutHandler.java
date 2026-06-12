@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth.infra.security.handler;
 
 import com.sprint.mission.discodeit.auth.service.JwtTokenService;
-import com.sprint.mission.discodeit.global.security.jwt.CookieProvider;
+import com.sprint.mission.discodeit.auth.infra.web.CookieProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.global.security.jwt;
+package com.sprint.mission.discodeit.auth.infra.web;
 
+import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;

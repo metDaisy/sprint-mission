@@ -33,7 +33,7 @@ discodeit:
         same-site: Lax
         secure: false
     registry:
-      store-type: ${JWT_REGISTRY_STORE_TYPE}
+      store-type: ${JWT_REGISTRY_STORE_TYPE} # in-memory | db
       session:
         max-concurrent: ${JWT_REGISTRY_MAX_CONCURRENT}
         max-retained: ${JWT_REGISTRY_MAX_RETAINED}

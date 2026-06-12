@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.common.reference.resolver;
 
 import com.sprint.mission.discodeit.common.reference.supplier.EntityReferenceSupplier;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,9 @@ public abstract class AbstractEntityReferenceResolver<T> implements EntityRefere
 
   @Override
   public List<T> getProxyOrThrow(Collection<UUID> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return Collections.emptyList();
+    }
     service.existsOrThrow(ids);
     return service.getProxy(ids);
   }
