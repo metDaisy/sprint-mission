@@ -1,11 +1,11 @@
-package com.sprint.mission.discodeit.auth.controller;
+package com.sprint.mission.discodeit.auth.presentation.controller;
 
-import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
+import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.service.AuthRoleService;
 import com.sprint.mission.discodeit.auth.service.JwtTokenService;
 import com.sprint.mission.discodeit.global.security.jwt.CookieProvider;
-import com.sprint.mission.discodeit.user.controller.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

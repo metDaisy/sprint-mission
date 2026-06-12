@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.auth.security;
+package com.sprint.mission.discodeit.auth.infra.security;
 
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.io.Serial;

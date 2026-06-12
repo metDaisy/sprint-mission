@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.auth.service;
 
 import com.sprint.mission.discodeit.auth.domain.event.UserRoleUpdateEvent;
 import com.sprint.mission.discodeit.auth.domain.provider.UserRoleUpdateProvider;
-import com.sprint.mission.discodeit.user.controller.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

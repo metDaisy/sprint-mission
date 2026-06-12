@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.auth.service;
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
 import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;
-import com.sprint.mission.discodeit.auth.domain.provider.AuthUserProvider;
+import com.sprint.mission.discodeit.auth.domain.provider.AuthUserResolver;
 import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import java.util.UUID;
@@ -19,7 +19,7 @@ public class UserCredentialService {
 
   private final UserCredentialRepository repository;
   private final PasswordEncoder passwordEncoder;
-  private final AuthUserProvider userProvider;
+  private final AuthUserResolver userProvider;
 
   public void create(UUID userId, String password) {
     UserCredential credential = UserCredential.builder()

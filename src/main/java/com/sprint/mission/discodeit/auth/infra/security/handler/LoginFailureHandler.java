@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.auth.security.handler;
+package com.sprint.mission.discodeit.auth.infra.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

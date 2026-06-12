@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.auth.security;
+package com.sprint.mission.discodeit.auth.infra.security;
 
-import com.sprint.mission.discodeit.auth.controller.mapper.AuthMapper;
+import com.sprint.mission.discodeit.auth.presentation.mapper.AuthMapper;
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
 import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;

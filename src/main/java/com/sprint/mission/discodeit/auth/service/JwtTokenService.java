@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth.service;
 
-import com.sprint.mission.discodeit.auth.controller.dto.JwtLoginResponse;
-import com.sprint.mission.discodeit.auth.controller.mapper.AuthMapper;
+import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
+import com.sprint.mission.discodeit.auth.presentation.mapper.AuthMapper;
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;

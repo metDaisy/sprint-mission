@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.auth.security;
+package com.sprint.mission.discodeit.auth.infra.security;
 
 import com.sprint.mission.discodeit.global.security.utils.DiscodeitAuthorityUtils;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import java.util.Collection;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;

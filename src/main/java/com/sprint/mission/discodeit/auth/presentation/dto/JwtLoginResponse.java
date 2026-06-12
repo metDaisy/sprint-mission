@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.auth.controller.dto;
+package com.sprint.mission.discodeit.auth.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import lombok.Builder;
 
 @Builder

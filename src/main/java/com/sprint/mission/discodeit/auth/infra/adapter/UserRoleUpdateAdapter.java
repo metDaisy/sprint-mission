@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.auth.infra.adapter;
 
 import com.sprint.mission.discodeit.auth.domain.provider.UserRoleUpdateProvider;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
-import com.sprint.mission.discodeit.user.service.UserService;
+import com.sprint.mission.discodeit.user.application.service.UserService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
