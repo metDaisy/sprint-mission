@@ -1,15 +1,15 @@
-package com.sprint.mission.discodeit.channel.service;
+package com.sprint.mission.discodeit.channel.application.service;
 
-import com.sprint.mission.discodeit.channel.controller.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.controller.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.controller.dto.response.ChannelResponse;
-import com.sprint.mission.discodeit.channel.controller.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.channel.presentation.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.presentation.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.event.ReadStatusCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
-import com.sprint.mission.discodeit.channel.domain.provider.ChannelUserProvider;
+import com.sprint.mission.discodeit.channel.domain.provider.ChannelUserResolver;
 import com.sprint.mission.discodeit.channel.infra.repository.ChannelRepository;
 import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
@@ -30,7 +30,7 @@ public class ChannelService {
   private final ChannelRepository repository;
   private final ChannelMapper mapper;
   private final ApplicationEventPublisher eventPublisher;
-  private final ChannelUserProvider userProvider;
+  private final ChannelUserResolver userProvider;
 
   @ServiceLogAround
   public ChannelResponse createPublic(PublicChannelCreateRequest request) {

@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.channel.controller.dto.response;
+package com.sprint.mission.discodeit.channel.presentation.dto.response;
 
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
-import com.sprint.mission.discodeit.user.controller.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
