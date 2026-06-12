@@ -66,6 +66,14 @@ public class RefreshToken extends BaseUpdatableEntity {
     return this.token.equals(token) || Objects.equals(this.previousToken, token);
   }
 
+  public boolean isCurrentToken(String token) {
+    return this.token.equals(token);
+  }
+
+  public boolean isCompromised(String token) {
+    return Objects.equals(previousToken, token);
+  }
+
   @Override
   public final boolean equals(Object o) {
     if (this == o) {

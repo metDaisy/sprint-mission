@@ -20,4 +20,9 @@ public class AuthUserResolverAdapter
   public User getProxy(UUID id) {
     return service.getProxy(id);
   }
+
+  @Override
+  public User getOrThrow(UUID id) {
+    return service.getOrThrow(id);
+  }
 }

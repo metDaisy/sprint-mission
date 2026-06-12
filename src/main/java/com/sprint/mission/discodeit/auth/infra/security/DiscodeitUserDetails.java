@@ -1,22 +1,25 @@
 package com.sprint.mission.discodeit.auth.infra.security;
 
 import com.sprint.mission.discodeit.global.security.utils.DiscodeitAuthorityUtils;
-import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.util.Collection;
+import java.util.UUID;
+import lombok.Builder;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class DiscodeitUserDetails implements UserDetails, CredentialsContainer {
 
-  private final UserResponse userResponse;
+  private final String userId;
   private String password;
   private final Collection<GrantedAuthority> authorities;
 
-  public DiscodeitUserDetails(UserResponse userResponse, String password) {
-    this.userResponse = userResponse;
+  @Builder
+  public DiscodeitUserDetails(UUID userId, String password, UserRole role) {
+    this.userId = userId.toString();
     this.password = password;
-    this.authorities = DiscodeitAuthorityUtils.from(userResponse.role());
+    this.authorities = DiscodeitAuthorityUtils.from(role);
   }
 
   @Override
@@ -31,12 +34,12 @@ public class DiscodeitUserDetails implements UserDetails, CredentialsContainer {
 
   @Override
   public String getUsername() {
-    return userResponse.email();
+    return userId;
   }
 
   @Override
   public int hashCode() {
-    return userResponse.username().hashCode();
+    return userId.hashCode();
   }
 
   @Override
@@ -48,7 +51,7 @@ public class DiscodeitUserDetails implements UserDetails, CredentialsContainer {
       return false;
     }
     DiscodeitUserDetails that = (DiscodeitUserDetails) obj;
-    return userResponse.id().equals(that.userResponse.id());
+    return userId.equals(that.userId);
   }
 
   @Override

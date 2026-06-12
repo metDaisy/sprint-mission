@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.security.jwt.registry;
+package com.sprint.mission.discodeit.auth.domain.provider;
 
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
 import java.util.UUID;

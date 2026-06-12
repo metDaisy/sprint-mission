@@ -7,4 +7,6 @@ import java.util.UUID;
 public interface AuthUserResolver extends EntityReferenceResolver<User> {
 
   User getProxy(UUID id);
+
+  User getOrThrow(UUID id);
 }
