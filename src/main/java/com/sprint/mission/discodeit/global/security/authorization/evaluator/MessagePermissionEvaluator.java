@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.security.authorization.evaluator;
 
-import com.sprint.mission.discodeit.message.entity.Message;
-import com.sprint.mission.discodeit.message.repository.MessageRepository;
+import com.sprint.mission.discodeit.message.domain.entity.Message;
+import com.sprint.mission.discodeit.message.infra.repository.MessageRepository;
 
 public class MessagePermissionEvaluator extends
     AbstractPermissionEvaluator<Message> {

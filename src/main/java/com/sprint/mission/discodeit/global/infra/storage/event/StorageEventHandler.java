@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.global.infra.storage.event;
 
 import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
-import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
-import com.sprint.mission.discodeit.global.infra.storage.provider.BinaryContentStorage;
+import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
+import com.sprint.mission.discodeit.binarycontent.domain.provider.BinaryContentStorage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;

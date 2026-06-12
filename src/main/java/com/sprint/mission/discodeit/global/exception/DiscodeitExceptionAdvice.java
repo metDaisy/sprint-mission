@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.global.exception;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.exception.dto.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

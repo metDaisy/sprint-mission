@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.security.authorization.evaluator;
 
-import com.sprint.mission.discodeit.common.entity.BaseEntity;
+import com.sprint.mission.discodeit.common.jpa.BaseEntity;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;

@@ -42,12 +42,12 @@ public class JwtTokenProvider {
     this.header = new JWSHeader(JWSAlgorithm.HS256);
   }
 
-  public String generateAccessToken(String subject, String authorities) {
-    return buildToken(subject, authorities, getAccessTokenExpiration());
+  public String generateAccessToken(Object subject, Object authorities) {
+    return buildToken(subject.toString(), authorities.toString(), getAccessTokenExpiration());
   }
 
-  public String generateRefreshToken(String subject) {
-    return buildToken(subject, null, getRefreshTokenExpiration());
+  public String generateRefreshToken(Object subject) {
+    return buildToken(subject.toString(), null, getRefreshTokenExpiration());
   }
 
   public Authentication getAuthentication(String token) {
@@ -65,7 +65,7 @@ public class JwtTokenProvider {
     }
 
     Collection<? extends GrantedAuthority> authorities =
-        DiscodeitAuthorityUtils.deserializeAuthorities(authClaim);
+        DiscodeitAuthorityUtils.deserialize(authClaim);
     UserDetails principal = new User(claims.getSubject(), "", authorities);
     return new UsernamePasswordAuthenticationToken(principal, token, authorities);
   }

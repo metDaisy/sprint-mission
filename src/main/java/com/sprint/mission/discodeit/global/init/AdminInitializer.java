@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.global.init;
 
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
-import com.sprint.mission.discodeit.auth.repository.UserCredentialRepository;
-import com.sprint.mission.discodeit.user.entity.User;
-import com.sprint.mission.discodeit.user.entity.constant.UserRole;
-import com.sprint.mission.discodeit.user.repository.UserRepository;
+import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
+import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -40,8 +40,10 @@ public class AdminInitializer {
         .role(UserRole.ADMIN)
         .build();
     userRepository.save(admin);
-    UserCredential userCredential = new UserCredential(admin,
-        passwordEncoder.encode(adminPassword));
+    UserCredential userCredential = UserCredential.builder()
+        .user(admin)
+        .password(passwordEncoder.encode(adminPassword))
+        .build();
     userCredentialRepository.save(userCredential);
   }
 }

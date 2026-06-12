@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.security.config;
 
-import com.sprint.mission.discodeit.auth.security.handler.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.auth.infra.security.handler.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.global.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;

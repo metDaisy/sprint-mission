@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.global.infra.storage.provider;
 
-import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
+import com.sprint.mission.discodeit.binarycontent.domain.provider.BinaryContentStorage;
+import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import java.util.List;
 import java.util.Map;

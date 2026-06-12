@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.exception.dto;
+package com.sprint.mission.discodeit.global.exception;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.infra.storage.event;
 
-import com.sprint.mission.discodeit.common.storage.event.FileUploadResult;
+import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
 import java.util.List;
 
 public interface StorageCallback {
