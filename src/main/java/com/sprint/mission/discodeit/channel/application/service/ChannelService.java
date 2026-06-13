@@ -1,10 +1,5 @@
 package com.sprint.mission.discodeit.channel.application.service;
 
-import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.presentation.dto.response.ChannelResponse;
-import com.sprint.mission.discodeit.channel.presentation.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.event.ReadStatusCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
@@ -12,6 +7,11 @@ import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
 import com.sprint.mission.discodeit.channel.domain.provider.ChannelUserResolver;
 import com.sprint.mission.discodeit.channel.infra.repository.ChannelRepository;
 import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.channel.presentation.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.presentation.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.user.domain.entity.User;
@@ -45,7 +45,7 @@ public class ChannelService {
     repository.save(channel);
     List<User> participants = userProvider.getOrThrow(request.getParticipantIds());
     eventPublisher.publishEvent(
-        new ReadStatusCreatedEvent(channel.getId(), request.getParticipantIds()));
+        new ReadStatusCreatedEvent(channel.getId(), request.getParticipantIds(), true));
     return mapper.toDtoFrom(channel, participants);
   }
 
