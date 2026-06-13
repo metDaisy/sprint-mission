@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.auth.infra.event;
+package com.sprint.mission.discodeit.auth.application.event;
 
-import com.sprint.mission.discodeit.auth.service.UserCredentialService;
+import com.sprint.mission.discodeit.auth.application.service.UserCredentialService;
 import com.sprint.mission.discodeit.user.domain.event.UserCreatedEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserUpdatedEvent;
 import lombok.RequiredArgsConstructor;

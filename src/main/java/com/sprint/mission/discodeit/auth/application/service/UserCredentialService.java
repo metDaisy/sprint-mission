@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.auth.service;
+package com.sprint.mission.discodeit.auth.application.service;
 
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;

@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.auth.infra.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.infra.web.CookieProvider;
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
-import com.sprint.mission.discodeit.auth.service.JwtTokenService;
+import com.sprint.mission.discodeit.auth.application.service.JwtTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
