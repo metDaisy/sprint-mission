@@ -17,10 +17,6 @@ const useUserStore = create<UserStore>()(
       currentUserId: null,
       setCurrentUser: (user) => set({ currentUserId: user.id }),
       logout: () => {
-        // const currentUserId = useUserStore.getState().currentUserId;
-        // if (currentUserId) {
-        //   useUserListStore.getState().updateUserStatus(currentUserId);
-        // }
         set({ currentUserId: null });
       },
       updateUser: async (userId, request) => {
