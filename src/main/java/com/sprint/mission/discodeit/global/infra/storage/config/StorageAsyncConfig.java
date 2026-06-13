@@ -8,7 +8,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @EnableAsync
 @Configuration
-public class FileUploadAsyncConfig {
+public class StorageAsyncConfig {
 
   @Bean(name = "fileUploadExecutor")
   public Executor fileUploadExecutor() {
