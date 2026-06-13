@@ -34,11 +34,6 @@ public class ReadStatus extends BaseUpdatableEntity {
   @Column
   private Instant lastReadAt;
 
-  @Builder
-  public ReadStatus(User user, Channel channel, Instant lastReadAt) {
-    this.user = user;
-    this.channel = channel;
-    this.lastReadAt = lastReadAt;
-  }
-
+  @Column
+  private boolean notificationEnabled;
 }

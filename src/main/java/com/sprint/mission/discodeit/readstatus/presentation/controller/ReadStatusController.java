@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.readstatus.presentation.controller;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
-import com.sprint.mission.discodeit.readstatus.service.ReadStatusService;
+import com.sprint.mission.discodeit.readstatus.application.service.ReadStatusService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;

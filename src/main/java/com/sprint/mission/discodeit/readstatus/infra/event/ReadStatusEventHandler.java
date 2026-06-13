@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.readstatus.infra.event;
 
 import com.sprint.mission.discodeit.channel.domain.event.ReadStatusCreatedEvent;
-import com.sprint.mission.discodeit.readstatus.service.ReadStatusService;
+import com.sprint.mission.discodeit.readstatus.application.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -14,6 +14,6 @@ public class ReadStatusEventHandler {
 
   @EventListener
   public void handleReadStatusCreatedEvent(ReadStatusCreatedEvent event) {
-    service.create(event.channelId(), event.participantIds());
+    service.create(event.channelId(), event.participantIds(), event.notificationEnabled());
   }
 }

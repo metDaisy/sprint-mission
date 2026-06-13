@@ -19,7 +19,9 @@ public class ReadStatusCreateRequest {
   @NotNull
   private final Instant lastReadAt;
 
-  public ReadStatusCreateRequest(UUID userId, UUID channelId, Instant lastReadAt) {
+  public ReadStatusCreateRequest(UUID userId,
+      UUID channelId,
+      Instant lastReadAt) {
     this.userId = userId;
     this.channelId = channelId;
     this.lastReadAt = lastReadAt;

@@ -13,9 +13,14 @@ public class ReadStatusUpdateRequest {
 
   @NotNull
   private final Instant lastReadAt;
+  @NotNull
+  private final boolean notificationEnabled;
 
   @JsonCreator
-  public ReadStatusUpdateRequest(@JsonProperty("newLastReadAt") Instant lastReadAt) {
+  public ReadStatusUpdateRequest(
+      @JsonProperty("newLastReadAt") Instant lastReadAt,
+      @JsonProperty("newNotificationEnabled") boolean notificationEnabled) {
     this.lastReadAt = lastReadAt;
+    this.notificationEnabled = notificationEnabled;
   }
 }

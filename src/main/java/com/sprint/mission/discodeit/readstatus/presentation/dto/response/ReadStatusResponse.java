@@ -8,7 +8,11 @@ import java.util.UUID;
 /**
  * DTO for {@link ReadStatus}
  */
-public record ReadStatusResponse(UUID id, UUID userId, UUID channelId, Instant lastReadAt)
+public record ReadStatusResponse(UUID id,
+                                 UUID userId,
+                                 UUID channelId,
+                                 Instant lastReadAt,
+                                 boolean notificationEnabled)
     implements Serializable {
 
 }

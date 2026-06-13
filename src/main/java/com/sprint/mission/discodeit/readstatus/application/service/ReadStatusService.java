@@ -1,17 +1,17 @@
-package com.sprint.mission.discodeit.readstatus.service;
+package com.sprint.mission.discodeit.readstatus.application.service;
 
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
-import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
-import com.sprint.mission.discodeit.readstatus.presentation.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorCode;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusException;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusChannelResolver;
-import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusUserProvider;
+import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusUserResolver;
 import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
+import com.sprint.mission.discodeit.readstatus.presentation.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ public class ReadStatusService {
 
   private final ReadStatusRepository repository;
   private final ReadStatusMapper mapper;
-  private final ReadStatusUserProvider userProvider;
+  private final ReadStatusUserResolver userProvider;
   private final ReadStatusChannelResolver channelProvider;
 
   @Transactional(readOnly = true)
@@ -44,6 +44,7 @@ public class ReadStatusService {
         .user(user)
         .channel(channel)
         .lastReadAt(request.getLastReadAt())
+        .notificationEnabled(false)
         .build();
     repository.save(status);
     return mapper.toDto(status);
@@ -65,12 +66,14 @@ public class ReadStatusService {
         value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
   }
 
-  public void create(UUID channelId, List<UUID> participantIds) {
+  public void create(UUID channelId,
+      List<UUID> participantIds,
+      boolean notificationEnabled) {
     verifyCreatable(channelId, participantIds);
 
     Channel channel = channelProvider.getProxy(channelId);
     List<User> users = userProvider.getProxy(participantIds);
-    List<ReadStatus> statuses = mapper.toEntityFrom(channel, users);
+    List<ReadStatus> statuses = mapper.toEntityFrom(channel, users, notificationEnabled);
     repository.saveAll(statuses);
   }
 
@@ -92,4 +95,5 @@ public class ReadStatusService {
       throw new ReadStatusException(ReadStatusErrorCode.READSTATUS_ALREADY_EXIST);
     }
   }
+}
 }
