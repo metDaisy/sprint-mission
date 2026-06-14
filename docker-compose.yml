@@ -32,6 +32,9 @@ services:
       JWT_REGISTRY_STORE_TYPE: ${JWT_REGISTRY_STORE_TYPE}
       JWT_REGISTRY_MAX_CONCURRENT: ${JWT_REGISTRY_MAX_CONCURRENT}
       JWT_REGISTRY_MAX_RETAINED: ${JWT_REGISTRY_MAX_RETAINED}
+      SPRING_CACHE_TYPE: ${SPRING_CACHE_TYPE}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
 
   web-server:
     build:
@@ -43,10 +46,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - local-uploads:/usr/share/nginx/html/uploads
+      - ./.storage/local-uploads:/usr/share/nginx/html/uploads
     environment:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       AWS_S3_REGION: ${AWS_S3_REGION}
-
-volumes:
-  local-uploads:
