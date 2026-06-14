@@ -23,11 +23,6 @@ spring:
         default_batch_fetch_size: 500
     open-in-view: false
 
-discodeit:
-  storage:
-    local:
-      prefix-path: /storage
-
 logging:
   level:
     root: info
@@ -35,15 +30,3 @@ logging:
     org.hibernate.orm.jdbc.bind: warn
     org.hibernate.SQL: warn
     org.springframework.security: trace
-
-  file:
-    name: .logs/discodeit.log
-  logback:
-    rollingpolicy:
-      file-name-pattern: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.log
-      max-file-size: 10MB
-      clean-history-on-start: true
-      max-history: 30
-  pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %clr(%-5level) [traceId: %X{traceId}] [%logger{36}] - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [traceId: %X{traceId}] [%logger{36}] - %msg%n"

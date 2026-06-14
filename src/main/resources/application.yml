@@ -8,6 +8,10 @@ spring:
     enabled: true
     baseline-on-migrate: true
     fail-on-missing-locations: true
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_SIZE}
+      max-request-size: ${MAX_REQUEST_SIZE}
 
 discodeit:
   storage:
@@ -44,3 +48,16 @@ aws:
     bucket: ${AWS_S3_BUCKET}
     region: ${AWS_S3_REGION}
     presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+
+logging:
+  file:
+    name: .logs/discodeit.log
+  logback:
+    rollingpolicy:
+      file-name-pattern: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.log
+      max-file-size: 10MB
+      clean-history-on-start: true
+      max-history: 30
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %clr(%-5level) [traceId: %.-8X{traceId}] [%logger{0}] - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [traceId: %X{traceId}] [%logger{0}] - %msg%n"
