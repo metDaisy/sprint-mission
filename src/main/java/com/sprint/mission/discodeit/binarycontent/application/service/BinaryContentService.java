@@ -39,7 +39,7 @@ public class BinaryContentService {
   @ServiceLogAround
   @Transactional(readOnly = true)
   public List<BinaryContentDto> findAllByIdIn(List<UUID> ids) {
-    return mapper.toDto(repository.findAllSuccessByIds(ids));
+    return mapper.toDto(repository.findAllById(ids));
   }
 
   @ServiceLogAround
@@ -65,7 +65,7 @@ public class BinaryContentService {
   }
 
   private BinaryContent findById(UUID id) {
-    return DomainServiceSupport.getOrThrow(id, repository::findSuccessById,
+    return DomainServiceSupport.getOrThrow(id, repository::findById,
         value -> new BinaryContentException(BinaryContentErrorCode.BINARYCONTENTID_NOT_FOUND,
             value));
   }

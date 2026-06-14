@@ -7,4 +7,6 @@ import java.util.UUID;
 public interface NotificationUserResolver extends EntityReferenceResolver<User> {
 
   String getUsername(UUID id);
+
+  User getProxyByUsername(String username);
 }

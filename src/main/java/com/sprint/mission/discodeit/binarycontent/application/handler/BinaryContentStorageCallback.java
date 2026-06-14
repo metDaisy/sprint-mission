@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.binarycontent.application.handler;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.constant.BinaryContentStatus;
-import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.binarycontent.domain.event.UploadFailedNotificationEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
+import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.global.infra.storage.event.StorageCallback;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BinaryContentStorageCallback implements StorageCallback {
 
   private final BinaryContentRepository repository;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   public void handleSuccess(List<FileUploadResult> results) {
@@ -50,5 +54,16 @@ public class BinaryContentStorageCallback implements StorageCallback {
         BinaryContentStatus.FAILED);
     log.info("[File_UPLOAD_FAILURE_DELETE] 업로드 실패한 {}개의 파일 중 {}개를 삭제",
         failures.size(), updatedCount);
+    publishNotificationEvent(failures);
+  }
+
+  private void publishNotificationEvent(Map<UUID, String> failures) {
+    String title = "file upload failed";
+    String messageTemplate = "Trace Id: %s\nBinaryContent Id: %s\nError: %s";
+    String traceId = MDC.get("traceId");
+    List<String> messages = failures.entrySet().stream()
+        .map(failure -> messageTemplate.formatted(traceId, failure.getKey(), failure.getValue()))
+        .toList();
+    eventPublisher.publishEvent(new UploadFailedNotificationEvent(title, messages));
   }
 }

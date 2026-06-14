@@ -11,6 +11,7 @@ public enum UserErrorCode implements ErrorCode {
   USERID_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User id not found"),
   USERNAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "U002", "Username already exists"),
   EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "U003", "Email already exists"),
+  USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND, "U004", "Such a username not found"),
   ;
 
   private final HttpStatus status;

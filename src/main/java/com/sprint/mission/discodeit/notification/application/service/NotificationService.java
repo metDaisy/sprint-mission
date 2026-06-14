@@ -38,4 +38,12 @@ public class NotificationService {
     DomainServiceSupport.deleteOrThrow(id, repository,
         value -> new NotificationException(NotificationErrorCode.NOT_FOUND, id));
   }
+
+  public void sendToAdmin(String title, List<String> messages) {
+    User admin = userResolver.getProxyByUsername("admin");
+    List<Notification> notifications = messages.stream()
+        .map(message -> mapper.toEntityFrom(admin, title, message))
+        .toList();
+    repository.saveAll(notifications);
+  }
 }

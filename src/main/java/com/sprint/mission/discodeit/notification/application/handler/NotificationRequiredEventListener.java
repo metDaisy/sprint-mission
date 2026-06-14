@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.notification.application.handler;
 
+import com.sprint.mission.discodeit.binarycontent.domain.event.UploadFailedNotificationEvent;
 import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.notification.application.service.NotificationService;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationChannelResolver;
@@ -42,5 +43,11 @@ public class NotificationRequiredEventListener {
         = readStatusResolver.findUserIdsByChannelIdAndNotificationEnabledIsTrue(event.channelId());
     String title = MESSAGE_CREATED_TITLE_TEMPLATE.formatted(username, channelName);
     service.create(receiverIds, title, event.content());
+  }
+
+  @Async("notificationWorker")
+  @TransactionalEventListener
+  public void on(UploadFailedNotificationEvent event) {
+    service.sendToAdmin(event.title(), event.messages());
   }
 }
