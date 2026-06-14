@@ -8,14 +8,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
 @Configuration
-public class FilterConfig {
+public class MdcLoggingFilterConfig {
 
   @Bean
   public FilterRegistrationBean<MdcLoggingFilter> loggingFilter() {
     FilterRegistrationBean<MdcLoggingFilter> loggingFilter = new FilterRegistrationBean<>();
     loggingFilter.setFilter(new MdcLoggingFilter());
     loggingFilter.setOrder(Ordered.HIGHEST_PRECEDENCE);
-    loggingFilter.addUrlPatterns("/**");
+    loggingFilter.addUrlPatterns("/*");
     loggingFilter.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ERROR);
     return loggingFilter;
   }

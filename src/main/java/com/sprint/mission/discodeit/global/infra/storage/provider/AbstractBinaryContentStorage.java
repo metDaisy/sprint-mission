@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -18,8 +19,15 @@ public abstract class AbstractBinaryContentStorage implements BinaryContentStora
   protected final String internalPath;
 
   protected CompletableFuture<FileUploadResult> putAsync(Entry<UUID, byte[]> entry) {
-    return CompletableFuture.supplyAsync(() -> this.put(entry.getKey(), entry.getValue()),
-        fileUploadWorker).handle(FileUploadResult::of);
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        int randomSeconds = new Random().nextInt(4);
+        Thread.sleep(randomSeconds * 1000L);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+      return this.put(entry.getKey(), entry.getValue());
+    }, fileUploadWorker).handle(FileUploadResult::of);
   }
 
   @Override
