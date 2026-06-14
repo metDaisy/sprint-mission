@@ -16,7 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(prefix = "discodeit.jwt.registry", value = "store-type", havingValue = "in-memory")
+@ConditionalOnProperty(value = "discodeit.jwt.registry.store-type", havingValue = "in-memory")
 public class InMemoryJwtRegistry implements JwtRegistry {
 
   @Value("${discodeit.jwt.registry.session.max-retained}")

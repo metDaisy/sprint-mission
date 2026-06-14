@@ -17,7 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "local")
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
 public class LocalDiskBinaryContentStorage extends AbstractBinaryContentStorage {
 
   private final Path root;
