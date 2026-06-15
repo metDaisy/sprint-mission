@@ -2,8 +2,6 @@ package com.sprint.mission.discodeit.notification.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,17 +13,18 @@ import com.sprint.mission.discodeit.notification.domain.provider.NotificationUse
 import com.sprint.mission.discodeit.notification.infra.repository.NotificationRepository;
 import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
 import com.sprint.mission.discodeit.notification.presentation.mapper.NotificationMapper;
-import com.sprint.mission.discodeit.notification.presentation.mapper.NotificationMapperImpl;
+import com.sprint.mission.discodeit.support.mapper.MapperContainer;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,15 +36,12 @@ class NotificationServiceTest {
   @Mock
   private NotificationUserResolver userResolver;
 
-  private NotificationMapper mapper;
+  @Spy
+  private NotificationMapper mapper = MapperContainer.get(NotificationMapper.class);
 
+  @InjectMocks
   private NotificationService service;
 
-  @BeforeEach
-  void setUp() {
-    mapper = new NotificationMapperImpl();
-    service = new NotificationService(repository, userResolver, mapper);
-  }
 
   @Test
   @DisplayName("create - 알림을 정상 생성한다.")

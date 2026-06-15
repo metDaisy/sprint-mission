@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStat
 import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
 import com.sprint.mission.discodeit.readstatus.presentation.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.support.mapper.MapperContainer;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,8 +42,8 @@ class ReadStatusServiceTest {
   private ReadStatusUserResolver userProvider;
   @Mock
   private ReadStatusChannelResolver channelProvider;
-  @Mock
-  private ReadStatusMapper readStatusMapper;
+  @Spy
+  private ReadStatusMapper readStatusMapper = MapperContainer.get(ReadStatusMapper.class);
 
   @InjectMocks
   private ReadStatusService readStatusService;

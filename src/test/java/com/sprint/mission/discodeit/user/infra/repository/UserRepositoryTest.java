@@ -4,11 +4,8 @@ import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.constant.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
-import com.sprint.mission.discodeit.support.fixture.UserFixture;
-import com.sprint.mission.discodeit.support.generator.TestEntity;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
-import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +13,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +26,13 @@ class UserRepositoryTest extends BaseRepositoryTest {
   @Autowired
   private BinaryContentRepository binaryContentRepository;
 
-  @Autowired
-  private TestEntity testEntity;
-
   private User setupUser1;
   private User setupUser2;
 
   @BeforeEach
   void setUp() {
-    setupUser1 = testEntity.generatorUser();
-    setupUser2 = testEntity.generatorUser();
+    setupUser1 = createUserWithProfile("testuser1", "test1@test.com");
+    setupUser2 = createUser("testuser2", "test2@test.com");
     flushAndClear();
     queryInspector.clear();
   }
@@ -161,15 +154,15 @@ class UserRepositoryTest extends BaseRepositoryTest {
     flushAndClear();
 
     ensureQueryCount(4);
-    
+
     Assertions.assertThat(userRepository.existsById(userId)).isFalse();
 
     if (profile != null) {
       // profile should be soft-deleted by @SQLDelete
       BinaryContentStatus status =
           binaryContentRepository.findById(profile.getId())
-          .map(BinaryContent::getStatus)
-          .orElse(null);
+              .map(BinaryContent::getStatus)
+              .orElse(null);
       Assertions.assertThat(status).isEqualTo(BinaryContentStatus.DELETED);
     }
   }
@@ -187,7 +180,7 @@ class UserRepositoryTest extends BaseRepositoryTest {
 
     Assertions.assertThatThrownBy(() -> userRepository.saveAndFlush(userAsSameName))
         .isInstanceOf(DataIntegrityViolationException.class);
-        
+
     ensureQueryCount(1);
   }
 
@@ -204,7 +197,31 @@ class UserRepositoryTest extends BaseRepositoryTest {
 
     Assertions.assertThatThrownBy(() -> userRepository.saveAndFlush(userAsSameEmail))
         .isInstanceOf(DataIntegrityViolationException.class);
-        
+
     ensureQueryCount(1);
+  }
+
+  private User createUser(String username, String email) {
+    User user = User.builder()
+        .username(username)
+        .email(email)
+        .role(UserRole.USER)
+        .build();
+    return persistAndFlush(user);
+  }
+
+  private User createUserWithProfile(String username, String email) {
+    BinaryContent profile = BinaryContent.builder()
+        .fileName("profile.png")
+        .size(1024L)
+        .contentType("image/png")
+        .build();
+    User user = User.builder()
+        .username(username)
+        .email(email)
+        .role(UserRole.USER)
+        .profile(profile)
+        .build();
+    return persistAndFlush(user);
   }
 }

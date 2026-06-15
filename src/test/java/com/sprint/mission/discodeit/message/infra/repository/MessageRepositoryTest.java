@@ -5,12 +5,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
 import com.sprint.mission.discodeit.channel.infra.repository.ChannelRepository;
 import com.sprint.mission.discodeit.message.domain.entity.Message;
 import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
-import com.sprint.mission.discodeit.support.fixture.BinaryContentFixture;
-import com.sprint.mission.discodeit.support.generator.TestEntity;
 import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -39,11 +39,12 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   private MessageRepository messageRepository;
   @Autowired
   private BinaryContentRepository binaryContentRepository;
-  @Autowired
-  private TestEntity testEntity;
+
+  private int userCounter = 0;
 
   @BeforeEach
   void setUp() {
+    userCounter = 0;
     queryInspector.clear();
   }
 
@@ -53,11 +54,11 @@ class MessageRepositoryTest extends BaseRepositoryTest {
           + "조회 시 query 1개 생성된다"
   )
   void success_to_create_and_find() {
-    User user = testEntity.generatorUser();
-    Channel channel = testEntity.generatorPublicChannel();
+    User user = createUser();
+    Channel channel = createPublicChannel();
     List<BinaryContent> attachments = List.of(
-        BinaryContentFixture.createEntity(),
-        BinaryContentFixture.createEntity()
+        createBinaryContent(),
+        createBinaryContent()
     );
     queryInspector.clear();
     Message expected = Message.builder()
@@ -83,7 +84,7 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   @DisplayName("존재하지 않은 user는 message 생성할 수 없어서 예외를 던진다")
   void fail_to_create_due_to_not_existing_user() {
     User user = em.getReference(User.class, UUID.randomUUID());
-    Channel channel = testEntity.generatorPublicChannel();
+    Channel channel = createPublicChannel();
     Message message = Message.builder()
         .content("test")
         .author(user)
@@ -97,7 +98,7 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   @Test
   @DisplayName("존재하지 않은 channel에서 message 생성할 수 없어서 예외를 던진다")
   void fail_to_create_due_to_not_existing_channel() {
-    User user = testEntity.generatorUser();
+    User user = createUser();
     Channel channel = em.getReference(Channel.class, UUID.randomUUID());
     Message message = Message.builder()
         .content("test")
@@ -112,10 +113,10 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   @Test
   @DisplayName("channel에서 생성된 모든 message를 조회한다")
   void success_to_find_all_by_channelId() {
-    Channel channel = testEntity.generatorPublicChannel();
+    Channel channel = createPublicChannel();
     List<Message> expected = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
-      User author = testEntity.generatorUser();
+      User author = createUser();
       Message message = Message.builder()
           .content("test" + i)
           .author(author)
@@ -148,9 +149,9 @@ class MessageRepositoryTest extends BaseRepositoryTest {
           + "user, channel은 삭제되지 않는다"
   )
   void success_to_delete() {
-    Message expected = testEntity.generatorMessage();
-    User author = expected.getAuthor();
-    Channel channel = expected.getChannel();
+    User author = createUser();
+    Channel channel = createPublicChannel();
+    Message expected = createMessageWithAttachments(author, channel);
     Set<BinaryContent> attachments = expected.getAttachments();
     queryInspector.clear();
     messageRepository.delete(expected);
@@ -175,7 +176,9 @@ class MessageRepositoryTest extends BaseRepositoryTest {
   @Test
   @DisplayName("message content 업데이트 할 수 있다")
   void success_to_update_content() {
-    Message expected = testEntity.generatorMessage();
+    User author = createUser();
+    Channel channel = createPublicChannel();
+    Message expected = createMessageWithAttachments(author, channel);
     queryInspector.clear();
     String oldValue = expected.getContent();
     String newValue = "ha ha hah a";
@@ -188,5 +191,43 @@ class MessageRepositoryTest extends BaseRepositoryTest {
     Assertions.assertThat(actual.getContent())
         .isNotEqualTo(oldValue)
         .isEqualTo(newValue);
+  }
+
+  private User createUser() {
+    userCounter++;
+    User user = User.builder()
+        .username("msguser" + userCounter)
+        .email("msguser" + userCounter + "@test.com")
+        .role(UserRole.USER)
+        .build();
+    return persistAndFlush(user);
+  }
+
+  private Channel createPublicChannel() {
+    Channel channel = Channel.builder()
+        .type(ChannelType.PUBLIC)
+        .name("test-channel")
+        .description("test description")
+        .build();
+    return persistAndFlush(channel);
+  }
+
+  private BinaryContent createBinaryContent() {
+    return BinaryContent.builder()
+        .fileName("test.txt")
+        .size(100L)
+        .contentType("text/plain")
+        .build();
+  }
+
+  private Message createMessageWithAttachments(User author, Channel channel) {
+    BinaryContent attachment = createBinaryContent();
+    Message message = Message.builder()
+        .content("test content")
+        .author(author)
+        .channel(channel)
+        .attachments(List.of(attachment))
+        .build();
+    return persistAndFlush(message);
   }
 }

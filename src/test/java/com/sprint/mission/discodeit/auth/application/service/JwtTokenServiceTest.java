@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.presentation.mapper.AuthMapper;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.support.mapper.MapperContainer;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,8 +38,8 @@ class JwtTokenServiceTest {
   private JwtTokenProvider jwtTokenProvider;
   @Mock
   private JwtRegistry jwtRegistry;
-  @Mock
-  private AuthMapper mapper;
+  @Spy
+  private AuthMapper mapper = MapperContainer.get(AuthMapper.class);
   @Mock
   private AuthUserResolver userResolver;
 

@@ -15,16 +15,17 @@ import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContent
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.request.FileUploadRequest;
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.binarycontent.presentation.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.support.mapper.MapperContainer;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.sprint.mission.discodeit.binarycontent.presentation.mapper.BinaryContentMapperImpl;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -37,20 +38,17 @@ class BinaryContentServiceTest {
   @Mock
   private ApplicationEventPublisher eventPublisher;
 
-  // 실제 매퍼 객체 사용
-  private final BinaryContentMapper mapper = new BinaryContentMapperImpl();
+  @Spy
+  private final BinaryContentMapper mapper = MapperContainer.get(BinaryContentMapper.class);
 
+  @InjectMocks
   private BinaryContentService binaryContentService;
-
-  @BeforeEach
-  void setUp() {
-    binaryContentService = new BinaryContentService(repository, mapper, eventPublisher);
-  }
 
   @Test
   @DisplayName("create - 파일을 정상 업로드하고 DTO를 반환한다.")
   void create_success() {
-    FileUploadRequest request = new FileUploadRequest("test.txt", "text/plain", 11L, "Hello World".getBytes());
+    FileUploadRequest request = new FileUploadRequest("test.txt", "text/plain", 11L,
+        "Hello World".getBytes());
 
     ArgumentCaptor<List<BinaryContent>> captor = ArgumentCaptor.forClass(List.class);
     given(repository.saveAll(captor.capture())).willReturn(List.of());
@@ -63,7 +61,7 @@ class BinaryContentServiceTest {
 
     verify(repository).saveAll(anyList());
     verify(eventPublisher).publishEvent(any(FileUploadEvent.class));
-    
+
     List<BinaryContent> savedEntities = captor.getValue();
     assertThat(savedEntities).hasSize(1);
     assertThat(savedEntities.get(0).getFileName()).isEqualTo("test.txt");

@@ -21,6 +21,7 @@ import com.sprint.mission.discodeit.message.presentation.dto.request.MessageCrea
 import com.sprint.mission.discodeit.message.presentation.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.message.presentation.mapper.MessageMapper;
+import com.sprint.mission.discodeit.support.mapper.MapperContainer;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -40,8 +42,8 @@ class MessageServiceTest {
 
   @Mock
   private MessageRepository messageRepository;
-  @Mock
-  private MessageMapper messageMapper;
+  @Spy
+  private MessageMapper messageMapper = MapperContainer.get(MessageMapper.class);
   @Mock
   private MessageChannelResolver channelProvider;
   @Mock
