@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import useNotificationStore from '@/stores/notificationStore';
 import { useEffect, useState } from 'react';
 import NotificationSidebar from './NotificationSidebar';
+import { useSseStore } from '@/stores/sseStore';
 
 const IconContainer = styled.div`
   position: relative;
@@ -35,16 +36,23 @@ const NotificationBadge = styled.div`
 `;
 
 const NotificationIcon = () => {
-  const { notifications, fetchNotifications } = useNotificationStore();
+  const { notifications, fetchNotifications, newNotifications, addNewNotification } = useNotificationStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { subscribe, isConnected } = useSseStore();
 
   useEffect(() => {
     fetchNotifications();
-    const pollingInterval = setInterval(fetchNotifications, 10000);
-    return () => clearInterval(pollingInterval);
   }, [fetchNotifications]);
 
-  const unreadCount = notifications.length;
+  const unreadCount = notifications.length + newNotifications.length;
+
+
+  useEffect(() => {
+    subscribe('notifications.created', data => {
+      addNewNotification(data);
+    })
+  }, [subscribe, isConnected])
+
 
   return (
       <>

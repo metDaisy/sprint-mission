@@ -5,21 +5,19 @@ import useReadStatusStore from './readStatusStore';
 
 interface ChannelStore {
   channels: ChannelDto[];
-  pollingInterval: NodeJS.Timeout | null;
   loading: boolean;
   error: any;
   fetchChannels: (userId: string) => Promise<ChannelDto[]>;
-  startPolling: (userId: string) => void;
-  stopPolling: () => void;
   createPublicChannel: (channelData: PublicChannelCreateRequest) => Promise<ChannelDto>;
   createPrivateChannel: (participantIds: string[]) => Promise<ChannelDto>;
   updatePublicChannel: (channelId: string, updateData: PublicChannelUpdateRequest) => Promise<ChannelDto>;
   deleteChannel: (channelId: string) => Promise<void>;
+  replaceChannel: (channel: ChannelDto) => void;
+  removeChannel: (channelId: string) => void;
 }
 
 const useChannelStore = create<ChannelStore>((set, get) => ({
   channels: [],
-  pollingInterval: null,
   loading: false,
   error: null,
 
@@ -56,29 +54,6 @@ const useChannelStore = create<ChannelStore>((set, get) => ({
     } catch (error) {
       set({ error, loading: false });
       return [];
-    }
-  },
-
-  startPolling: (userId) => {
-    // 이미 폴링 중이면 중지
-    const interval = get().pollingInterval;
-    if (interval) {
-      clearInterval(interval);
-    }
-
-    // 3초마다 채널 목록 갱신
-    const newInterval = setInterval(() => {
-      get().fetchChannels(userId);
-    }, 3000);
-
-    set({ pollingInterval: newInterval });
-  },
-
-  stopPolling: () => {
-    const interval = get().pollingInterval;
-    if (interval) {
-      clearInterval(interval);
-      set({ pollingInterval: null });
     }
   },
 
@@ -155,13 +130,30 @@ const useChannelStore = create<ChannelStore>((set, get) => ({
     try {
       await deleteChannel(channelId);
       
-      set((state) => ({
-        channels: state.channels.filter(channel => channel.id !== channelId)
-      }));
+      get().removeChannel(channelId);
     } catch (error) {
       console.error('채널 삭제 실패:', error);
       throw error;
     }
+  },
+  replaceChannel: channel => {
+    const { channels } = get();
+    if (channels.some(c => c.id === channel.id)) {
+      set((state) => ({
+        channels: state.channels.map(_channel =>
+            _channel.id === channel.id ? channel : _channel
+        )
+      }));
+    } else {
+      set((state) => ({
+        channels: [channel, ...state.channels, ]
+      }));
+    }
+  } ,
+  removeChannel: channelId => {
+    set((state) => ({
+      channels: state.channels.filter(channel => channel.id !== channelId)
+    }));
   }
 }));
 

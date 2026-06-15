@@ -151,64 +151,64 @@ function EditUserModal({isOpen, onClose, user}: EditUserModalProps): JSX.Element
   if (!isOpen) return null;
 
   return (
-      <StyledModal>
-        <ModalContent>
-          <h2>프로필 수정</h2>
-          <form onSubmit={handleSubmit}>
-            <FormField>
-              <Label>프로필 이미지</Label>
-              <ImageContainer>
-                <ProfileImage
-                    src={previewUrl || (user.profile?.id ? binaryContents[user.profile.id]?.url : undefined) || defaultProfile}
-                    alt="profile"
-                />
-                <ImageInput
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    id="profile-image"
-                />
-                <ImageLabel htmlFor="profile-image">
-                  이미지 변경
-                </ImageLabel>
-              </ImageContainer>
-            </FormField>
-            <FormField>
-              <Label>사용자명 <Required>*</Required></Label>
-              <Input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
+    <StyledModal>
+      <ModalContent>
+        <h2>프로필 수정</h2>
+        <form onSubmit={handleSubmit}>
+          <FormField>
+            <Label>프로필 이미지</Label>
+            <ImageContainer>
+              <ProfileImage 
+                src={previewUrl || (user.profile?.id ? binaryContents[user.profile.id]?.url : undefined) || defaultProfile} 
+                alt="profile" 
               />
-            </FormField>
-            <FormField>
-              <Label>이메일 <Required>*</Required></Label>
-              <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+              <ImageInput
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                id="profile-image"
               />
-            </FormField>
-            <FormField>
-              <Label>새 비밀번호</Label>
-              <Input
-                  type="password"
-                  placeholder="변경하지 않으려면 비워두세요"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-              />
-            </FormField>
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-            <ButtonGroup>
-              <Button type="button" onClick={handleClose} $secondary>취소</Button>
-              <Button type="submit">저장</Button>
-            </ButtonGroup>
-          </form>
-          <LogoutButton onClick={logout}>로그아웃</LogoutButton>
-        </ModalContent>
-      </StyledModal>
+              <ImageLabel htmlFor="profile-image">
+                이미지 변경
+              </ImageLabel>
+            </ImageContainer>
+          </FormField>
+          <FormField>
+            <Label>사용자명 <Required>*</Required></Label>
+            <Input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </FormField>
+          <FormField>
+            <Label>이메일 <Required>*</Required></Label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </FormField>
+          <FormField>
+            <Label>새 비밀번호</Label>
+            <Input
+              type="password"
+              placeholder="변경하지 않으려면 비워두세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </FormField>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          <ButtonGroup>
+            <Button type="button" onClick={handleClose} $secondary>취소</Button>
+            <Button type="submit">저장</Button>
+          </ButtonGroup>
+        </form>
+        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
+      </ModalContent>
+    </StyledModal>
   );
 }
 
@@ -226,14 +226,14 @@ const StyledModal = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: ${({theme}) => theme.colors.background.secondary};
+  background: ${({ theme }) => theme.colors.background.secondary};
   padding: 32px;
   border-radius: 5px;
   width: 100%;
   max-width: 480px;
 
   h2 {
-    color: ${({theme}) => theme.colors.text.primary};
+    color: ${({ theme }) => theme.colors.text.primary};
     margin-bottom: 24px;
     text-align: center;
     font-size: 24px;
@@ -246,16 +246,16 @@ const Input = styled.input`
   margin-bottom: 10px;
   border: none;
   border-radius: 4px;
-  background: ${({theme}) => theme.colors.background.input};
-  color: ${({theme}) => theme.colors.text.primary};
+  background: ${({ theme }) => theme.colors.background.input};
+  color: ${({ theme }) => theme.colors.text.primary};
 
   &::placeholder {
-    color: ${({theme}) => theme.colors.text.muted};
+    color: ${({ theme }) => theme.colors.text.muted};
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px ${({theme}) => theme.colors.brand.primary};
+    box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.brand.primary};
   }
 `;
 
@@ -268,20 +268,20 @@ const Button = styled.button<ButtonProps>`
   padding: 10px;
   border: none;
   border-radius: 4px;
-  background: ${({$secondary, theme}) =>
-      $secondary ? 'transparent' : theme.colors.brand.primary};
-  color: ${({theme}) => theme.colors.text.primary};
+  background: ${({ $secondary, theme }) => 
+    $secondary ? 'transparent' : theme.colors.brand.primary};
+  color: ${({ theme }) => theme.colors.text.primary};
   cursor: pointer;
   font-weight: 500;
-
+  
   &:hover {
-    background: ${({$secondary, theme}) =>
-        $secondary ? theme.colors.background.hover : theme.colors.brand.hover};
+    background: ${({ $secondary, theme }) => 
+      $secondary ? theme.colors.background.hover : theme.colors.brand.hover};
   }
 `;
 
 const ErrorMessage = styled.div`
-  color: ${({theme}) => theme.colors.status.error};
+  color: ${({ theme }) => theme.colors.status.error};
   font-size: 14px;
   margin-bottom: 10px;
 `;
@@ -306,10 +306,10 @@ const ImageInput = styled.input`
 `;
 
 const ImageLabel = styled.label`
-  color: ${({theme}) => theme.colors.brand.primary};
+  color: ${({ theme }) => theme.colors.brand.primary};
   cursor: pointer;
   font-size: 14px;
-
+  
   &:hover {
     text-decoration: underline;
   }
@@ -328,12 +328,12 @@ const LogoutButton = styled.button`
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: ${({theme}) => theme.colors.status.error};
+  color: ${({ theme }) => theme.colors.status.error};
   cursor: pointer;
   font-weight: 500;
-
+  
   &:hover {
-    background: ${({theme}) => theme.colors.status.error}20;
+    background: ${({ theme }) => theme.colors.status.error}20;
   }
 `;
 
@@ -343,14 +343,14 @@ const FormField = styled.div`
 
 const Label = styled.label`
   display: block;
-  color: ${({theme}) => theme.colors.text.muted};
+  color: ${({ theme }) => theme.colors.text.muted};
   font-size: 12px;
   font-weight: 700;
   margin-bottom: 8px;
 `;
 
 const Required = styled.span`
-  color: ${({theme}) => theme.colors.status.error};
+  color: ${({ theme }) => theme.colors.status.error};
 `;
 
 export default EditUserModal; 

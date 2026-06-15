@@ -1,6 +1,5 @@
-import useMessageStore from '@/stores/messageStore';
-import {BinaryContentDto, ChannelDto} from '@/types/api';
-import React, {useEffect, useRef, useState} from 'react';
+import { BinaryContentDto, ChannelDto, MessageCreateRequest } from '@/types/api';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AttachButton,
   AttachmentPreviewItem,
@@ -15,17 +14,18 @@ import {
 } from './styles';
 import useAuthStore from '@/stores/authStore';
 import {uploadFiles} from "@/api/upload.ts";
+import { useWebSocketStore } from '@/stores/websocketStore';
 
 interface MessageInputProps {
   channel: ChannelDto;
 }
 
-function MessageInput({channel}: MessageInputProps): JSX.Element | null {
+function MessageInput({ channel }: MessageInputProps): JSX.Element | null {
   const [content, setContent] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const createMessage = useMessageStore((state) => state.createMessage);
-  const {currentUser} = useAuthStore();
+  const { currentUser } = useAuthStore();
+  const { send } = useWebSocketStore();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,14 +43,14 @@ function MessageInput({channel}: MessageInputProps): JSX.Element | null {
         result = await uploadFiles(attachments);
         attachmentIds = result.map(dto => dto.id);
       }
-
-      await createMessage({
+      const messageCreateRequest: MessageCreateRequest = {
         content: content.trim(),
         channelId: channel.id,
         authorId: currentUser?.id ?? '',
         attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
-      });
+      };
 
+      send(`/pub/messages`, messageCreateRequest);
       setContent('');
       setAttachments([]);
     } catch (error) {
@@ -98,7 +98,6 @@ function MessageInput({channel}: MessageInputProps): JSX.Element | null {
     if (file.type.startsWith('image/')) {
       return (
           <ImagePreviewItem key={index}>
-            {/* 🌟 매번 새로 생성하지 않고, 파일이 들고 있는 URL을 그대로 꽂아줍니다. */}
             <img src={file.previewUrl} alt={file.name}/>
             <RemoveButton onClick={() => removeAttachment(index)}>×</RemoveButton>
           </ImagePreviewItem>
@@ -106,11 +105,11 @@ function MessageInput({channel}: MessageInputProps): JSX.Element | null {
     }
 
     return (
-        <AttachmentPreviewItem key={index}>
-          <PreviewFileIcon>📎</PreviewFileIcon>
-          <PreviewFileName>{file.name}</PreviewFileName>
-          <RemoveButton onClick={() => removeAttachment(index)}>×</RemoveButton>
-        </AttachmentPreviewItem>
+      <AttachmentPreviewItem key={index}>
+        <PreviewFileIcon>📎</PreviewFileIcon>
+        <PreviewFileName>{file.name}</PreviewFileName>
+        <RemoveButton onClick={() => removeAttachment(index)}>×</RemoveButton>
+      </AttachmentPreviewItem>
     );
   };
 
@@ -140,39 +139,39 @@ function MessageInput({channel}: MessageInputProps): JSX.Element | null {
   if (!channel) return null;
 
   return (
-      <>
-        {attachments.length > 0 && !isLoading && (
-            <AttachmentPreviewList>
-              {attachments.map((file, index) => renderPreview(file, index))}
-            </AttachmentPreviewList>
-        )}
-        <StyledMessageInput onSubmit={handleSubmit}>
-          <AttachButton as="label">
-            +
-            <input
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                style={{display: 'none'}}
-            />
-          </AttachButton>
-          <Input
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isLoading}
-              placeholder={
-                isLoading
-                    ? '메시지 전송 중...'
-                    : channel.type === 'PUBLIC'
-                        ? `#${channel.name}에 메시지 보내기`
-                        : '메시지 보내기'
-              }
+    <>
+      {attachments.length > 0 && !isLoading && (
+        <AttachmentPreviewList>
+          {attachments.map((file, index) => renderPreview(file, index))}
+        </AttachmentPreviewList>
+      )}
+      <StyledMessageInput onSubmit={handleSubmit}>
+        <AttachButton as="label">
+          +
+          <input
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
           />
-          {isLoading && <LoadingSpinner/>}
-        </StyledMessageInput>
-      </>
+        </AttachButton>
+        <Input
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={isLoading}
+          placeholder={
+            isLoading
+              ? '메시지 전송 중...'
+              : channel.type === 'PUBLIC'
+                ? `#${channel.name}에 메시지 보내기`
+                : '메시지 보내기'
+          }
+        />
+        {isLoading && <LoadingSpinner />}
+      </StyledMessageInput>
+    </>
   );
 }
 
-export default MessageInput; 
+export default MessageInput;

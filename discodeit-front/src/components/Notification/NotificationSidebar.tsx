@@ -214,7 +214,7 @@ const CopyTooltip = styled.div<{ $show: boolean }>`
 `;
 
 const NotificationSidebar = ({ isOpen, onClose }: NotificationSidebarProps) => {
-  const { notifications, readNotification } = useNotificationStore();
+  const { notifications, readNotification, newNotifications } = useNotificationStore();
   const [copyTooltipId, setCopyTooltipId] = useState<string | null>(null);
 
   const handleNotificationClick = async (notification: NotificationDto) => {
@@ -232,13 +232,15 @@ const NotificationSidebar = ({ isOpen, onClose }: NotificationSidebarProps) => {
     }
   };
 
+  const unreadCount = notifications.length + newNotifications.length;
+
   return (
       <>
         <SidebarOverlay $isOpen={isOpen} onClick={onClose} />
         <SidebarContainer $isOpen={isOpen}>
           <SidebarHeader>
             <SidebarTitle>
-              알림 {notifications.length > 0 && `(${notifications.length})`}
+              알림 {unreadCount > 0 && `(${unreadCount})`}
             </SidebarTitle>
             <CloseButton onClick={onClose}>
               <svg
@@ -257,10 +259,10 @@ const NotificationSidebar = ({ isOpen, onClose }: NotificationSidebarProps) => {
             </CloseButton>
           </SidebarHeader>
           <NotificationList>
-            {notifications.length === 0 ? (
+            {unreadCount === 0 ? (
                 <EmptyState>새로운 알림이 없습니다</EmptyState>
             ) : (
-                notifications.map((notification) => (
+                [...newNotifications,...notifications].map((notification) => (
                     <NotificationItem
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}

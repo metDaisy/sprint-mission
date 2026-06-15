@@ -32,6 +32,8 @@ import {
   StyledMessageList
 } from './styles';
 import {eventEmitter} from "@/utils/eventEmitter.ts";
+import WebSocket from "@/components/WebSocket/WebSocket.tsx";
+import { useSseStore } from '@/stores/sseStore';
 
 interface MessageListProps {
   channel: ChannelDto;
@@ -45,9 +47,10 @@ const formatFileSize = (bytes: number): string => {
 };
 
 function MessageList({ channel }: MessageListProps): JSX.Element {
-  const { messages, fetchMessages, loadMoreMessages, pagination, startPolling, stopPolling, updateMessage, deleteMessage } = useMessageStore();
-  const {binaryContents, fetchBinaryContent, clearBinaryContents, startPolling: startBinaryPolling, clearAllPolling: clearAllBinaryPolling} = useBinaryContentStore();
+  const { messages, fetchMessages, loadMoreMessages, pagination, updateMessage, deleteMessage, newMessages, addNewMessage, clear: clearMessages } = useMessageStore();
+  const {binaryContents, fetchBinaryContent, clearBinaryContents, updateBinaryContentStatus} = useBinaryContentStore();
   const { currentUser } = useAuthStore();
+  const { subscribe, unsubscribe, isConnected } = useSseStore();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState<string>('');
@@ -55,37 +58,34 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
   useEffect(() => {
     if (channel?.id) {
       fetchMessages(channel.id, null);
-      startPolling(channel.id);
 
       return () => {
-        stopPolling(channel.id);
-        clearAllBinaryPolling();
+        clearMessages();
+        const toRevokeContentIds = messages
+        .map(message => message.attachments?.map(attachment => attachment.id)).flat();
+        clearBinaryContents(toRevokeContentIds);
       };
     }
-  }, [channel?.id, fetchMessages, startPolling, stopPolling, clearAllBinaryPolling]);
+  }, [channel?.id, fetchMessages, clearMessages]);
 
   useEffect(() => {
-    messages.forEach(message => {
+    [...messages, ...newMessages].forEach(message => {
       message.attachments?.forEach(attachment => {
         if (!binaryContents[attachment.id]) {
-          fetchBinaryContent(attachment.id).then((result) => {
-            if (result && result.status === 'PROCESSING') {
-              startBinaryPolling(attachment.id);
-            }
-          });
+          fetchBinaryContent(attachment.id);
         }
       });
     });
-  }, [messages, fetchBinaryContent, startBinaryPolling]);
+  }, [messages, newMessages, fetchBinaryContent]);
 
   useEffect(() => {
+    subscribe("binaryContents.updated", (updatedBinaryContent: BinaryContentDto) => {
+      updateBinaryContentStatus(updatedBinaryContent);
+    });
     return () => {
-      const toRevokeContentIds = messages
-      .map(message => message.attachments?.map(attachment => attachment.id)).flat();
-      clearBinaryContents(toRevokeContentIds);
-      clearAllBinaryPolling();
+      unsubscribe("binaryContents.updated")
     }
-  }, [clearBinaryContents, clearAllBinaryPolling]);
+  }, [subscribe, unsubscribe, isConnected]);
 
   useEffect(() => {
     const handleClickOutside = () => {
@@ -146,8 +146,6 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
 
   const renderAttachments = (attachments?: BinaryContentDto[]) => {
     if (!attachments?.length) return null;
-
-    console.log('renderAttachments 호출됨', { attachments: attachments.map(a => ({ id: a.id, binaryContent: binaryContents[a.id]?.status })) });
 
     return attachments.map((_attachment) => {
       const attachment = binaryContents[_attachment.id];
@@ -322,7 +320,7 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
           }
         >
           <StyledMessageList>
-            {[...messages].reverse().map(message => {
+            {[...[...messages].reverse(), ...newMessages].map(message => {
               const author = message.author;
               const isOwnMessage = currentUser && author && author.id === currentUser.id;
 
@@ -408,6 +406,7 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
           </StyledMessageList>
         </InfiniteScroll>
       </div>
+      <WebSocket destination={`/sub/channels.${channel.id}.messages`} subscribeCallback={addNewMessage}/>
     </MessageListWrapper>
   );
 }

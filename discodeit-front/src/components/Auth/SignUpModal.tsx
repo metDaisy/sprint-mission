@@ -1,20 +1,20 @@
 import React, {useCallback, useState} from 'react';
 import {
+  StyledLoginModal as StyledModal,
+  ModalContent,
+  Input,
   Button,
   ErrorMessage,
   FormField,
+  Label,
+  Required,
   ImageContainer,
+  ProfileImage,
   ImageInput,
   ImageLabel,
-  Input,
-  Label,
-  LoginLink,
-  ModalContent,
-  ProfileImage,
-  Required,
-  StyledLoginModal as StyledModal
+  LoginLink
 } from './styles';
-import {signup} from '../../api/auth'
+import {signup} from '@/api/auth.ts'
 import defaultProfile from '@/assets/default_profile.png';
 import useAuthStore from '@/stores/authStore';
 import {uploadProfile} from "@/api/upload.ts";
@@ -101,62 +101,62 @@ const SignUpModal: React.FC<SignUpModalProps> = ({isOpen, onClose}) => {
   if (!isOpen) return null;
 
   return (
-      <StyledModal>
-        <ModalContent>
-          <h2>계정 만들기</h2>
-          <form onSubmit={handleSubmit}>
-            <FormField>
-              <Label>이메일 <Required>*</Required></Label>
-              <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+    <StyledModal>
+      <ModalContent>
+        <h2>계정 만들기</h2>
+        <form onSubmit={handleSubmit}>
+          <FormField>
+            <Label>이메일 <Required>*</Required></Label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </FormField>
+          <FormField>
+            <Label>사용자명 <Required>*</Required></Label>
+            <Input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </FormField>
+          <FormField>
+            <Label>비밀번호 <Required>*</Required></Label>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </FormField>
+          <FormField>
+            <Label>프로필 이미지</Label>
+            <ImageContainer>
+              <ProfileImage 
+                src={previewUrl || defaultProfile} 
+                alt="profile" 
               />
-            </FormField>
-            <FormField>
-              <Label>사용자명 <Required>*</Required></Label>
-              <Input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
+              <ImageInput
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                id="profile-image"
               />
-            </FormField>
-            <FormField>
-              <Label>비밀번호 <Required>*</Required></Label>
-              <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-              />
-            </FormField>
-            <FormField>
-              <Label>프로필 이미지</Label>
-              <ImageContainer>
-                <ProfileImage
-                    src={previewUrl || defaultProfile}
-                    alt="profile"
-                />
-                <ImageInput
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    id="profile-image"
-                />
-                <ImageLabel htmlFor="profile-image">
-                  이미지 변경
-                </ImageLabel>
-              </ImageContainer>
-            </FormField>
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-            <Button type="submit">계속하기</Button>
-            <LoginLink onClick={handleClose}>이미 계정이 있으신가요?</LoginLink>
-          </form>
-        </ModalContent>
-      </StyledModal>
+              <ImageLabel htmlFor="profile-image">
+                이미지 변경
+              </ImageLabel>
+            </ImageContainer>
+          </FormField>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          <Button type="submit">계속하기</Button>
+          <LoginLink onClick={handleClose}>이미 계정이 있으신가요?</LoginLink>
+        </form>
+      </ModalContent>
+    </StyledModal>
   );
 }
 
-export default SignUpModal; 
+export default SignUpModal;

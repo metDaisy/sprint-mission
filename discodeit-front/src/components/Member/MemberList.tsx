@@ -6,13 +6,17 @@ import {MemberHeader, StyledMemberList, MemberHeaderContent} from './styles';
 import useAuthStore from '@/stores/authStore';
 import MemberDetailModal from './MemberDetailModal';
 import NotificationIcon from '../Notification/NotificationIcon';
+import { useSseStore } from '@/stores/sseStore.ts';
 
 function MemberList(): JSX.Element {
   const users = useUserListStore((state) => state.users);
+  const replaceUser = useUserListStore((state) => state.replaceUser);
+  const removeUser = useUserListStore((state) => state.removeUser);
   const fetchUsers = useUserListStore((state) => state.fetchUsers);
   const { currentUser } = useAuthStore();
   const [selectedMember, setSelectedMember] = useState<UserDto | null>(null);
-  
+  const { subscribe, unsubscribe, isConnected } = useSseStore();
+
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
@@ -30,6 +34,26 @@ function MemberList(): JSX.Element {
     // 사용자명으로 정렬
     return a.username.localeCompare(b.username);
   });
+
+  useEffect(() => {
+    if (isConnected) {
+      subscribe('users.created', (user: UserDto) => {
+        replaceUser(user);
+      })
+      subscribe('users.updated', (user: UserDto) => {
+        replaceUser(user);
+      })
+      subscribe('users.deleted', (user: UserDto) => {
+        removeUser(user.id);
+      })
+    }
+
+    return () => {
+      unsubscribe('users.created');
+      unsubscribe('users.updated');
+      unsubscribe('users.deleted');
+    }
+  }, [subscribe, isConnected, currentUser])
 
   return (
       <StyledMemberList>

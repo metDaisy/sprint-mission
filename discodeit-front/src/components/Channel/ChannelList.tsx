@@ -16,11 +16,12 @@ import {
     FoldIcon,
     StyledChannelList
 } from './styles';
+import { useSseStore } from '@/stores/sseStore.ts';
 
 interface ChannelListProps {
   currentUser: UserDto;
   activeChannel: ChannelDto | null;
-  onChannelSelect: (channel: ChannelDto) => void;
+  onChannelSelect: (channel: ChannelDto | null) => void;
 }
 
 interface FoldedSections {
@@ -46,24 +47,60 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
 
   const channels = useChannelStore((state) => state.channels);
   const fetchChannels = useChannelStore((state) => state.fetchChannels);
-  const startPolling = useChannelStore((state) => state.startPolling);
-  const stopPolling = useChannelStore((state) => state.stopPolling);
+  const replaceChannel = useChannelStore((state) => state.replaceChannel);
+  const removeChannel = useChannelStore((state) => state.removeChannel);
 
   const fetchReadStatuses = useReadStatusStore((state) => state.fetchReadStatuses);
   const updateReadStatus = useReadStatusStore((state) => state.updateReadStatus);
   const hasUnreadMessages = useReadStatusStore((state) => state.hasUnreadMessages);
+  const { subscribe, unsubscribe, isConnected } = useSseStore();
 
   useEffect(() => {
     if (currentUser) {
       fetchChannels(currentUser.id);
       fetchReadStatuses();
-      startPolling(currentUser.id);
-
-      return () => {
-        stopPolling();
-      };
     }
-  }, [currentUser, fetchChannels, fetchReadStatuses, startPolling, stopPolling]);
+  }, [currentUser, fetchChannels, fetchReadStatuses]);
+
+  useEffect(() => {
+    if (isConnected) {
+      subscribe('channels.created', (channel: ChannelDto) => {
+        replaceChannel(channel);
+        if (activeChannel?.id === channel.id) {
+          onChannelSelect(channel);
+        }
+      })
+      subscribe('channels.updated', (channel: ChannelDto) => {
+        replaceChannel(channel);
+        if (activeChannel?.id === channel.id) {
+          onChannelSelect(channel);
+        }
+      })
+      subscribe('channels.deleted', (channel: ChannelDto) => {
+        removeChannel(channel.id);
+        if (activeChannel?.id === channel.id) {
+          onChannelSelect(null);
+        }
+      })
+    }
+
+    return () => {
+      unsubscribe('channels.created');
+      unsubscribe('channels.updated');
+      unsubscribe('channels.deleted');
+    }
+  }, [subscribe, isConnected, fetchChannels, currentUser])
+
+  useEffect(() => {
+    if (activeChannel) {
+      const newActiveChannel = channels.find(channel => channel.id === activeChannel.id);
+      if (newActiveChannel) {
+        onChannelSelect(newActiveChannel);
+      } else {
+        onChannelSelect(null);
+      }
+    }
+  }, [channels]);
 
   const toggleSection = (sectionName: 'PUBLIC' | 'PRIVATE') => {
     setFoldedSections(prev => ({
