@@ -6,20 +6,18 @@ jobs:
     name: Run tests and collect coverage
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
+      - name: Create package.json and install Jest
+        run: |
+          npm init -y
+          npm install --save-dev jest
+      - name: Run tests with coverage
         run: npx jest --coverage
-
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
         with:
