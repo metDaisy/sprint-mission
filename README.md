@@ -5,6 +5,8 @@ Discode clone coding
 [![codecov](https://codecov.io/github/metDaisy/sprint-mission/graph/badge.svg?token=2QWY52ZBXP)](https://codecov.io/github/metDaisy/sprint-mission)
 
 ---
+- mission-11
+  - async, 파일 업로드 분리
 
 - mission-10
   - spring security with jwt
