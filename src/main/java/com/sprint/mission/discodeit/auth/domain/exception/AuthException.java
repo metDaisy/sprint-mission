@@ -8,4 +8,8 @@ public class AuthException extends DiscodeitException {
   public AuthException(ErrorCode errorCode) {
     super(errorCode);
   }
+
+  public AuthException(ErrorCode errorCode, Object key, Object value) {
+    super(errorCode, key, value);
+  }
 }

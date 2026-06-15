@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.common.mapper.config;
 
-import com.sprint.mission.discodeit.common.mapper.utils.TimeConverter;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingConstants;
@@ -11,7 +10,7 @@ import org.mapstruct.ReportingPolicy;
     componentModel = MappingConstants.ComponentModel.SPRING,
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-    injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = TimeConverter.class)
+    injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface GlobalMapperConfig {
 
 }

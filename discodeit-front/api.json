@@ -832,7 +832,7 @@
         "operationId": "findAllByIdIn",
         "parameters": [
           {
-            "name": "binaryContentIds",
+            "name": "ids",
             "in": "query",
             "description": "조회할 첨부 파일 ID 목록",
             "required": true,

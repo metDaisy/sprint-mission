@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth.domain.entity;
 
-import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.user.entity.User;
+import com.sprint.mission.discodeit.common.jpa.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,7 +26,7 @@ public class RefreshToken extends BaseUpdatableEntity {
   private String device;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
   @Column(name = "expires_at", nullable = false)
@@ -64,6 +64,14 @@ public class RefreshToken extends BaseUpdatableEntity {
       return false;
     }
     return this.token.equals(token) || Objects.equals(this.previousToken, token);
+  }
+
+  public boolean isCurrentToken(String token) {
+    return this.token.equals(token);
+  }
+
+  public boolean isCompromised(String token) {
+    return Objects.equals(previousToken, token);
   }
 
   @Override

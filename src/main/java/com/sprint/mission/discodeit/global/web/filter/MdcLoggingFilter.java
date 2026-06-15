@@ -14,7 +14,7 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
-    String traceId = UUID.randomUUID().toString().substring(0, 8);
+    String traceId = UUID.randomUUID().toString();
     MDC.put("traceId", traceId);
     try {
       filterChain.doFilter(request, response);

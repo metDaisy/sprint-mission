@@ -1,7 +1,6 @@
 README.md
 postman
 discodeit-front
-db-data
 build
 .logs
 .idea
@@ -9,3 +8,5 @@ build
 .github
 .discodeit
 .gitignore
+.storage
+.vscode

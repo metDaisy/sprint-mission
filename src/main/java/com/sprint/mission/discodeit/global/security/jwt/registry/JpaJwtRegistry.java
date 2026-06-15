@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.global.security.jwt.registry;
 
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
+import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

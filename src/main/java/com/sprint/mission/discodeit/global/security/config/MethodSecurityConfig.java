@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.security.config;
 
 import com.sprint.mission.discodeit.global.security.authorization.DomainPermissionEvaluator;
-import com.sprint.mission.discodeit.user.entity.constant.UserRole;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;

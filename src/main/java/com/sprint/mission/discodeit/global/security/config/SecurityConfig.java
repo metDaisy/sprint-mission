@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.global.security.config;
 
-import com.sprint.mission.discodeit.auth.security.handler.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.auth.infra.security.handler.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.global.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
+import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import java.util.List;
 import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;

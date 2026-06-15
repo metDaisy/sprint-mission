@@ -15,3 +15,5 @@ drop index if exists idx_users_username_password;
 alter table users
     drop column password,
     add column role varchar(20) not null;
+
+alter table users add constraint chk_users_role check ( role in ('ADMIN', 'USER', 'CHANNEL_MANAGER') );

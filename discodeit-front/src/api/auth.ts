@@ -1,5 +1,5 @@
 import client, {clientWithoutAuthorization} from './client';
-import {UserDto, Role, UserRoleUpdateRequest, JwtDto} from '../types/api';
+import {JwtDto, Role, UserCreateRequest, UserDto, UserRoleUpdateRequest} from '../types/api';
 
 export const login = async (username: string, password: string): Promise<JwtDto> => {
   const formData = new FormData();
@@ -9,10 +9,10 @@ export const login = async (username: string, password: string): Promise<JwtDto>
   return response.data;
 };
 
-export const signup = async (formData: FormData): Promise<UserDto> => {
+export const signup = async (formData: UserCreateRequest): Promise<UserDto> => {
   const response = await clientWithoutAuthorization.post<UserDto>('/users', formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'application/json'
     }
   });
   return response.data;

@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.security.authorization.evaluator;
 
-import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.channel.infra.repository.ChannelRepository;
 import org.springframework.stereotype.Component;
 
 @Component

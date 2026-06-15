@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.global.security.jwt.registry;
 
 import com.sprint.mission.discodeit.auth.domain.entity.RefreshToken;
+import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationErrorCode;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationException;
 import java.time.Instant;
@@ -15,7 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(prefix = "discodeit.jwt.registry", value = "store-type", havingValue = "in-memory")
+@ConditionalOnProperty(value = "discodeit.jwt.registry.store-type", havingValue = "in-memory")
 public class InMemoryJwtRegistry implements JwtRegistry {
 
   @Value("${discodeit.jwt.registry.session.max-retained}")

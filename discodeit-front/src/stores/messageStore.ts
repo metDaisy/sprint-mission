@@ -22,9 +22,10 @@ interface MessageStore {
   loadMoreMessages: (channelId: string) => Promise<void>;
   startPolling: (channelId: string) => void;
   stopPolling: (channelId: string) => void;
-  createMessage: (messageData: MessageCreateRequest, attachments?: File[]) => Promise<MessageDto>;
+  createMessage: (messageData: MessageCreateRequest) => Promise<MessageDto>;
   updateMessage: (messageId: string, newContent: string) => Promise<MessageDto>;
   deleteMessage: (messageId: string) => Promise<void>;
+  isCreating: boolean;
 }
 
 const defaultPageable: Pageable = {
@@ -41,9 +42,11 @@ const useMessageStore = create<MessageStore>((set, get) => ({
     pageSize: 50,
     hasNext: false,
   },
+  isCreating: false,
 
   fetchMessages: async (channelId, cursor, pageable = defaultPageable) => {
     try {
+      if (get().isCreating) return Promise.resolve(true);
       const response = await getMessages(channelId, cursor, pageable);
       
       const messageList = response.content;
@@ -181,9 +184,10 @@ const useMessageStore = create<MessageStore>((set, get) => ({
     }
   },
 
-  createMessage: async (messageData, attachments) => {
+  createMessage: async (messageData) => {
     try {
-      const newMessage = await apiCreateMessage(messageData, attachments);
+      set({ isCreating: true }); // 메시지 생성 시작 상태 설정
+      const newMessage = await apiCreateMessage(messageData);
 
       // 메시지 전송 성공 시 readStatus 업데이트
       const updateReadStatus = useReadStatusStore.getState().updateReadStatus;
@@ -204,6 +208,8 @@ const useMessageStore = create<MessageStore>((set, get) => ({
     } catch (error) {
       console.error('메시지 생성 실패:', error);
       throw error;
+    } finally {
+      set({ isCreating: false }); // 메시지 생성 완료 상태 설정
     }
   },
   updateMessage: async (messageId, newContent) => {

@@ -1,10 +1,10 @@
 import client from './client';
-import {UserDto} from '../types/api';
+import {UserDto, UserUpdateRequest} from '../types/api';
 
-export const updateUser = async (userId: string, formData: FormData): Promise<UserDto> => {
-  const response = await client.patch<UserDto>(`/users/${userId}`, formData, {
+export const updateUser = async (userId: string, data: UserUpdateRequest): Promise<UserDto> => {
+  const response = await client.patch<UserDto>(`/users/${userId}`, data, {
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'application/json'
     }
   });
   return response.data;

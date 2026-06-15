@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.support.base;
 
 import com.sprint.mission.discodeit.support.config.HibernateConfig;
 import com.sprint.mission.discodeit.global.config.qdsl.QueryDslConfig;
-import com.sprint.mission.discodeit.support.generator.TestEntity;
 import com.sprint.mission.discodeit.support.inspector.QueryInspector;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
@@ -15,8 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@Import({QueryDslConfig.class, HibernateConfig.class,
-    QueryInspector.class, TestEntity.class})
+@Import({QueryDslConfig.class, HibernateConfig.class, QueryInspector.class})
 @DataJpaTest(properties = {
     "spring.jpa.show-sql=false",
     "spring.jpa.properties.hibernate.show_sql=false"
@@ -42,6 +40,12 @@ public abstract class BaseRepositoryTest {
 
   protected void ensureQueryCount(int count) {
     Assertions.assertThat(queryInspector.getCount()).isEqualTo(count);
+  }
+
+  protected <T> T persistAndFlush(T entity) {
+    em.persist(entity);
+    em.flush();
+    return entity;
   }
 
   protected boolean compareInstant(Instant a, Instant b) {

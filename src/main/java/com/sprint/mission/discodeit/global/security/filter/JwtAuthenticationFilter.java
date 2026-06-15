@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.global.security.filter;
 
+import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationErrorCode;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationException;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
