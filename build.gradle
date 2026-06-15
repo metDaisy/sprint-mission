@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.2-M11'
+version = '3.0-M12'
 
 repositories {
     mavenCentral()
@@ -36,6 +36,7 @@ dependencies {
     implementation('org.flywaydb:flyway-database-postgresql')
     implementation("com.nimbusds:nimbus-jose-jwt:10.9")
     implementation('org.springframework.retry:spring-retry')
+    implementation('org.springframework.boot:spring-boot-starter-websocket')
 
     implementation 'io.github.openfeign.querydsl:querydsl-jpa:7.1'
     annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:7.1:jpa'
