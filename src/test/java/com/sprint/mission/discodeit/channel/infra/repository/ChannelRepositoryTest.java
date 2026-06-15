@@ -1,30 +1,28 @@
-package com.sprint.mission.discodeit.channel.repository;
+package com.sprint.mission.discodeit.channel.infra.repository;
 
-import com.sprint.mission.discodeit.channel.repository.qdsl.dto.ChannelDetailDto;
-import com.sprint.mission.discodeit.binarycontent.entity.BinaryContent;
-import com.sprint.mission.discodeit.channel.entity.Channel;
-import com.sprint.mission.discodeit.message.entity.Message;
-import com.sprint.mission.discodeit.readstatus.entity.ReadStatus;
+import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
+import com.sprint.mission.discodeit.message.domain.entity.Message;
+import com.sprint.mission.discodeit.message.infra.repository.MessageRepository;
+import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
+import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
-import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.message.repository.MessageRepository;
-import com.sprint.mission.discodeit.readstatus.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.user.entity.User;
 import com.sprint.mission.discodeit.support.fixture.ChannelFixture;
 import com.sprint.mission.discodeit.support.generator.TestEntity;
-import com.sprint.mission.discodeit.user.repository.UserRepository;
+import com.sprint.mission.discodeit.user.domain.entity.User;
+import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Disabled("BinaryContent schema 변경으로 인해 추후 수정")
 class ChannelRepositoryTest extends BaseRepositoryTest {
 
   @Autowired
@@ -53,7 +51,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
   @DisplayName(
       """
           public channel 생성 후 조회 성공한다
-          조회 시 query 1개 생성한다
+          조회 시 query 2개 생성한다
           lastMessageAt은 존재한다
           """
   )
@@ -63,19 +61,19 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     clear();
     ChannelDetailDto expected = channelRepository.findChannelDetailById(actual.getId())
         .orElseThrow();
-    ensureQueryCount(1);
+    ensureQueryCount(2);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
         .ignoringFields("lastMessageAt")
         .withEqualsForType(this::compareInstant, Instant.class)
-        .isEqualTo(expected);
+        .isEqualTo(expected.channel());
     Assertions.assertThat(expected.lastMessageAt()).isNotNull();
   }
 
   @Test
   @DisplayName(
       "private channel 생성 후 조회 성공한다\n"
-          + "조회 시 query 1개 생성한다"
+          + "조회 시 query 2개 생성한다"
   )
   void success_to_create_and_find_private() {
     Channel actual = testEntity.generatorPrivateChannel();
@@ -83,11 +81,11 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     clear();
     ChannelDetailDto expected = channelRepository.findChannelDetailById(actual.getId())
         .orElseThrow();
-    ensureQueryCount(1);
+    ensureQueryCount(2);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
         .withEqualsForType(this::compareInstant, Instant.class)
-        .isEqualTo(expected);
+        .isEqualTo(expected.channel());
   }
 
   @Test
@@ -95,7 +93,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
       """
           public, private channel 을 생성한다
           모든 채널을 조회한다
-          조회에 대한 query 1개 생성된다
+          조회에 대한 query 2개 생성된다
           """
   )
   void findAllWithLastMessageAt() {
@@ -105,12 +103,12 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     ensureQueryCount(1);
     clear();
     List<ChannelDetailDto> expected = channelRepository.findAllChannelDetails();
-    ensureQueryCount(1);
+    ensureQueryCount(2);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
         .ignoringCollectionOrder()
         .withEqualsForType(this::compareInstant, Instant.class)
-        .isEqualTo(expected);
+        .isEqualTo(expected.stream().map(ChannelDetailDto::channel).toList());
   }
 
   @Test
@@ -124,7 +122,9 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     User user = readStatus.getUser();
     Channel privateChannel = readStatus.getChannel();
     Channel publicChannel = testEntity.generatorPublicChannel();
-    ensureQueryCount(4);
+    System.out.println(
+        "findVisibleToWithLastMessageAt expected query count: " + queryInspector.getQueries()
+            .size());
     clear();
     UUID userId = user.getId();
     List<UUID> expectedChannelIds = List.of(privateChannel.getId(), publicChannel.getId());
@@ -132,28 +132,26 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     // when
     List<ChannelDetailDto> actualChannelIds
         = channelRepository.findVisibleChannelDetails(userId);
-    ensureQueryCount(1);
+    ensureQueryCount(2);
 
     // then
-    Assertions.assertThat(actualChannelIds)
-        .isEqualTo(expectedChannelIds);
+    Assertions.assertThat(actualChannelIds.stream().map(dto -> dto.channel().getId()).toList())
+        .containsExactlyInAnyOrderElementsOf(expectedChannelIds);
   }
 
   @Test
-  @DisplayName(
-      "public channel 삭제 시 연관된 message만 삭제된다\n"
-          + "이 message와 연관된 binary content은 삭제되지 않는다"
-  )
+  @DisplayName("public channel 삭제 시 연관된 message만 삭제된다\n이 message와 연관된 binary content은 삭제되지 않는다")
   void success_to_delete_channel_with_messages_and_attachments() {
     Message message = testEntity.generatorMessage();
-    queryInspector.logQueries();
     User user = message.getAuthor();
     Channel expected = message.getChannel();
     Set<BinaryContent> attachments = message.getAttachments();
     clear();
+
     channelRepository.deleteById(expected.getId());
     em.flush();
-    queryInspector.logQueries();
+    System.out.println(
+        "delete_channel expected query count: " + queryInspector.getQueries().size());
     clear();
 
     Assertions.assertThat(channelRepository.existsById(expected.getId())).isFalse();

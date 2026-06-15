@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.channel.presentation.controller;
 
+import com.sprint.mission.discodeit.channel.application.service.ChannelService;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.response.ChannelResponse;
-import com.sprint.mission.discodeit.channel.application.service.ChannelService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
