@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.5.10'
     id "io.spring.dependency-management" version '1.1.6'
     id "com.autonomousapps.dependency-analysis" version "3.6.1"
+    id 'jacoco'
 }
 
 group = 'com.sprint.mission'
@@ -72,6 +73,48 @@ tasks.named('processResources') {
     dependsOn copyFrontApiJson
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = true
+    }
+    def excludes = [
+            "**/global/**",
+            "**/common/**",
+            "**/mapper/**",
+            "**/dto/**",
+            "**/Discodeit.class",
+            "**/*Interceptor*",
+            "**/*Filter*",
+            "**/Q*.class",
+            "**/domain/**",
+    ]
+    for (qPattern in "**/QA".."**/QZ") {
+        excludes.add(qPattern + "*")
+    }
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: excludes)
+    }))
+}
+
+import java.awt.Desktop
+
+jacocoTestReport {
+    doLast {
+        boolean isBuildTaskRun = gradle.startParameter.taskNames.contains('build')
+
+        if (isBuildTaskRun) {
+            def reportFile = file("${layout.buildDirectory.get()}/reports/jacoco/test/html/index.html")
+            if (reportFile.exists() && Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(reportFile.toURI())
+            }
+        }
+    }
 }
