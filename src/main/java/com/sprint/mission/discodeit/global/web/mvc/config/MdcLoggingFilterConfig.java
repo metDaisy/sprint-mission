@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.global.web.config;
+package com.sprint.mission.discodeit.global.web.mvc.config;
 
-import com.sprint.mission.discodeit.global.web.filter.MdcLoggingFilter;
+import com.sprint.mission.discodeit.global.web.mvc.filter.MdcLoggingFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

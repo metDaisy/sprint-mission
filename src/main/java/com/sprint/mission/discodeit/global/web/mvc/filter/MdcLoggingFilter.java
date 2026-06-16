@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.web.filter;
+package com.sprint.mission.discodeit.global.web.mvc.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
