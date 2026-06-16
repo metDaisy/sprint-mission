@@ -17,15 +17,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
+@ConditionalOnProperty(name = "app.storage.type", havingValue = "local")
 public class LocalDiskBinaryContentStorage extends AbstractBinaryContentStorage {
 
   private final Path root;
 
   public LocalDiskBinaryContentStorage(
       @Qualifier("fileUploadWorker") Executor fileUploadWorker,
-      @Value("${discodeit.storage.local.internal-path}") String internalPath,
-      @Value("${discodeit.storage.local.root-path}") Path rootPath) {
+      @Value("${app.storage.local.internal-path}") String internalPath,
+      @Value("${app.storage.local.root-path}") Path rootPath) {
     super(fileUploadWorker, internalPath);
     this.root = rootPath;
   }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DevStorageDownloader implements StorageDownloader {
 
-  @Value("${discodeit.storage.local.root-path}")
+  @Value("${app.storage.local.root-path}")
   private String rootPath;
 
   @Override

@@ -16,12 +16,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(value = "discodeit.jwt.registry.store-type", havingValue = "in-memory")
+@ConditionalOnProperty(value = "app.jwt.registry.store-type", havingValue = "in-memory")
 public class InMemoryJwtRegistry implements JwtRegistry {
 
-  @Value("${discodeit.jwt.registry.session.max-retained}")
+  @Value("${app.jwt.registry.session.max-retained}")
   private int sessionMaxRetained;
-  @Value("${discodeit.jwt.registry.session.max-concurrent}")
+  @Value("${app.jwt.registry.session.max-concurrent}")
   private int sessionMaxConcurrent;
 
   private final Map<UUID, Queue<RefreshToken>> retainedDevice = new ConcurrentHashMap<>();

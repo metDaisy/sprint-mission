@@ -20,11 +20,11 @@ public class AdminInitializer {
   private final UserRepository userRepository;
   private final UserCredentialRepository userCredentialRepository;
   private final PasswordEncoder passwordEncoder;
-  @Value("${discodeit.admin.username}")
+  @Value("${app.admin.username}")
   private String adminUsername;
-  @Value("${discodeit.admin.email}")
+  @Value("${app.admin.email}")
   private String adminEmail;
-  @Value("${discodeit.admin.password}")
+  @Value("${app.admin.password}")
   private String adminPassword;
 
   @Transactional

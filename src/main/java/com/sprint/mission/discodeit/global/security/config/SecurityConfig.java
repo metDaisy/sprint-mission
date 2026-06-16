@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.global.security.config;
 
+import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import com.sprint.mission.discodeit.auth.infra.security.handler.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.global.security.constant.SecurityConstants;
 import com.sprint.mission.discodeit.global.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
-import java.util.List;
 import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,10 +36,8 @@ public class SecurityConfig {
       LogoutHandler jwtLogoutHandler,
       JwtAuthenticationFilter jwtAuthenticationFilter)
       throws Exception {
-    CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-    csrfRepository.setCookiePath("/");
     return http.csrf(csrf -> csrf
-            .csrfTokenRepository(csrfRepository)
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -47,31 +45,20 @@ public class SecurityConfig {
             session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(form ->
-            form.loginProcessingUrl("/auth/login")
-                .usernameParameter("username")
-                .passwordParameter("password")
+            form.loginProcessingUrl(SecurityConstants.LOGIN_URL)
+                .usernameParameter(SecurityConstants.USERNAME_PARAMETER)
+                .passwordParameter(SecurityConstants.PASSWORD_PARAMETER)
                 .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler))
-        .logout(logout -> logout.logoutUrl("/auth/logout")
+        .logout(logout -> logout.logoutUrl(SecurityConstants.LOGOUT_URL)
             .addLogoutHandler(jwtLogoutHandler)
             .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-            .deleteCookies("JSESSIONID", "XSRF-TOKEN", "REFRESH_TOKEN")
             .permitAll())
         .httpBasic(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(HttpMethod.GET,
-                        "/auth/csrf-token",
-                        "/actuator/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/api.json").permitAll()
-                    .requestMatchers(HttpMethod.POST,
-                        "/auth/login",
-                        "/auth/logout",
-                        "/users",
-                        "/auth/refresh").permitAll()
+                auth.requestMatchers(HttpMethod.GET, SecurityConstants.PUBLIC_GET_PATHS).permitAll()
+                    .requestMatchers(HttpMethod.POST, SecurityConstants.PUBLIC_POST_PATHS).permitAll()
                     .anyRequest().authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
@@ -84,16 +71,15 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost", "http://localhost:5173"));
+    config.setAllowedOrigins(SecurityConstants.CORS_ALLOWED_ORIGINS);
     config.setAllowedMethods(
         Stream.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PATCH, HttpMethod.DELETE,
                 HttpMethod.OPTIONS)
             .map(HttpMethod::toString).toList());
-    config.setAllowedHeaders(
-        List.of("authorization", "content-type", "x-xsrf-token", "x-device-id"));
+    config.setAllowedHeaders(SecurityConstants.CORS_ALLOWED_HEADERS);
     config.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
+    source.registerCorsConfiguration(SecurityConstants.CORS_REGISTER_PATTERN, config);
     return source;
   }
 
