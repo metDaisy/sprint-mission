@@ -16,7 +16,8 @@ import {
     FoldIcon,
     StyledChannelList
 } from './styles';
-import { useSseStore } from '@/stores/sseStore.ts';
+import WebSocket from '@/components/WebSocket/WebSocket';
+import { WS_DESTINATIONS } from '@/constants/websocket';
 
 interface ChannelListProps {
   currentUser: UserDto;
@@ -53,7 +54,6 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
   const fetchReadStatuses = useReadStatusStore((state) => state.fetchReadStatuses);
   const updateReadStatus = useReadStatusStore((state) => state.updateReadStatus);
   const hasUnreadMessages = useReadStatusStore((state) => state.hasUnreadMessages);
-  const { subscribe, unsubscribe, isConnected } = useSseStore();
 
   useEffect(() => {
     if (currentUser) {
@@ -62,34 +62,38 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
     }
   }, [currentUser, fetchChannels, fetchReadStatuses]);
 
-  useEffect(() => {
-    if (isConnected) {
-      subscribe('channels.created', (channel: ChannelDto) => {
-        replaceChannel(channel);
-        if (activeChannel?.id === channel.id) {
-          onChannelSelect(channel);
+  const handleChannelEvent = React.useCallback((message: any) => {
+    const { type, data } = message;
+
+    const eventHandlers: Record<string, () => void> = {
+      'channels.created': () => {
+        replaceChannel(data as ChannelDto);
+        if (activeChannel?.id === data.id) {
+          onChannelSelect(data as ChannelDto);
         }
-      })
-      subscribe('channels.updated', (channel: ChannelDto) => {
-        replaceChannel(channel);
-        if (activeChannel?.id === channel.id) {
-          onChannelSelect(channel);
+      },
+      'channels.updated': () => {
+        replaceChannel(data as ChannelDto);
+        if (activeChannel?.id === data.id) {
+          onChannelSelect(data as ChannelDto);
         }
-      })
-      subscribe('channels.deleted', (channel: ChannelDto) => {
-        removeChannel(channel.id);
-        if (activeChannel?.id === channel.id) {
+      },
+      'channels.deleted': () => {
+        removeChannel((data as ChannelDto).id);
+        if (activeChannel?.id === data.id) {
           onChannelSelect(null);
         }
-      })
-    }
+      }
+    };
 
-    return () => {
-      unsubscribe('channels.created');
-      unsubscribe('channels.updated');
-      unsubscribe('channels.deleted');
+    const handler = eventHandlers[type];
+    
+    if (handler) {
+      handler();
+    } else if (data && data.id) {
+      replaceChannel(data as ChannelDto);
     }
-  }, [subscribe, isConnected, fetchChannels, currentUser])
+  }, [replaceChannel, removeChannel, activeChannel, onChannelSelect]);
 
   useEffect(() => {
     if (activeChannel) {
@@ -152,6 +156,10 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
 
   return (
     <StyledChannelList>
+      <WebSocket 
+          destination={WS_DESTINATIONS.TOPIC_CHANNEL_LIST} 
+          subscribeCallback={handleChannelEvent} 
+      />
       <ChannelHeader />
       <ChannelScroll>
         <ChannelSection>

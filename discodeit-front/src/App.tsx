@@ -10,12 +10,15 @@ import useUserListStore from './stores/userListStore';
 import {theme} from './styles/theme';
 import {eventEmitter, EventEmitterArgs} from './utils/eventEmitter';
 import useAuthStore from './stores/authStore';
-import { useSseStore } from './stores/sseStore';
+
+import {useWebSocketStore} from "@/stores/websocketStore.ts";
 
 function App(): JSX.Element {
   const {logout, fetchCsrfToken, refreshToken} = useAuthStore();
   const {fetchUsers} = useUserListStore();
   const [activeChannel, setActiveChannel] = useState<ChannelDto | null>(null);
+
+  const {connect: connectWs, disconnect: disconnectWs} = useWebSocketStore();
 
   // 에러 상태 관리
   const [error, setError] = useState<any>(null);
@@ -26,7 +29,18 @@ function App(): JSX.Element {
 
   const {currentUser} = useAuthStore();
   const isInitialized = useRef(false);
-  const { connect: connectSse } = useSseStore();
+
+
+  useEffect(() => {
+    if (currentUser) {
+      connectWs();
+    } else {
+      disconnectWs();
+    }
+    return () => {
+      disconnectWs();
+    };
+  }, [currentUser, connectWs, disconnectWs]);
 
   useEffect(() => {
     if (isInitialized.current) return;
@@ -85,45 +99,42 @@ function App(): JSX.Element {
     setError(null);
   };
 
-  useEffect(() => {
-    if (currentUser) {
-      connectSse();
-    }
-  }, [currentUser, connectSse])
+
 
   // 로딩 중일 때 로딩 화면 표시
   if (isLoading) {
     return (
-      <ThemeProvider theme={theme}>
-        <LoadingContainer>
-          <LoadingSpinner />
-        </LoadingContainer>
-      </ThemeProvider>
+        <ThemeProvider theme={theme}>
+          <LoadingContainer>
+            <LoadingSpinner/>
+          </LoadingContainer>
+        </ThemeProvider>
     );
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      {currentUser ? (
-        <Layout>
-          <ChannelList 
-            currentUser={currentUser}
-            activeChannel={activeChannel}
-            onChannelSelect={setActiveChannel}
-          />
-          <ChatContainer channel={activeChannel} />
-          <MemberList />
-        </Layout>
-      ) : (
-        <LoginModal isOpen={true} onClose={() => {}} />
-      )}
-      
-      <ErrorModal 
-        isOpen={isErrorModalOpen}
-        onClose={closeErrorModal}
-        error={error}
-      />
-    </ThemeProvider>
+      <ThemeProvider theme={theme}>
+        {currentUser ? (
+            <Layout>
+              <ChannelList
+                  currentUser={currentUser}
+                  activeChannel={activeChannel}
+                  onChannelSelect={setActiveChannel}
+              />
+              <ChatContainer channel={activeChannel}/>
+              <MemberList/>
+            </Layout>
+        ) : (
+            <LoginModal isOpen={true} onClose={() => {
+            }}/>
+        )}
+
+        <ErrorModal
+            isOpen={isErrorModalOpen}
+            onClose={closeErrorModal}
+            error={error}
+        />
+      </ThemeProvider>
   );
 }
 
@@ -140,20 +151,24 @@ const LoadingContainer = styled.div`
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background-color: ${({ theme }) => theme.colors.background.primary};
+  background-color: ${({theme}) => theme.colors.background.primary};
 `;
 
 const LoadingSpinner = styled.div`
   width: 40px;
   height: 40px;
-  border: 4px solid ${({ theme }) => theme.colors.background.tertiary};
-  border-top: 4px solid ${({ theme }) => theme.colors.brand.primary};
+  border: 4px solid ${({theme}) => theme.colors.background.tertiary};
+  border-top: 4px solid ${({theme}) => theme.colors.brand.primary};
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  
+
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 `;
 

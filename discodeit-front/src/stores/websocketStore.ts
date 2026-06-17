@@ -4,6 +4,9 @@ import SockJS from 'sockjs-client';
 import config from '@/config';
 import useAuthStore from './authStore';
 import {eventEmitter} from "@/utils/eventEmitter.ts";
+import {getOrCreateDeviceId} from "@/utils/device.ts";
+
+const deviceId = getOrCreateDeviceId();
 
 interface WebSocketState {
   stompClient: Client | null;
@@ -40,6 +43,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
       webSocketFactory: () => socket,
       connectHeaders: {
         Authorization: `Bearer ${accessToken}`,
+        'X-Device-Id': deviceId,
       },
       debug: (str) => {
         console.log(str);

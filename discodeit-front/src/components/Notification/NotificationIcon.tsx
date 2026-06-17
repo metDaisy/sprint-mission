@@ -2,7 +2,10 @@ import styled from 'styled-components';
 import useNotificationStore from '@/stores/notificationStore';
 import { useEffect, useState } from 'react';
 import NotificationSidebar from './NotificationSidebar';
-import { useSseStore } from '@/stores/sseStore';
+import WebSocket from '@/components/WebSocket/WebSocket';
+import { WS_DESTINATIONS } from '@/constants/websocket';
+import useAuthStore from '@/stores/authStore';
+import { useCallback } from 'react';
 
 const IconContainer = styled.div`
   position: relative;
@@ -38,7 +41,7 @@ const NotificationBadge = styled.div`
 const NotificationIcon = () => {
   const { notifications, fetchNotifications, newNotifications, addNewNotification } = useNotificationStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { subscribe, isConnected } = useSseStore();
+  const { currentUser } = useAuthStore();
 
   useEffect(() => {
     fetchNotifications();
@@ -46,16 +49,18 @@ const NotificationIcon = () => {
 
   const unreadCount = notifications.length + newNotifications.length;
 
-
-  useEffect(() => {
-    subscribe('notifications.created', data => {
-      addNewNotification(data);
-    })
-  }, [subscribe, isConnected])
-
+  const handleNewNotification = useCallback((data: any) => {
+    addNewNotification(data);
+  }, [addNewNotification]);
 
   return (
       <>
+        {currentUser && (
+          <WebSocket
+            destination={WS_DESTINATIONS.TOPIC_NOTIFICATION(currentUser.id)}
+            subscribeCallback={handleNewNotification}
+          />
+        )}
         <IconContainer onClick={() => setIsSidebarOpen(true)}>
           <svg
               width="24"
