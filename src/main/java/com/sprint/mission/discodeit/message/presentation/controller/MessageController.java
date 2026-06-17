@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.common.api.response.PageResponse;
 import com.sprint.mission.discodeit.message.presentation.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.response.MessageResponse;
-import com.sprint.mission.discodeit.message.service.MessageService;
+import com.sprint.mission.discodeit.message.application.service.MessageService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
