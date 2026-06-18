@@ -1,9 +1,14 @@
 package com.sprint.mission.discodeit.channel.application.service;
 
+import com.sprint.mission.discodeit.channel.application.mapper.ChannelPayloadMapper;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.event.ReadStatusCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
+import com.sprint.mission.discodeit.channel.domain.payload.ChannelPayloadCreated;
+import com.sprint.mission.discodeit.channel.domain.payload.ChannelPayloadDeleted;
+import com.sprint.mission.discodeit.channel.domain.payload.ChannelPayloadUpdated;
+import com.sprint.mission.discodeit.channel.domain.provider.ChannelNotifier;
 import com.sprint.mission.discodeit.channel.domain.provider.ChannelUserResolver;
 import com.sprint.mission.discodeit.channel.infra.repository.ChannelRepository;
 import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
@@ -31,11 +36,14 @@ public class ChannelService {
   private final ChannelMapper mapper;
   private final ApplicationEventPublisher eventPublisher;
   private final ChannelUserResolver userProvider;
+  private final ChannelNotifier notifier;
+  private final ChannelPayloadMapper payloadMapper;
 
   @ServiceLogAround
   public ChannelResponse createPublic(PublicChannelCreateRequest request) {
     Channel channel = mapper.toEntityFrom(request);
     repository.save(channel);
+    notifier.notifyCreated(payloadMapper.toDto(channel, ChannelPayloadCreated.class));
     return mapper.toDto(channel);
   }
 
@@ -46,13 +54,14 @@ public class ChannelService {
     List<User> participants = userProvider.getOrThrow(request.getParticipantIds());
     eventPublisher.publishEvent(
         new ReadStatusCreatedEvent(channel.getId(), request.getParticipantIds(), true));
+    notifier.notifyCreated(payloadMapper.toCreated(channel, participants));
     return mapper.toDtoFrom(channel, participants);
   }
 
   @ServiceLogAround
   @Transactional(readOnly = true)
   public ChannelResponse find(UUID id) {
-    ChannelDetailDto channelDetail = findById(id);
+    ChannelDetailDto channelDetail = findByIdWithDetail(id);
     return mapper.toDto(channelDetail);
   }
 
@@ -66,20 +75,27 @@ public class ChannelService {
 
   @ServiceLogAround
   public ChannelResponse update(UUID id, PublicChannelUpdateRequest request) {
-    ChannelDetailDto channelDetail = findById(id);
-    mapper.partialUpdate(request, channelDetail.channel());
+    ChannelDetailDto channelDetail = findByIdWithDetail(id);
+    Channel channel = channelDetail.channel();
+    mapper.partialUpdate(request, channel);
+    notifier.notifyUpdated(payloadMapper.toDto(channel, ChannelPayloadUpdated.class));
     return mapper.toDto(channelDetail);
   }
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteOrThrow(id, repository,
-        value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
+    Channel channel = findById(id);
+    repository.delete(channel);
+    notifier.notifyDeleted(payloadMapper.toDto(channel, ChannelPayloadDeleted.class));
   }
 
-  private ChannelDetailDto findById(UUID id) {
+  private ChannelDetailDto findByIdWithDetail(UUID id) {
     return DomainServiceSupport.getOrThrow(id, repository::findChannelDetailById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 
+  private Channel findById(UUID id) {
+    return DomainServiceSupport.getOrThrow(id, repository::findById,
+        value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
+  }
 }
