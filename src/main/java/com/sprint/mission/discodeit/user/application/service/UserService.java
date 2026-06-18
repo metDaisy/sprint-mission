@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.user.application.service;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
+import com.sprint.mission.discodeit.user.application.mapper.UserPayloadMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import com.sprint.mission.discodeit.user.domain.event.UserCreatedEvent;
@@ -10,6 +11,9 @@ import com.sprint.mission.discodeit.user.domain.event.UserRoleUpdateEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserUpdatedEvent;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.domain.exception.UserException;
+import com.sprint.mission.discodeit.user.domain.payload.UserPayload;
+import com.sprint.mission.discodeit.user.domain.payload.UserPayloadDeleted;
+import com.sprint.mission.discodeit.user.domain.provider.UserNotifier;
 import com.sprint.mission.discodeit.user.domain.provider.UserProfileResolver;
 import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
@@ -36,6 +40,8 @@ public class UserService {
   private final UserMapper mapper;
   private final UserProfileResolver profileProvider;
   private final ApplicationEventPublisher eventPublisher;
+  private final UserNotifier notifier;
+  private final UserPayloadMapper payloadMapper;
 
   @ServiceLogAround
   @Transactional(readOnly = true)
@@ -62,6 +68,7 @@ public class UserService {
         .build();
     repository.save(user);
     eventPublisher.publishEvent(new UserCreatedEvent(user.getId(), request.getPassword()));
+    notifier.notifyCreated(payloadMapper.toDto(user, UserPayload.class));
     return mapper.toDto(user);
   }
 
@@ -81,13 +88,15 @@ public class UserService {
     if (StringUtils.hasText(request.getPassword())) {
       eventPublisher.publishEvent(new UserUpdatedEvent(id, request.getPassword()));
     }
+    notifier.notifyUpdated(payloadMapper.toDto(user, UserPayload.class));
     return mapper.toDto(user);
   }
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteOrThrow(id, repository,
-        value -> new UserException(UserErrorCode.USERID_NOT_FOUND, value));
+    User user = findById(id);
+    repository.delete(user);
+    notifier.notifyDeleted(payloadMapper.toDto(user, UserPayloadDeleted.class));
   }
 
   @ServiceLogAround
