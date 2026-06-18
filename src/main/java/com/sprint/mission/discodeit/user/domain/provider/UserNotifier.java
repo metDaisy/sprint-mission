@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.user.domain.provider;
 
-public interface UserNotifier {
+import com.sprint.mission.discodeit.common.payload.notifier.DomainNotifier;
 
-  void notifyCreated(Object payload);
+public interface UserNotifier extends DomainNotifier {
 
-  void notifyUpdated(Object payload);
-
-  void notifyDeleted(Object payload);
 }

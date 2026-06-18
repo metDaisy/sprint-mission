@@ -1,12 +1,7 @@
 package com.sprint.mission.discodeit.message.domain.provider;
 
-import java.util.UUID;
+import com.sprint.mission.discodeit.common.payload.notifier.TargetDomainNotifier;
 
-public interface MessageNotifier {
+public interface MessageNotifier extends TargetDomainNotifier {
 
-  void notifyCreated(UUID targetId, Object payload);
-
-  void notifyUpdated(UUID targetId, Object payload);
-
-  void notifyDeleted(UUID targetId, Object payload);
 }
