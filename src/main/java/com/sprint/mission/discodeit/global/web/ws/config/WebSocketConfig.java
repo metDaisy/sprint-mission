@@ -20,7 +20,7 @@ class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.enableSimpleBroker(WebSocketConstants.SUB_ENDPOINT);
-    registry.setApplicationDestinationPrefixes(WebSocketConstants.PUB_ENDPOINT);
+    registry.enableSimpleBroker(WebSocketConstants.SUB_PREFIX);
+    registry.setApplicationDestinationPrefixes(WebSocketConstants.PUB_PREFIX);
   }
 }

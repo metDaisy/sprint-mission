@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.web.ws.interceptor.command;
 
-import com.sprint.mission.discodeit.global.web.ws.constant.StompConstants;
+import com.sprint.mission.discodeit.global.web.ws.stomp.constant.StompConstants;
 import com.sprint.mission.discodeit.global.web.ws.interceptor.SubscribeCommandHandler;
 import com.sprint.mission.discodeit.global.web.ws.provider.ChannelSubscribeValidator;
 import com.sprint.mission.discodeit.global.web.ws.util.StompDestinationParser;
@@ -16,7 +16,7 @@ class ChannelSubscribeCommandHandler implements SubscribeCommandHandler {
 
   @Override
   public boolean canSupport(String destination) {
-    return destination.startsWith(StompConstants.CHANNEL_DESTINATION);
+    return destination.startsWith(StompConstants.PUB_MESSAGE_DESTINATION);
   }
 
   @Override

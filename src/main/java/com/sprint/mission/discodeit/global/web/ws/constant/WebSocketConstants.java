@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WebSocketConstants {
 
-  public static String ENDPOINT = "/ws";
-  public static String PUB_ENDPOINT = "/pub";
-  public static String SUB_ENDPOINT = "/sub";
+  public static final String ENDPOINT = "/ws";
+  public static final String PUB_PREFIX = "/pub";
+  public static final String SUB_PREFIX = "/sub";
 }
