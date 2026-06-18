@@ -1,9 +1,13 @@
 package com.sprint.mission.discodeit.notification.application.service;
 
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
+import com.sprint.mission.discodeit.notification.application.mapper.NotificationPayloadMapper;
 import com.sprint.mission.discodeit.notification.domain.entity.Notification;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationErrorCode;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationException;
+import com.sprint.mission.discodeit.notification.domain.payload.NotificationPayloadCreated;
+import com.sprint.mission.discodeit.notification.domain.payload.NotificationPayloadDeleted;
+import com.sprint.mission.discodeit.notification.domain.provider.NotificationNotifier;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationUserResolver;
 import com.sprint.mission.discodeit.notification.infra.repository.NotificationRepository;
 import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
@@ -23,11 +27,15 @@ public class NotificationService {
   private final NotificationRepository repository;
   private final NotificationUserResolver userResolver;
   private final NotificationMapper mapper;
+  private final NotificationNotifier notifier;
+  private final NotificationPayloadMapper payloadMapper;
 
   public void create(List<UUID> receiverIds, String title, String content) {
     List<User> receivers = userResolver.getProxyOrThrow(receiverIds);
     List<Notification> notifications = mapper.toEntityFrom(receivers, title, content);
     repository.saveAll(notifications);
+    notifications.forEach(n -> notifier.notifyCreated(n.getReceiver().getId(),
+        payloadMapper.toDto(n, NotificationPayloadCreated.class)));
   }
 
   public List<NotificationDto> find(UUID receiverId) {
@@ -35,8 +43,10 @@ public class NotificationService {
   }
 
   public void delete(UUID id) {
-    DomainServiceSupport.deleteOrThrow(id, repository,
-        value -> new NotificationException(NotificationErrorCode.NOT_FOUND, id));
+    Notification notification = findById(id);
+    repository.delete(notification);
+    notifier.notifyDeleted(notification.getReceiver().getId(),
+        payloadMapper.toDto(notification, NotificationPayloadDeleted.class));
   }
 
   public void sendToAdmin(String title, List<String> messages) {
@@ -45,5 +55,10 @@ public class NotificationService {
         .map(message -> mapper.toEntityFrom(admin, title, message))
         .toList();
     repository.saveAll(notifications);
+  }
+
+  private Notification findById(UUID id) {
+    return DomainServiceSupport.getOrThrow(id, repository::findById,
+        value -> new NotificationException(NotificationErrorCode.NOT_FOUND));
   }
 }
