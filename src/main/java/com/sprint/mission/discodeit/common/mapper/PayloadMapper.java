@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.common.mapper;
 
-import com.sprint.mission.discodeit.common.dto.PayloadCreatedMarker;
-import com.sprint.mission.discodeit.common.dto.PayloadDeletedMarker;
-import com.sprint.mission.discodeit.common.dto.PayloadMarker;
-import com.sprint.mission.discodeit.common.dto.PayloadUpdatedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadUpdatedMarker;
 import com.sprint.mission.discodeit.common.jpa.BaseEntity;
 import java.util.Map;
 import java.util.function.Function;
