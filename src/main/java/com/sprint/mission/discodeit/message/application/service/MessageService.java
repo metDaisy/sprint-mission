@@ -84,9 +84,8 @@ public class MessageService {
 
   @ServiceLogAround
   public void delete(UUID id) {
-    DomainServiceSupport.deleteOrThrow(id, repository,
-        messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
     Message message = findById(id);
+    repository.delete(message);
     notifier.notifyDeleted(message.getChannel().getId(),
         payloadMapper.toDto(message, MessagePayloadDeleted.class));
   }
