@@ -3,6 +3,9 @@ package com.sprint.mission.discodeit.message.application.service;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.common.api.response.PageResponse;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadUpdatedMarker;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.message.application.mapper.MessagePayloadMapper;
@@ -10,9 +13,6 @@ import com.sprint.mission.discodeit.message.domain.entity.Message;
 import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.message.domain.exception.MessageErrorCode;
 import com.sprint.mission.discodeit.message.domain.exception.MessageException;
-import com.sprint.mission.discodeit.message.domain.payload.MessagePayloadCreated;
-import com.sprint.mission.discodeit.message.domain.payload.MessagePayloadDeleted;
-import com.sprint.mission.discodeit.message.domain.payload.MessagePayloadUpdated;
 import com.sprint.mission.discodeit.message.domain.provider.MessageBinaryContentResolver;
 import com.sprint.mission.discodeit.message.domain.provider.MessageChannelResolver;
 import com.sprint.mission.discodeit.message.domain.provider.MessageNotifier;
@@ -63,7 +63,7 @@ public class MessageService {
         new MessageCreatedEvent(request.getAuthorId(), request.getChannelId(),
             request.getContent()));
     notifier.notifyCreated(request.getChannelId(),
-        payloadMapper.toDto(message, MessagePayloadCreated.class));
+        payloadMapper.toDto(message, PayloadCreatedMarker.class));
     return mapper.toDto(message);
   }
 
@@ -78,7 +78,7 @@ public class MessageService {
     Message message = findById(id);
     mapper.partialUpdate(request, message);
     notifier.notifyUpdated(message.getChannel().getId(),
-        payloadMapper.toDto(message, MessagePayloadUpdated.class));
+        payloadMapper.toDto(message, PayloadUpdatedMarker.class));
     return mapper.toDto(message);
   }
 
@@ -87,7 +87,7 @@ public class MessageService {
     Message message = findById(id);
     repository.delete(message);
     notifier.notifyDeleted(message.getChannel().getId(),
-        payloadMapper.toDto(message, MessagePayloadDeleted.class));
+        payloadMapper.toDto(message, PayloadDeletedMarker.class));
   }
 
   private Message findById(UUID id) {

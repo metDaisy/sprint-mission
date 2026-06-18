@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.readstatus.application.supplier;
 
-import com.sprint.mission.discodeit.global.web.ws.provider.ChannelSubscribeValidator;
+import com.sprint.mission.discodeit.global.web.ws.stomp.provider.ChannelSubscribeValidator;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorCode;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusException;
 import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;

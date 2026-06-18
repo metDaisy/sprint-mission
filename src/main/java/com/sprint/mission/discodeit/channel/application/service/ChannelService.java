@@ -17,6 +17,9 @@ import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChann
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.response.ChannelResponse;
 import com.sprint.mission.discodeit.channel.presentation.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadUpdatedMarker;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.user.domain.entity.User;
@@ -43,7 +46,7 @@ public class ChannelService {
   public ChannelResponse createPublic(PublicChannelCreateRequest request) {
     Channel channel = mapper.toEntityFrom(request);
     repository.save(channel);
-    notifier.notifyCreated(payloadMapper.toDto(channel, ChannelPayloadCreated.class));
+    notifier.notifyCreated(payloadMapper.toDto(channel, PayloadCreatedMarker.class));
     return mapper.toDto(channel);
   }
 
@@ -78,7 +81,7 @@ public class ChannelService {
     ChannelDetailDto channelDetail = findByIdWithDetail(id);
     Channel channel = channelDetail.channel();
     mapper.partialUpdate(request, channel);
-    notifier.notifyUpdated(payloadMapper.toDto(channel, ChannelPayloadUpdated.class));
+    notifier.notifyUpdated(payloadMapper.toDto(channel, PayloadUpdatedMarker.class));
     return mapper.toDto(channelDetail);
   }
 
@@ -86,7 +89,7 @@ public class ChannelService {
   public void delete(UUID id) {
     Channel channel = findById(id);
     repository.delete(channel);
-    notifier.notifyDeleted(payloadMapper.toDto(channel, ChannelPayloadDeleted.class));
+    notifier.notifyDeleted(payloadMapper.toDto(channel, PayloadDeletedMarker.class));
   }
 
   private ChannelDetailDto findByIdWithDetail(UUID id) {

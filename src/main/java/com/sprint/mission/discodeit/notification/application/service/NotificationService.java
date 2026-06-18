@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.notification.application.service;
 
+import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
+import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.notification.application.mapper.NotificationPayloadMapper;
 import com.sprint.mission.discodeit.notification.domain.entity.Notification;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationErrorCode;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationException;
-import com.sprint.mission.discodeit.notification.domain.payload.NotificationPayloadCreated;
-import com.sprint.mission.discodeit.notification.domain.payload.NotificationPayloadDeleted;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationNotifier;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationUserResolver;
 import com.sprint.mission.discodeit.notification.infra.repository.NotificationRepository;
@@ -35,7 +35,7 @@ public class NotificationService {
     List<Notification> notifications = mapper.toEntityFrom(receivers, title, content);
     repository.saveAll(notifications);
     notifications.forEach(n -> notifier.notifyCreated(n.getReceiver().getId(),
-        payloadMapper.toDto(n, NotificationPayloadCreated.class)));
+        payloadMapper.toDto(n, PayloadCreatedMarker.class)));
   }
 
   public List<NotificationDto> find(UUID receiverId) {
@@ -46,7 +46,7 @@ public class NotificationService {
     Notification notification = findById(id);
     repository.delete(notification);
     notifier.notifyDeleted(notification.getReceiver().getId(),
-        payloadMapper.toDto(notification, NotificationPayloadDeleted.class));
+        payloadMapper.toDto(notification, PayloadDeletedMarker.class));
   }
 
   public void sendToAdmin(String title, List<String> messages) {
