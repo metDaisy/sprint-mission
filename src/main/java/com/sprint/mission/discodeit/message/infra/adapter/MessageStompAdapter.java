@@ -9,10 +9,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MessageNotifierAdapter
+public class MessageStompAdapter
     extends AbstractStompPublisher implements MessageNotifier {
 
-  public MessageNotifierAdapter(
+  public MessageStompAdapter(
       SimpMessagingTemplate messagingTemplate) {
     super(messagingTemplate, Message.class);
   }
@@ -28,7 +28,7 @@ public class MessageNotifierAdapter
   }
 
   @Override
-  public void notifyDeleted(UUID id) {
-    publish(id, payload, StompMessageType.DELETED);
+  public void notifyDeleted(UUID channelId, Object payload) {
+    publish(channelId, payload, StompMessageType.DELETED);
   }
 }

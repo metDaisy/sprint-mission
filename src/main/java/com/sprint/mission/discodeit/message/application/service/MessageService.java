@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.message.domain.exception.MessageErrorCode;
 import com.sprint.mission.discodeit.message.domain.exception.MessageException;
 import com.sprint.mission.discodeit.message.domain.payload.MessagePayloadCreated;
+import com.sprint.mission.discodeit.message.domain.payload.MessagePayloadDeleted;
 import com.sprint.mission.discodeit.message.domain.payload.MessagePayloadUpdated;
 import com.sprint.mission.discodeit.message.domain.provider.MessageBinaryContentResolver;
 import com.sprint.mission.discodeit.message.domain.provider.MessageChannelResolver;
@@ -85,7 +86,9 @@ public class MessageService {
   public void delete(UUID id) {
     DomainServiceSupport.deleteOrThrow(id, repository,
         messageId -> new MessageException(MessageErrorCode.MESSAGEID_NOT_FOUND, messageId));
-    notifier.notifyDeleted(id);
+    Message message = findById(id);
+    notifier.notifyDeleted(message.getChannel().getId(),
+        payloadMapper.toDto(message, MessagePayloadDeleted.class));
   }
 
   private Message findById(UUID id) {
