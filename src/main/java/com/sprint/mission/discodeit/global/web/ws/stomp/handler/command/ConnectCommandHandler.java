@@ -1,10 +1,10 @@
-package com.sprint.mission.discodeit.global.web.ws.interceptor.command;
+package com.sprint.mission.discodeit.global.web.ws.stomp.handler.command;
 
 import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationErrorCode;
 import com.sprint.mission.discodeit.global.security.exception.JwtAuthenticationException;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.global.web.ws.interceptor.StompCommandHandler;
+import com.sprint.mission.discodeit.global.web.ws.stomp.handler.StompCommandHandler;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -41,7 +41,7 @@ class ConnectCommandHandler implements StompCommandHandler {
   }
 
   private String parseToken(StompHeaderAccessor accessor) {
-    String header = accessor.getHeader("Authorization").toString();
+    String header = accessor.getFirstNativeHeader("Authorization");
     if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
       return header.substring(7);
     }

@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.global.web.ws.interceptor.command;
+package com.sprint.mission.discodeit.global.web.ws.stomp.handler.command;
 
-import com.sprint.mission.discodeit.global.web.ws.interceptor.StompCommandHandler;
-import com.sprint.mission.discodeit.global.web.ws.interceptor.SubscribeCommandHandler;
+import com.sprint.mission.discodeit.global.web.ws.stomp.handler.StompCommandHandler;
+import com.sprint.mission.discodeit.global.web.ws.stomp.handler.SubscribeCommandHandler;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.stomp.StompCommand;

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.web.ws.provider;
+package com.sprint.mission.discodeit.global.web.ws.stomp.provider;
 
 import java.util.UUID;
 

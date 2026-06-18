@@ -1,9 +1,9 @@
-package com.sprint.mission.discodeit.global.web.ws.interceptor.command;
+package com.sprint.mission.discodeit.global.web.ws.stomp.handler.command;
 
-import com.sprint.mission.discodeit.global.web.ws.stomp.constant.StompConstants;
-import com.sprint.mission.discodeit.global.web.ws.interceptor.SubscribeCommandHandler;
-import com.sprint.mission.discodeit.global.web.ws.provider.ChannelSubscribeValidator;
-import com.sprint.mission.discodeit.global.web.ws.util.StompDestinationParser;
+import com.sprint.mission.discodeit.global.web.ws.stomp.constant.WebSocketDestinations;
+import com.sprint.mission.discodeit.global.web.ws.stomp.handler.SubscribeCommandHandler;
+import com.sprint.mission.discodeit.global.web.ws.stomp.provider.ChannelSubscribeValidator;
+import com.sprint.mission.discodeit.global.web.ws.stomp.util.StompDestinationParser;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -16,7 +16,7 @@ class ChannelSubscribeCommandHandler implements SubscribeCommandHandler {
 
   @Override
   public boolean canSupport(String destination) {
-    return destination.startsWith(StompConstants.PUB_MESSAGE_DESTINATION);
+    return destination.startsWith(WebSocketDestinations.PUB_MESSAGE);
   }
 
   @Override

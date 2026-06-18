@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.global.web.ws.util;
+package com.sprint.mission.discodeit.global.web.ws.stomp.util;
 
-import com.sprint.mission.discodeit.global.web.ws.stomp.constant.StompConstants;
-import com.sprint.mission.discodeit.global.web.ws.exception.StompErrorCode;
-import com.sprint.mission.discodeit.global.web.ws.exception.StompException;
+import com.sprint.mission.discodeit.global.web.ws.stomp.constant.WebSocketDestinations;
+import com.sprint.mission.discodeit.global.web.ws.stomp.exception.StompErrorCode;
+import com.sprint.mission.discodeit.global.web.ws.stomp.exception.StompException;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -13,11 +13,11 @@ public final class StompDestinationParser {
 
   public static UUID extractChannelId(String destination) {
     if (!StringUtils.hasText(destination) || !destination.startsWith(
-        StompConstants.PUB_MESSAGE_DESTINATION)) {
+        WebSocketDestinations.PUB_MESSAGE)) {
       throw new StompException(StompErrorCode.DESTINATION_INCORRECT_FORMAT, "destination",
           destination);
     }
-    String stringId = destination.replace(StompConstants.PUB_MESSAGE_DESTINATION, "")
+    String stringId = destination.replace(WebSocketDestinations.PUB_MESSAGE, "")
         .substring(1);
     try {
       return UUID.fromString(stringId);

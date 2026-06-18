@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.web.ws.stomp.publisher;
 
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
-import com.sprint.mission.discodeit.global.web.ws.stomp.constant.StompConstants;
+import com.sprint.mission.discodeit.global.web.ws.stomp.constant.WebSocketDestinations;
 import com.sprint.mission.discodeit.global.web.ws.stomp.constant.StompMessageType;
 import com.sprint.mission.discodeit.message.domain.entity.Message;
 import com.sprint.mission.discodeit.notification.domain.entity.Notification;
@@ -15,10 +15,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 public abstract class AbstractStompPublisher {
 
   private static final Map<Class<?>, String> dest = Map.of(
-      Message.class, StompConstants.SUB_MESSAGE_DESTINATION,
-      Channel.class, StompConstants.SUB_CHANNEL_DESTINATION,
-      User.class, StompConstants.SUB_USER_DESTINATION,
-      Notification.class, StompConstants.SUB_NOTIFICATION_DESTINATION
+      Message.class, WebSocketDestinations.SUB_MESSAGE,
+      Channel.class, WebSocketDestinations.SUB_CHANNEL,
+      User.class, WebSocketDestinations.SUB_USER,
+      Notification.class, WebSocketDestinations.SUB_NOTIFICATION
   );
   private final SimpMessagingTemplate messagingTemplate;
   private final Class<?> clazz;

@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.global.security.filter.JwtAuthenticationFilt
 import com.sprint.mission.discodeit.global.security.handler.ForbiddenAccessHandler;
 import com.sprint.mission.discodeit.global.security.handler.UnauthenticatedEntryPoint;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.global.web.ws.constant.WebSocketConstants;
 import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ public class SecurityConfig {
       JwtAuthenticationFilter jwtAuthenticationFilter)
       throws Exception {
     return http.csrf(csrf -> csrf
+            .ignoringRequestMatchers(WebSocketConstants.WS_MATCHER)
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
@@ -57,8 +59,9 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(HttpMethod.GET, SecurityConstants.PUBLIC_GET_PATHS).permitAll()
-                    .requestMatchers(HttpMethod.POST, SecurityConstants.PUBLIC_POST_PATHS).permitAll()
+                auth.requestMatchers(WebSocketConstants.WS_MATCHER).permitAll()
+                    .requestMatchers(HttpMethod.GET, SecurityConstants.PUBLIC_GET_PATHS).permitAll()
+                    .requestMatchers(HttpMethod.POST, SecurityConstants.PUBLIC_POST_PATHS) .permitAll()
                     .anyRequest().authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(

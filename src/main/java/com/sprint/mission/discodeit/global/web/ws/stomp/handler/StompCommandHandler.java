@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.web.ws.interceptor;
+package com.sprint.mission.discodeit.global.web.ws.stomp.handler;
 
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
