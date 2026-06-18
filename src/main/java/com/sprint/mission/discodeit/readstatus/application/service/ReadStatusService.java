@@ -62,8 +62,8 @@ public class ReadStatusService {
   }
 
   public void delete(UUID id) {
-    DomainServiceSupport.deleteOrThrow(id, repository,
-        value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
+    ReadStatus status = findById(id);
+    repository.delete(status);
   }
 
   public void create(UUID channelId,
