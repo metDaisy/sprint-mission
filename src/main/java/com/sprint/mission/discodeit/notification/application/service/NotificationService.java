@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.notification.application.service;
 import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
 import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
+import com.sprint.mission.discodeit.notification.application.mapper.NotificationDomainMapper;
 import com.sprint.mission.discodeit.notification.application.mapper.NotificationPayloadMapper;
 import com.sprint.mission.discodeit.notification.domain.entity.Notification;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationErrorCode;
@@ -10,8 +11,6 @@ import com.sprint.mission.discodeit.notification.domain.exception.NotificationEx
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationNotifier;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationUserResolver;
 import com.sprint.mission.discodeit.notification.infra.repository.NotificationRepository;
-import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
-import com.sprint.mission.discodeit.notification.presentation.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +25,7 @@ public class NotificationService {
 
   private final NotificationRepository repository;
   private final NotificationUserResolver userResolver;
-  private final NotificationMapper mapper;
+  private final NotificationDomainMapper mapper;
   private final NotificationNotifier notifier;
   private final NotificationPayloadMapper payloadMapper;
 
@@ -38,8 +37,9 @@ public class NotificationService {
         payloadMapper.toDto(n, PayloadCreatedMarker.class)));
   }
 
-  public List<NotificationDto> find(UUID receiverId) {
-    return mapper.toDto(repository.findAllByReceiver_Id(receiverId));
+  @Transactional(readOnly = true)
+  public List<Notification> find(UUID receiverId) {
+    return repository.findAllByReceiver_Id(receiverId);
   }
 
   public void delete(UUID id) {

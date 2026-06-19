@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequ
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
 import com.sprint.mission.discodeit.user.application.service.UserService;
-import com.sprint.mission.discodeit.user.presentation.mapper.UserMapper;
+import com.sprint.mission.discodeit.user.presentation.mapper.UserApiMapper;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private final UserService userService;
-  private final UserMapper mapper;
+  private final UserApiMapper mapper;
 
   @GetMapping(value = "/{id}")
   public ResponseEntity<UserResponse> find(@PathVariable UUID id) {

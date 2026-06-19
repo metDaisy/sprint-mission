@@ -7,7 +7,7 @@ import lombok.Builder;
 @Builder
 public record NotificationDto(UUID id,
                               Instant createdAt,
-                              UUID receivedId,
+                              UUID receiverId,
                               String title,
                               String content) {
 

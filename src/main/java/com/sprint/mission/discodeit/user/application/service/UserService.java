@@ -20,7 +20,6 @@ import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
 import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.user.presentation.mapper.UserMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
