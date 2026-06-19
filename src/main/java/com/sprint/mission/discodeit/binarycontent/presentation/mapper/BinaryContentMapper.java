@@ -15,4 +15,6 @@ public interface BinaryContentMapper extends GenericMapper<BinaryContent, Binary
 
   BinaryContent toEntityFrom(FileUploadRequest dto);
 
+  @Override
+  BinaryContentDto toDto(BinaryContent entity);
 }
