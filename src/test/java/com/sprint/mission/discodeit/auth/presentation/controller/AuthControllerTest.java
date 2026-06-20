@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.auth.presentation.controller;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,7 +41,7 @@ class AuthControllerTest {
   @DisplayName("csrfToken - CSRF 토큰을 요청하면 상태 코드 204를 반환한다.")
   @WithMockUser
   void csrfToken_success() throws Exception {
-    mockMvc.perform(get("/auth/csrf-token")
+    mockMvc.perform(get("/api/auth/csrf-token")
             .with(SecurityMockMvcRequestPostProcessors.csrf()))
         .andExpect(status().isNoContent());
   }
@@ -50,7 +49,7 @@ class AuthControllerTest {
   @Test
   @DisplayName("refresh - Refresh Token이 쿠키에 없으면 401 Unauthorized를 반환한다.")
   void refresh_fail_unauthorized() throws Exception {
-    mockMvc.perform(post("/auth/refresh")
+    mockMvc.perform(post("/api/auth/refresh")
             .with(SecurityMockMvcRequestPostProcessors.csrf()))
         .andExpect(status().isUnauthorized());
   }
@@ -69,7 +68,7 @@ class AuthControllerTest {
     given(jwtTokenService.reissue(refreshToken)).willReturn(response);
     given(cookieProvider.createRefreshTokenCookie(newRefreshToken)).willReturn(responseCookie);
 
-    mockMvc.perform(post("/auth/refresh")
+    mockMvc.perform(post("/api/auth/refresh")
             .cookie(new Cookie("REFRESH_TOKEN", refreshToken))
             .with(SecurityMockMvcRequestPostProcessors.csrf()))
         .andExpect(status().isOk())
