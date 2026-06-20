@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.readstatus.application.supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.readstatus.domain.repository.ReadStatusReferenceRepository;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReadStatusReferenceQuerySupplierTest {
 
   @Mock
-  private ReadStatusRepository repository;
+  private ReadStatusReferenceRepository repository;
 
   @InjectMocks
   private ReadStatusReferenceQuerySupplier supplier;

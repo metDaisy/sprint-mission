@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class ReadStatusRepositoryTest extends BaseRepositoryTest {
 
   @Autowired
-  private ReadStatusRepository readStatusRepository;
+  private ReadStatusJpaRepository readStatusRepository;
 
   private int userCounter = 0;
 
@@ -36,7 +36,7 @@ class ReadStatusRepositoryTest extends BaseRepositoryTest {
     flushAndClear();
     queryInspector.clear();
 
-    List<ReadStatus> result = readStatusRepository.findAllByUserId(user.getId());
+    List<ReadStatus> result = readStatusRepository.findAllByUser_Id(user.getId());
 
     queryInspector.logQueries();
     System.out.println("findAllByUserId query count: " + queryInspector.getQueries().size());
