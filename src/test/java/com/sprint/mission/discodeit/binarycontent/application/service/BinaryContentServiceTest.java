@@ -11,11 +11,9 @@ import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentErrorCode;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentException;
-import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentJpaRepository;
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.request.FileUploadRequest;
-import com.sprint.mission.discodeit.binarycontent.presentation.dto.response.BinaryContentDto;
-import com.sprint.mission.discodeit.binarycontent.presentation.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.support.mapper.MapperContainer;
+import com.sprint.mission.discodeit.binarycontent.application.mapper.BinaryContentDomainMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,17 +27,19 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import com.sprint.mission.discodeit.binarycontent.application.mapper.BinaryContentDomainMapperImpl;
+
 @ExtendWith(MockitoExtension.class)
 class BinaryContentServiceTest {
 
   @Mock
-  private BinaryContentRepository repository;
+  private BinaryContentJpaRepository repository;
 
   @Mock
   private ApplicationEventPublisher eventPublisher;
 
   @Spy
-  private final BinaryContentMapper mapper = MapperContainer.get(BinaryContentMapper.class);
+  private final BinaryContentDomainMapper domainMapper = new BinaryContentDomainMapperImpl();
 
   @InjectMocks
   private BinaryContentService binaryContentService;
@@ -53,11 +53,11 @@ class BinaryContentServiceTest {
     ArgumentCaptor<List<BinaryContent>> captor = ArgumentCaptor.forClass(List.class);
     given(repository.saveAll(captor.capture())).willReturn(List.of());
 
-    List<BinaryContentDto> result = binaryContentService.create(List.of(request));
+    List<BinaryContent> result = binaryContentService.create(List.of(request));
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).fileName()).isEqualTo("test.txt");
-    assertThat(result.get(0).size()).isEqualTo(11L);
+    assertThat(result.get(0).getFileName()).isEqualTo("test.txt");
+    assertThat(result.get(0).getSize()).isEqualTo(11L);
 
     verify(repository).saveAll(anyList());
     verify(eventPublisher).publishEvent(any(FileUploadEvent.class));
@@ -79,10 +79,10 @@ class BinaryContentServiceTest {
 
     given(repository.findById(id)).willReturn(Optional.of(entity));
 
-    BinaryContentDto result = binaryContentService.find(id);
+    BinaryContent result = binaryContentService.find(id);
 
-    assertThat(result.fileName()).isEqualTo("test.txt");
-    assertThat(result.size()).isEqualTo(100L);
+    assertThat(result.getFileName()).isEqualTo("test.txt");
+    assertThat(result.getSize()).isEqualTo(100L);
   }
 
   @Test
@@ -107,12 +107,12 @@ class BinaryContentServiceTest {
         .size(100L)
         .build();
 
-    given(repository.findAllById(List.of(id))).willReturn(List.of(entity));
+    given(repository.findAllByIdIn(List.of(id))).willReturn(List.of(entity));
 
-    List<BinaryContentDto> result = binaryContentService.findAllByIdIn(List.of(id));
+    List<BinaryContent> result = binaryContentService.findAllByIdIn(List.of(id));
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).fileName()).isEqualTo("test.txt");
+    assertThat(result.get(0).getFileName()).isEqualTo("test.txt");
   }
 
   @Test

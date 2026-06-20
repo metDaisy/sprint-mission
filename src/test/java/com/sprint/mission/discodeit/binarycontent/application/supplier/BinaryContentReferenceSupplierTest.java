@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.binarycontent.application.supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -9,7 +8,7 @@ import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentErrorCode;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentException;
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
+import com.sprint.mission.discodeit.common.jpa.repository.EntityReferenceJpaRepository;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class BinaryContentReferenceSupplierTest {
 
   @Mock
-  private DomainRepository<BinaryContent> repository;
+  private EntityReferenceJpaRepository<BinaryContent> repository;
 
   @InjectMocks
   private BinaryContentReferenceSupplier supplier;
