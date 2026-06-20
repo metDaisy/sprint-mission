@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.channel.application.service;
 
+import com.sprint.mission.discodeit.channel.application.mapper.ChannelDomainMapper;
 import com.sprint.mission.discodeit.channel.application.mapper.ChannelPayloadMapper;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.event.ReadStatusCreatedEvent;
@@ -7,12 +8,12 @@ import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
 import com.sprint.mission.discodeit.channel.domain.provider.ChannelNotifier;
 import com.sprint.mission.discodeit.channel.domain.provider.ChannelUserResolver;
-import com.sprint.mission.discodeit.channel.infra.repository.ChannelRepository;
+import com.sprint.mission.discodeit.channel.domain.repository.ChannelQueryRepository;
+import com.sprint.mission.discodeit.channel.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.application.mapper.ChannelDomainMapper;
 import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
 import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
 import com.sprint.mission.discodeit.common.payload.marker.PayloadUpdatedMarker;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChannelService {
 
   private final ChannelRepository repository;
+  private final ChannelQueryRepository queryRepository;
   private final ChannelDomainMapper domainMapper;
   private final ApplicationEventPublisher eventPublisher;
   private final ChannelUserResolver userProvider;
@@ -66,7 +68,7 @@ public class ChannelService {
   @ServiceLogAround
   @Transactional(readOnly = true)
   public List<ChannelDetailDto> findAllByUserId(UUID userId) {
-    return repository.findVisibleChannelDetails(userId);
+    return queryRepository.findVisibleChannelDetails(userId);
   }
 
   @ServiceLogAround
@@ -86,7 +88,7 @@ public class ChannelService {
   }
 
   private ChannelDetailDto findByIdWithDetail(UUID id) {
-    return DomainServiceSupport.getOrThrow(id, repository::findChannelDetailById,
+    return DomainServiceSupport.getOrThrow(id, queryRepository::findChannelDetailById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 

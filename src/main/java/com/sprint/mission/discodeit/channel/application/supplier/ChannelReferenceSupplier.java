@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
+import com.sprint.mission.discodeit.common.jpa.repository.EntityReferenceJpaRepository;
 import com.sprint.mission.discodeit.common.reference.supplier.AbstractEntityReferenceSupplier;
 import java.util.Collection;
 import java.util.UUID;
@@ -15,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ChannelReferenceSupplier extends AbstractEntityReferenceSupplier<Channel> {
 
-  public ChannelReferenceSupplier(
-      DomainRepository<Channel> repository) {
+  public ChannelReferenceSupplier(EntityReferenceJpaRepository<Channel> repository) {
     super(repository);
   }
 
