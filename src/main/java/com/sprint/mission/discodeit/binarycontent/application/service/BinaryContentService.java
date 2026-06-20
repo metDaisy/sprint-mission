@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentErrorCode;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentException;
-import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.binarycontent.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.request.FileUploadRequest;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
@@ -38,7 +38,7 @@ public class BinaryContentService {
   @ServiceLogAround
   @Transactional(readOnly = true)
   public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
-    return repository.findAllById(ids);
+    return repository.findAllByIdIn(ids);
   }
 
   @ServiceLogAround
@@ -51,7 +51,8 @@ public class BinaryContentService {
   @Transactional(readOnly = true)
   public void existsOrThrow(UUID id) {
     DomainServiceSupport.requireOrThrow(id, repository::existsSuccessById,
-        value -> new BinaryContentException(BinaryContentErrorCode.BINARYCONTENTID_NOT_FOUND, value));
+        value -> new BinaryContentException(BinaryContentErrorCode.BINARYCONTENTID_NOT_FOUND,
+            value));
   }
 
   private void publishFileUploadEvent(List<BinaryContent> entities,

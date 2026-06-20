@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentErrorCode;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentException;
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
+import com.sprint.mission.discodeit.common.jpa.repository.EntityReferenceJpaRepository;
 import com.sprint.mission.discodeit.common.reference.supplier.AbstractEntityReferenceSupplier;
 import java.util.Collection;
 import java.util.UUID;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BinaryContentReferenceSupplier extends AbstractEntityReferenceSupplier<BinaryContent> {
 
   public BinaryContentReferenceSupplier(
-      DomainRepository<BinaryContent> repository) {
+      EntityReferenceJpaRepository<BinaryContent> repository) {
     super(repository);
   }
 

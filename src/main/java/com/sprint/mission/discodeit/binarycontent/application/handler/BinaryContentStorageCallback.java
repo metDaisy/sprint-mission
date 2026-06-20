@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.binarycontent.application.handler;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.constant.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.event.UploadFailedNotificationEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
-import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.binarycontent.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.global.infra.storage.event.StorageCallback;
 import java.util.List;
 import java.util.Map;
