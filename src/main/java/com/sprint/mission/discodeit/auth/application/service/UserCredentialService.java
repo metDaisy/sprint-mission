@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
 import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;
 import com.sprint.mission.discodeit.auth.domain.provider.AuthUserResolver;
-import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.auth.domain.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
