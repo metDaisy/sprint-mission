@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.common.reference.supplier;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
+import com.sprint.mission.discodeit.common.jpa.repository.EntityReferenceJpaRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class AbstractEntityReferenceSupplier<T> implements EntityReferenceSupplier<T> {
 
-  private final DomainRepository<T> repository;
+  private final EntityReferenceJpaRepository<T> repository;
 
   protected abstract DiscodeitException notFoundException(UUID id);
 
