@@ -1,8 +1,9 @@
+import useUserListStore from "@/stores/userListStore.ts";
 import defaultProfile from '@/assets/default_profile.png';
 import useBinaryContentStore, {BinaryContentInfo} from '@/stores/binaryContentStore';
 import useMessageStore from '@/stores/messageStore';
 import useAuthStore from '@/stores/authStore';
-import {BinaryContentDto, ChannelDto} from '@/types/api';
+import {BinaryContentDto, ChannelDto, MessageDto} from '@/types/api';
 import {useCallback, useEffect, useState} from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {Avatar} from '@/styles/common.ts';
@@ -65,9 +66,40 @@ function MessageList({channel}: MessageListProps): JSX.Element {
     updateBinaryContentStatus
   } = useBinaryContentStore();
   const {currentUser} = useAuthStore();
+  const {users} = useUserListStore();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState<string>('');
+
+  const handleReceiveWebSocketMessage = useCallback((payload: any) => {
+    // 1. authorId(userId)로 작성자 찾기 (채널 참여자 우선, 없으면 전체 유저 목록에서)
+    const authorId = payload.userId;
+    let author = channel.participants?.find(p => p.id === authorId)
+        || users.find(u => u.id === authorId);
+    // 정 못 찾았을 경우의 예외 처리 (Fallback)
+    if (!author) {
+      author = {
+        id: authorId,
+        username: '알 수 없음!!!',
+        email: '',
+        online: false,
+        role: 'USER' as any
+      };
+    }
+    // 2. MessageDto 형식으로 조립
+    const newMessage: MessageDto = {
+      id: payload.id,
+      createdAt: payload.createdAt,
+      updatedAt: payload.createdAt, // 생성 시점이니 업데이트 시간도 동일하게 세팅
+      content: payload.content,
+      channelId: channel.id,
+      author: author,
+      // 프론트엔드는 id만 있어도 attachment 처리가 되도록 짜여져 있습니다.
+      attachments: payload.attachmentIds?.map((id: string) => ({ id } as BinaryContentDto)) || []
+    };
+    // 3. 변환된 메시지를 스토어에 추가
+    addNewMessage(newMessage);
+  }, [channel, users, addNewMessage]);
 
   useEffect(() => {
     if (channel?.id) {
@@ -322,7 +354,6 @@ function MessageList({channel}: MessageListProps): JSX.Element {
     deleteMessage(messageId)
   };
 
-
   return (
       <MessageListWrapper>
         <div id="scrollableDiv" style={{
@@ -433,11 +464,11 @@ function MessageList({channel}: MessageListProps): JSX.Element {
           </InfiniteScroll>
         </div>
         <WebSocket
-            destination={WS_DESTINATIONS.TOPIC_CHANNEL(channel.id)}
-            subscribeCallback={addNewMessage}
+            destination={WS_DESTINATIONS.SUB_MESSAGE(channel.id)}
+            subscribeCallback={handleReceiveWebSocketMessage}
         />
         <WebSocket
-            destination={WS_DESTINATIONS.TOPIC_BINARY_CONTENT}
+            destination={WS_DESTINATIONS.SUB_BINARY_CONTENT}
             subscribeCallback={handleBinaryContentUpdate}
         />
       </MessageListWrapper>

@@ -157,7 +157,7 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
   return (
     <StyledChannelList>
       <WebSocket 
-          destination={WS_DESTINATIONS.TOPIC_CHANNEL_LIST} 
+          destination={WS_DESTINATIONS.SUB_CHANNEL}
           subscribeCallback={handleChannelEvent} 
       />
       <ChannelHeader />

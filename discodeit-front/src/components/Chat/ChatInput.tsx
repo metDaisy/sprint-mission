@@ -20,7 +20,7 @@ function ChatInput({channelId}: ChatInputProps) {
 
     // 2. 백엔드의 @MessageMapping 주소로 전송
     if (channelId) {
-      send(WS_DESTINATIONS.APP_CHANNEL_MESSAGE(channelId), requestPayload);
+      send(WS_DESTINATIONS.PUB_MESSAGE(channelId), requestPayload);
     }
 
     // 3. 전송 후 입력창 비우기

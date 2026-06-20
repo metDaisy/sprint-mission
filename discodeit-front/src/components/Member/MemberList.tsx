@@ -60,7 +60,7 @@ function MemberList(): JSX.Element {
   return (
       <StyledMemberList>
         <WebSocket
-            destination={WS_DESTINATIONS.TOPIC_PRESENCE}
+            destination={WS_DESTINATIONS.SUB_USERS}
             subscribeCallback={handleUserEvent}
         />
         <MemberHeader>

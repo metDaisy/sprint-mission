@@ -57,7 +57,7 @@ const NotificationIcon = () => {
       <>
         {currentUser && (
           <WebSocket
-            destination={WS_DESTINATIONS.TOPIC_NOTIFICATION(currentUser.id)}
+            destination={WS_DESTINATIONS.SUB_NOTIFICATION(currentUser.id)}
             subscribeCallback={handleNewNotification}
           />
         )}

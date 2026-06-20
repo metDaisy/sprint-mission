@@ -19,7 +19,7 @@ export default defineConfig({
         // rewrite: (path) => path.replace(/^\/api/, '') // URL 재작성 가능
       },
       '/ws': {
-        target: 'ws://localhost:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
         ws: true,

@@ -15,6 +15,7 @@ import {
 import useAuthStore from '@/stores/authStore';
 import {uploadFiles} from "@/api/upload.ts";
 import { useWebSocketStore } from '@/stores/websocketStore';
+import { WS_DESTINATIONS } from '@/constants/websocket';
 
 interface MessageInputProps {
   channel: ChannelDto;
@@ -50,7 +51,7 @@ function MessageInput({ channel }: MessageInputProps): JSX.Element | null {
         attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
       };
 
-      send(`/pub/messages`, messageCreateRequest);
+      send(WS_DESTINATIONS.PUB_MESSAGE(channel.id), messageCreateRequest);
       setContent('');
       setAttachments([]);
     } catch (error) {
