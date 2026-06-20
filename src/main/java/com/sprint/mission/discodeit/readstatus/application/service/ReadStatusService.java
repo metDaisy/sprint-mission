@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorC
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusException;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusChannelResolver;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusUserResolver;
-import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.readstatus.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.user.domain.entity.User;
@@ -31,7 +31,7 @@ public class ReadStatusService {
 
   @Transactional(readOnly = true)
   public List<ReadStatus> findAllByUserId(UUID userId) {
-    return repository.findAllByUserId(userId);
+    return repository.findAllByUser_Id(userId);
   }
 
   public ReadStatus create(ReadStatusCreateRequest request) {
