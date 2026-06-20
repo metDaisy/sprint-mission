@@ -17,7 +17,7 @@ import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
 import com.sprint.mission.discodeit.auth.presentation.mapper.AuthMapper;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.support.mapper.MapperContainer;
+import com.sprint.mission.discodeit.support.mapper.ApiMapperContainer;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import java.util.UUID;
@@ -38,10 +38,11 @@ class JwtTokenServiceTest {
   private JwtTokenProvider jwtTokenProvider;
   @Mock
   private JwtRegistry jwtRegistry;
-  @Spy
-  private AuthMapper mapper = MapperContainer.get(AuthMapper.class);
   @Mock
   private AuthUserResolver userResolver;
+
+  @Spy
+  private AuthMapper mapper = ApiMapperContainer.get(AuthMapper.class);
 
   @InjectMocks
   private JwtTokenService service;
@@ -152,7 +153,7 @@ class JwtTokenServiceTest {
 
   @Test
   @DisplayName("deleteRefreshToken - 토큰을 삭제한다.")
-  void deleteRefreshToken() {
+  void deleteRefreshToken_success() {
     String token = "refresh.token";
     service.deleteRefreshToken(token);
     verify(jwtRegistry).invalidateByToken(token);

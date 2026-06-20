@@ -5,7 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
 import com.sprint.mission.discodeit.user.domain.entity.User;
-import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
+import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
+import com.sprint.mission.discodeit.user.infra.repository.UserJpaRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 class UserCredentialRepositoryTest extends BaseRepositoryTest {
 
   @Autowired
-  private UserCredentialRepository userCredentialRepository;
+  private UserCredentialJpaRepository userCredentialRepository;
 
   @Autowired
-  private UserRepository userRepository;
+  private UserJpaRepository userJpaRepository;
 
   @Test
   @DisplayName("findByUser_Id - 사용자 ID로 UserCredential을 정상 조회한다.")
@@ -25,9 +26,9 @@ class UserCredentialRepositoryTest extends BaseRepositoryTest {
     User user = User.builder()
         .username("testuser")
         .email("test@example.com")
-        .role(com.sprint.mission.discodeit.user.domain.entity.constant.UserRole.USER)
+        .role(UserRole.USER)
         .build();
-    userRepository.save(user);
+    userJpaRepository.save(user);
 
     UserCredential credential = UserCredential.builder()
         .user(user)
@@ -51,9 +52,9 @@ class UserCredentialRepositoryTest extends BaseRepositoryTest {
     User user = User.builder()
         .username("testuser")
         .email("test@example.com")
-        .role(com.sprint.mission.discodeit.user.domain.entity.constant.UserRole.USER)
+        .role(UserRole.USER)
         .build();
-    userRepository.save(user);
+    userJpaRepository.save(user);
 
     UserCredential credential = UserCredential.builder()
         .user(user)
