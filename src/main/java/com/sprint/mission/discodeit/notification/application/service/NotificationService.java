@@ -10,7 +10,7 @@ import com.sprint.mission.discodeit.notification.domain.exception.NotificationEr
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationException;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationNotifier;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationUserResolver;
-import com.sprint.mission.discodeit.notification.infra.repository.NotificationRepository;
+import com.sprint.mission.discodeit.notification.domain.repository.NotificationRepository;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.UUID;
