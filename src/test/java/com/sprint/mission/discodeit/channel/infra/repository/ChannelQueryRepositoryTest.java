@@ -1,21 +1,20 @@
 package com.sprint.mission.discodeit.channel.infra.repository;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
-import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentJpaRepository;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
 import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.message.domain.entity.Message;
-import com.sprint.mission.discodeit.message.infra.repository.MessageRepository;
+import com.sprint.mission.discodeit.message.infra.repository.MessageJpaRepository;
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
-import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusJpaRepository;
 import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
-import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
+import com.sprint.mission.discodeit.user.infra.repository.UserJpaRepository;
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,22 +22,29 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class ChannelRepositoryTest extends BaseRepositoryTest {
+import com.sprint.mission.discodeit.channel.infra.repository.qdsl.ChannelQDSLRepository;
+import org.springframework.context.annotation.Import;
+
+@Import(ChannelQDSLRepository.class)
+class ChannelQueryRepositoryTest extends BaseRepositoryTest {
 
   @Autowired
-  private ChannelRepository channelRepository;
+  private ChannelJpaRepository channelRepository;
 
   @Autowired
-  private UserRepository userRepository;
+  private com.sprint.mission.discodeit.channel.domain.repository.ChannelQueryRepository channelQueryRepository;
 
   @Autowired
-  private ReadStatusRepository readStatusRepository;
+  private UserJpaRepository userJpaRepository;
 
   @Autowired
-  private MessageRepository messageRepository;
+  private ReadStatusJpaRepository readStatusRepository;
 
   @Autowired
-  private BinaryContentRepository binaryContentRepository;
+  private MessageJpaRepository messageJpaRepository;
+
+  @Autowired
+  private BinaryContentJpaRepository binaryContentRepository;
 
   @BeforeEach
   void setUp() {
@@ -58,7 +64,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     Channel channel = createPublicChannel();
     Message message = createMessage(author, channel);
     clear();
-    ChannelDetailDto expected = channelRepository.findChannelDetailById(channel.getId())
+    ChannelDetailDto expected = channelQueryRepository.findChannelDetailById(channel.getId())
         .orElseThrow();
     ensureQueryCount(2);
     Assertions.assertThat(channel)
@@ -78,40 +84,13 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     Channel actual = createPrivateChannel();
     ensureQueryCount(1);
     clear();
-    ChannelDetailDto expected = channelRepository.findChannelDetailById(actual.getId())
+    ChannelDetailDto expected = channelQueryRepository.findChannelDetailById(actual.getId())
         .orElseThrow();
     ensureQueryCount(2);
     Assertions.assertThat(actual)
         .usingRecursiveComparison()
         .withEqualsForType(this::compareInstant, Instant.class)
         .isEqualTo(expected.channel());
-  }
-
-  @Test
-  @DisplayName(
-      """
-          public, private channel 을 생성한다
-          모든 채널을 조회한다
-          조회에 대한 query 2개 생성된다
-          """
-  )
-  void findAllWithLastMessageAt() {
-    List<Channel> actual = List.of(
-        Channel.builder().type(ChannelType.PUBLIC).name("pub1").description("d1").build(),
-        Channel.builder().type(ChannelType.PUBLIC).name("pub2").description("d2").build(),
-        Channel.builder().type(ChannelType.PRIVATE).build(),
-        Channel.builder().type(ChannelType.PRIVATE).build()
-    );
-    channelRepository.saveAllAndFlush(actual);
-    ensureQueryCount(1);
-    clear();
-    List<ChannelDetailDto> expected = channelRepository.findAllChannelDetails();
-    ensureQueryCount(2);
-    Assertions.assertThat(actual)
-        .usingRecursiveComparison()
-        .ignoringCollectionOrder()
-        .withEqualsForType(this::compareInstant, Instant.class)
-        .isEqualTo(expected.stream().map(ChannelDetailDto::channel).toList());
   }
 
   @Test
@@ -134,7 +113,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
 
     // when
     List<ChannelDetailDto> actualChannelIds
-        = channelRepository.findVisibleChannelDetails(userId);
+        = channelQueryRepository.findVisibleChannelDetails(userId);
     ensureQueryCount(2);
 
     // then
@@ -148,7 +127,7 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     User author = createUser("deleteauthor", "deleteauthor@test.com");
     Channel expected = createPublicChannel();
     Message message = createMessage(author, expected);
-    Set<BinaryContent> attachments = message.getAttachments();
+    List<BinaryContent> attachments = message.getAttachments();
     clear();
 
     channelRepository.deleteById(expected.getId());
@@ -158,11 +137,11 @@ class ChannelRepositoryTest extends BaseRepositoryTest {
     clear();
 
     Assertions.assertThat(channelRepository.existsById(expected.getId())).isFalse();
-    Assertions.assertThat(messageRepository.existsById(message.getId())).isFalse();
+    Assertions.assertThat(messageJpaRepository.existsById(message.getId())).isFalse();
     Assertions.assertThat(attachments)
         .extracting(BinaryContent::getId)
         .allMatch(binaryContentRepository::existsById);
-    Assertions.assertThat(userRepository.existsById(author.getId())).isTrue();
+    Assertions.assertThat(userJpaRepository.existsById(author.getId())).isTrue();
   }
 
   private Channel createPublicChannel() {
