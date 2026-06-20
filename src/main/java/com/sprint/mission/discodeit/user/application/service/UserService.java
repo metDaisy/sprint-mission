@@ -16,7 +16,7 @@ import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.domain.exception.UserException;
 import com.sprint.mission.discodeit.user.domain.provider.UserNotifier;
 import com.sprint.mission.discodeit.user.domain.provider.UserProfileResolver;
-import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
+import com.sprint.mission.discodeit.user.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
