@@ -1,36 +1,33 @@
 package com.sprint.mission.discodeit.user.integration;
 
 import com.sprint.mission.discodeit.support.base.BaseIntegrationTest;
-import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.user.presentation.dto.response.UserResponse;
+import com.sprint.mission.discodeit.user.application.service.UserService;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.domain.exception.UserException;
-import com.sprint.mission.discodeit.user.presentation.mapper.UserMapper;
-import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
-import com.sprint.mission.discodeit.user.application.service.UserService;
+import com.sprint.mission.discodeit.user.infra.repository.UserJpaRepository;
+import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.user.presentation.mapper.UserApiMapper;
 import java.util.List;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Disabled("User 통합 테스트, 아직 덜 구현")
 class UserIntegrationTest extends BaseIntegrationTest {
 
   @Autowired
-  private UserRepository userRepository;
+  private UserJpaRepository userJpaRepository;
 
   @Autowired
   private UserService userService;
 
   @Autowired
-  private UserMapper userMapper;
+  private UserApiMapper userApiMapper;
 
   private List<User> users;
 
@@ -50,7 +47,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
   @DisplayName("success to find user by id")
   void success_to_find() {
     User user = users.get(0);
-    UserResponse expected = userService.find(user.getId());
+    User expected = userService.find(user.getId());
     Assertions.assertThat(expected)
         .extracting("id", "username", "email")
         .containsExactly(user.getId(), user.getUsername(), user.getEmail());
@@ -69,10 +66,10 @@ class UserIntegrationTest extends BaseIntegrationTest {
   @DisplayName("success to create user")
   void success_to_create() {
     UserCreateRequest request = new UserCreateRequest("newuser", "newuser@email.com", "password");
-    UserResponse expected = userService.create(request);
+    User expected = userService.create(request);
     flushAndClear();
-    User actual = userRepository.findById(expected.id()).orElse(null);
-    Assertions.assertThat(actual.getUsername()).isEqualTo(expected.username());
+    User actual = userJpaRepository.findProfileById(expected.getId()).orElse(null);
+    Assertions.assertThat(actual.getUsername()).isEqualTo(expected.getUsername());
   }
 
   @Test
@@ -114,9 +111,9 @@ class UserIntegrationTest extends BaseIntegrationTest {
     UUID userId = user.getId();
     UserUpdateRequest request = new UserUpdateRequest("updatedUsername", "updated@email.com",
         "password", null);
-    UserResponse updated = userService.update(userId, request);
+    User updated = userService.update(userId, request);
     flushAndClear();
-    Assertions.assertThat(updated.username()).isEqualTo(request.getUsername());
+    Assertions.assertThat(updated.getUsername()).isEqualTo(request.getUsername());
   }
 
   @Test
