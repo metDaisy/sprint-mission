@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.global.init;
 
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
-import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.auth.domain.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
-import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
+import com.sprint.mission.discodeit.user.domain.repository.UserQueryReferenceRepository;
+import com.sprint.mission.discodeit.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminInitializer {
 
   private final UserRepository userRepository;
+  private final UserQueryReferenceRepository userQueryReferenceRepository;
   private final UserCredentialRepository userCredentialRepository;
   private final PasswordEncoder passwordEncoder;
   @Value("${app.admin.username}")
@@ -30,7 +32,7 @@ public class AdminInitializer {
   @Transactional
   @EventListener(ApplicationReadyEvent.class)
   public void init() {
-    boolean hasAdmin = userRepository.existsByRole(UserRole.ADMIN);
+    boolean hasAdmin = userQueryReferenceRepository.existsByRole(UserRole.ADMIN);
     if (hasAdmin) {
       return;
     }
