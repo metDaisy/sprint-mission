@@ -18,9 +18,8 @@ class UserCredentialTest {
         .password("oldPassword")
         .build();
 
-    boolean result = credential.updatePassword("newPassword");
+    credential.updatePassword("newPassword");
 
-    assertThat(result).isTrue();
     assertThat(credential.getPassword()).isEqualTo("newPassword");
   }
 
@@ -33,9 +32,8 @@ class UserCredentialTest {
         .password("oldPassword")
         .build();
 
-    boolean result = credential.updatePassword("oldPassword");
+    credential.updatePassword("oldPassword");
 
-    assertThat(result).isFalse();
     assertThat(credential.getPassword()).isEqualTo("oldPassword");
   }
 }

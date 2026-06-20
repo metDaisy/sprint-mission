@@ -7,13 +7,14 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import com.sprint.mission.discodeit.binarycontent.application.mapper.BinaryContentDomainMapper;
+import com.sprint.mission.discodeit.binarycontent.application.mapper.BinaryContentDomainMapperImpl;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentErrorCode;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentException;
-import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentJpaRepository;
+import com.sprint.mission.discodeit.binarycontent.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.request.FileUploadRequest;
-import com.sprint.mission.discodeit.binarycontent.application.mapper.BinaryContentDomainMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,13 +28,11 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.sprint.mission.discodeit.binarycontent.application.mapper.BinaryContentDomainMapperImpl;
-
 @ExtendWith(MockitoExtension.class)
 class BinaryContentServiceTest {
 
   @Mock
-  private BinaryContentJpaRepository repository;
+  private BinaryContentRepository repository;
 
   @Mock
   private ApplicationEventPublisher eventPublisher;

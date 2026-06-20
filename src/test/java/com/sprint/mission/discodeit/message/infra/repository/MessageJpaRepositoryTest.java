@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.message.infra.repository;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentJpaRepository;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
@@ -28,7 +29,7 @@ class MessageJpaRepositoryTest extends BaseRepositoryTest {
   @Autowired
   private MessageJpaRepository messageJpaRepository;
   @Autowired
-  private BinaryContentJpaRepository binaryContentRepository;
+  private BinaryContentRepository binaryContentRepository;
 
   private int userCounter = 0;
 

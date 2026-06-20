@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.global.web.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sprint.mission.discodeit.global.web.mvc.filter.MdcLoggingFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +11,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
-import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 

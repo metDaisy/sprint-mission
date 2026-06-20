@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.support.mapper.ApiMapperContainer;
+import com.sprint.mission.discodeit.support.mapper.GlobalApiMapperTestConfig;
 import com.sprint.mission.discodeit.user.application.service.UserService;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
@@ -24,7 +24,6 @@ import com.sprint.mission.discodeit.user.domain.exception.UserException;
 import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.user.presentation.mapper.UserApiMapper;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -34,36 +33,26 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
-@Import(UserControllerTest.MapperConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
+@Import(GlobalApiMapperTestConfig.class)
 @DisplayName("UserController Test")
 class UserControllerTest {
 
-  @TestConfiguration
-  static class MapperConfig {
-
-    @Bean
-    public UserApiMapper userApiMapper() {
-      return ApiMapperContainer.get(UserApiMapper.class);
-    }
-  }
-
   @Autowired
   private MockMvc mockMvc;
-
   @Autowired
   private ObjectMapper objectMapper;
 
-  @MockBean
+  @MockitoBean
   private UserService userService;
 
   @Test
@@ -76,7 +65,7 @@ class UserControllerTest {
 
     given(userService.create(any(UserCreateRequest.class))).willReturn(response);
 
-    mockMvc.perform(post("/users")
+    mockMvc.perform(post("/api/users")
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated())
@@ -94,7 +83,7 @@ class UserControllerTest {
   @MethodSource("provideInvalidCreateRequests")
   @DisplayName("create - @Valid 검증 실패 시 400 Bad Request를 반환한다.")
   void create_fail_validation(UserCreateRequest request) throws Exception {
-    mockMvc.perform(post("/users")
+    mockMvc.perform(post("/api/users")
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest())
@@ -110,7 +99,7 @@ class UserControllerTest {
         .willThrow(
             new UserException(UserErrorCode.USERNAME_ALREADY_EXIST, Map.of("username", "user1")));
 
-    mockMvc.perform(post("/users")
+    mockMvc.perform(post("/api/users")
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest())
@@ -127,7 +116,7 @@ class UserControllerTest {
 
     given(userService.find(id)).willReturn(response);
 
-    mockMvc.perform(get("/users/{id}", id))
+    mockMvc.perform(get("/api/users/{id}", id))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username").value("user1"))
         .andDo(print());
@@ -140,7 +129,7 @@ class UserControllerTest {
 
     given(userService.find(id)).willThrow(new UserException(UserErrorCode.USERID_NOT_FOUND, id));
 
-    mockMvc.perform(get("/users/{id}", id))
+    mockMvc.perform(get("/api/users/{id}", id))
         .andExpect(status().isNotFound())
         .andDo(print());
   }
@@ -157,7 +146,7 @@ class UserControllerTest {
 
     given(userService.findAll()).willReturn(java.util.List.of(response1, response2));
 
-    mockMvc.perform(get("/users"))
+    mockMvc.perform(get("/api/users"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(2))
         .andExpect(jsonPath("$[0].username").value("user1"))
@@ -177,7 +166,7 @@ class UserControllerTest {
 
     given(userService.update(eq(id), any(UserUpdateRequest.class))).willReturn(response);
 
-    mockMvc.perform(patch("/users/{id}", id)
+    mockMvc.perform(patch("/api/users/{id}", id)
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -199,7 +188,7 @@ class UserControllerTest {
   @DisplayName("update - @Valid 검증 실패 시 400 Bad Request를 반환한다.")
   void update_fail_validation(UserUpdateRequest request) throws Exception {
     UUID id = UUID.randomUUID();
-    mockMvc.perform(patch("/users/{id}", id)
+    mockMvc.perform(patch("/api/users/{id}", id)
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest())
@@ -216,7 +205,7 @@ class UserControllerTest {
     given(userService.update(eq(id), any(UserUpdateRequest.class)))
         .willThrow(new UserException(UserErrorCode.USERID_NOT_FOUND, id));
 
-    mockMvc.perform(patch("/users/{id}", id)
+    mockMvc.perform(patch("/api/users/{id}", id)
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
@@ -228,7 +217,7 @@ class UserControllerTest {
   void delete_success() throws Exception {
     UUID id = UUID.randomUUID();
 
-    mockMvc.perform(delete("/users/{id}", id))
+    mockMvc.perform(delete("/api/users/{id}", id))
         .andExpect(status().isNoContent())
         .andDo(print());
 
@@ -243,7 +232,7 @@ class UserControllerTest {
     org.mockito.Mockito.doThrow(new UserException(UserErrorCode.USERID_NOT_FOUND, id))
         .when(userService).delete(id);
 
-    mockMvc.perform(delete("/users/{id}", id))
+    mockMvc.perform(delete("/api/users/{id}", id))
         .andExpect(status().isNotFound())
         .andDo(print());
   }
@@ -259,7 +248,7 @@ class UserControllerTest {
 
     given(userService.updateRole(any(RoleUpdateRequest.class))).willReturn(response);
 
-    mockMvc.perform(put("/users/role")
+    mockMvc.perform(put("/api/users/role")
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -281,7 +270,7 @@ class UserControllerTest {
     given(userService.updateRole(any(RoleUpdateRequest.class)))
         .willThrow(new UserException(UserErrorCode.USERID_NOT_FOUND, id));
 
-    mockMvc.perform(put("/users/role")
+    mockMvc.perform(put("/api/users/role")
             .content(objectMapper.writeValueAsString(request))
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())

@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.user.integration;
 
+import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.support.base.BaseIntegrationTest;
 import com.sprint.mission.discodeit.user.application.service.UserService;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.domain.exception.UserException;
-import com.sprint.mission.discodeit.user.infra.repository.UserJpaRepository;
+import com.sprint.mission.discodeit.user.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.user.presentation.mapper.UserApiMapper;
@@ -21,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class UserIntegrationTest extends BaseIntegrationTest {
 
   @Autowired
-  private UserJpaRepository userJpaRepository;
+  private UserRepository userRepository;
 
   @Autowired
   private UserService userService;
@@ -39,6 +40,11 @@ class UserIntegrationTest extends BaseIntegrationTest {
         .role(UserRole.USER)
         .build();
     em.persist(user);
+    UserCredential credential = UserCredential.builder()
+        .user(user)
+        .password("password")
+        .build();
+    em.persist(credential);
     em.flush();
     users = List.of(user);
   }
@@ -68,7 +74,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     UserCreateRequest request = new UserCreateRequest("newuser", "newuser@email.com", "password");
     User expected = userService.create(request);
     flushAndClear();
-    User actual = userJpaRepository.findProfileById(expected.getId()).orElse(null);
+    User actual = userRepository.findProfileById(expected.getId()).orElse(null);
     Assertions.assertThat(actual.getUsername()).isEqualTo(expected.getUsername());
   }
 
