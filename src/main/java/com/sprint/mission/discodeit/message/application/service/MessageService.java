@@ -17,13 +17,14 @@ import com.sprint.mission.discodeit.message.domain.provider.MessageBinaryContent
 import com.sprint.mission.discodeit.message.domain.provider.MessageChannelResolver;
 import com.sprint.mission.discodeit.message.domain.provider.MessageNotifier;
 import com.sprint.mission.discodeit.message.domain.provider.MessageUserResolver;
-import com.sprint.mission.discodeit.message.infra.repository.MessageRepository;
+import com.sprint.mission.discodeit.message.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.message.presentation.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -69,7 +70,9 @@ public class MessageService {
   @ServiceLogAround
   @Transactional(readOnly = true)
   public Slice<Message> findSliceByChannelId(UUID channelId, Pageable pageable) {
-    return repository.findSliceByChannel_Id(channelId, pageable);
+    Slice<Message> messages = repository.findSliceByChannel_Id(channelId, pageable);
+    messages.forEach(message -> Hibernate.initialize(message.getAttachments()));
+    return messages;
   }
 
   @ServiceLogAround
