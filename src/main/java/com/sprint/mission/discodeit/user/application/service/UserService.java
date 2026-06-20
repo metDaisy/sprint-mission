@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.user.application.mapper.UserPayloadMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
 import com.sprint.mission.discodeit.user.domain.event.UserCreatedEvent;
+import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserRoleUpdateEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserUpdatedEvent;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
@@ -71,12 +72,8 @@ public class UserService {
   @ServiceLogAround
   public User update(UUID id, UserUpdateRequest request) {
     User user = findById(id);
-    if (user.updateEmail(request.getEmail())) {
-      checkEmailUniqueness(request.getEmail());
-    }
-    if (user.updateUsername(request.getUsername())) {
-      checkUsernameUniqueness(request.getUsername());
-    }
+    user.updateEmail(request.getEmail(), this::checkEmailUniqueness);
+    user.updateUsername(request.getUsername(), this::checkUsernameUniqueness);
     if (request.getProfileId() != null) {
       BinaryContent profile = profileProvider.getOrThrow(request.getProfileId());
       user.updateProfile(profile);
@@ -91,6 +88,7 @@ public class UserService {
   @ServiceLogAround
   public void delete(UUID id) {
     User user = findById(id);
+    eventPublisher.publishEvent(new UserDeletedEvent(id));
     repository.delete(user);
     notifier.notifyDeleted(payloadMapper.toDto(user, PayloadDeletedMarker.class));
   }

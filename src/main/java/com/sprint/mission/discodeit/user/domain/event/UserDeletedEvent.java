@@ -7,13 +7,11 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(fluent = true)
-public final class UserCreatedEvent extends DomainEvent {
+public final class UserDeletedEvent extends DomainEvent {
 
   private final UUID id;
-  private final String password;
 
-  public UserCreatedEvent(UUID id, String password) {
+  public UserDeletedEvent(UUID id) {
     this.id = id;
-    this.password = password;
   }
 }

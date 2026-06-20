@@ -12,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,19 +57,23 @@ public class User extends BaseUpdatableEntity {
     this.role = role;
   }
 
-  public boolean updateUsername(String username) {
-    return update(this.username, username, value -> this.username = value);
+  public void updateUsername(String username, Consumer<String> validator) {
+    if (shouldUpdate(this.username, username, validator)) {
+      this.username = username;
+    }
   }
 
-  public boolean updateEmail(String email) {
-    return update(this.email, email, value -> this.email = value);
+  public void updateEmail(String email, Consumer<String> validator) {
+    if (shouldUpdate(this.email, email, validator)) {
+      this.email = email;
+    }
   }
 
-  public boolean updateProfile(BinaryContent profile) {
-    return update(this.profile, profile, value -> this.profile = value);
+  public void updateProfile(BinaryContent profile) {
+    updateIfChanged(this.profile, profile, value -> this.profile = value);
   }
 
-  public boolean updateRole(UserRole role) {
-    return update(this.role, role, value -> this.role = value);
+  public void updateRole(UserRole role) {
+    updateIfChanged(this.role, role, value -> this.role = value);
   }
 }
