@@ -56,6 +56,8 @@ public class Message extends BaseUpdatableEntity {
     this.content = content;
     this.channel = channel;
     this.author = author;
-    this.attachments.addAll(attachments);
+    if (attachments != null) {
+      this.attachments.addAll(attachments);
+    }
   }
 }

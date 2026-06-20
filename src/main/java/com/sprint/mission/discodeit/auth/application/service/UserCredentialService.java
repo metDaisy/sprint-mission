@@ -39,4 +39,8 @@ public class UserCredentialService {
         value -> new AuthException(
             UserCredentialErrorCode.USER_CREDENTIAL_NOT_FOUND, "userId", value));
   }
+
+  public void deleteByUserId(UUID userId) {
+    repository.findByUser_Id(userId).ifPresent(repository::delete);
+  }
 }
