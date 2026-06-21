@@ -37,6 +37,7 @@ dependencies {
     implementation("com.nimbusds:nimbus-jose-jwt:10.9")
     implementation('org.springframework.retry:spring-retry')
     implementation('org.springframework.boot:spring-boot-starter-websocket')
+    implementation('org.springframework.security:spring-security-messaging')
 
     implementation 'io.github.openfeign.querydsl:querydsl-jpa:7.1'
     annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:7.1:jpa'
@@ -100,7 +101,7 @@ jacocoTestReport {
 
             if (path.contains("/domain/entity/")) {
                 if (path.endsWith("UserCredential.class") || path.endsWith("RefreshToken.class") ||
-                    path.endsWith("User.class") || path.endsWith("Message.class")) {
+                        path.endsWith("User.class") || path.endsWith("Message.class")) {
                     return false
                 }
                 return true
@@ -115,7 +116,7 @@ jacocoTestReport {
     }))
 }
 
-import java.awt.Desktop
+import java.awt.*
 
 jacocoTestReport {
     doLast {
