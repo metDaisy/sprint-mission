@@ -2,20 +2,14 @@ package com.sprint.mission.discodeit.message.application.service;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadUpdatedMarker;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.message.application.mapper.MessageDomainMapper;
-import com.sprint.mission.discodeit.message.application.mapper.MessagePayloadMapper;
 import com.sprint.mission.discodeit.message.domain.entity.Message;
-import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.message.domain.exception.MessageErrorCode;
 import com.sprint.mission.discodeit.message.domain.exception.MessageException;
 import com.sprint.mission.discodeit.message.domain.provider.MessageBinaryContentResolver;
 import com.sprint.mission.discodeit.message.domain.provider.MessageChannelResolver;
-import com.sprint.mission.discodeit.message.domain.provider.MessageNotifier;
 import com.sprint.mission.discodeit.message.domain.provider.MessageUserResolver;
 import com.sprint.mission.discodeit.message.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.message.presentation.dto.request.MessageCreateRequest;
@@ -42,15 +36,12 @@ public class MessageService {
   private final MessageUserResolver userResolver;
   private final MessageBinaryContentResolver binaryContentResolver;
   private final ApplicationEventPublisher eventPublisher;
-  private final MessageNotifier notifier;
-  private final MessagePayloadMapper payloadMapper;
 
   @ServiceLogAround
   public Message create(MessageCreateRequest request) {
-    User author = userResolver.getProxyOrThrow(request.getAuthorId());
+    User author = userResolver.getOrThrow(request.getAuthorId());
     Channel channel = channelResolver.getProxyOrThrow(request.getChannelId());
-    List<BinaryContent> attachments = binaryContentResolver.getProxyOrThrow(
-        request.getAttachmentIds());
+    List<BinaryContent> attachments = binaryContentResolver.getOrThrow(request.getAttachmentIds());
 
     Message message = Message.builder()
         .content(request.getContent())
@@ -59,11 +50,7 @@ public class MessageService {
         .attachments(attachments)
         .build();
     repository.save(message);
-    eventPublisher.publishEvent(
-        new MessageCreatedEvent(request.getAuthorId(), request.getChannelId(),
-            request.getContent()));
-    notifier.notifyCreated(request.getChannelId(),
-        payloadMapper.toDto(message, PayloadCreatedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toCreatedEvent(message));
     return message;
   }
 
@@ -79,8 +66,7 @@ public class MessageService {
   public Message update(UUID id, MessageUpdateRequest request) {
     Message message = findById(id);
     domainMapper.partialUpdate(request, message);
-    notifier.notifyUpdated(message.getChannel().getId(),
-        payloadMapper.toDto(message, PayloadUpdatedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toUpdatedEvent(message));
     return message;
   }
 
@@ -88,8 +74,7 @@ public class MessageService {
   public void delete(UUID id) {
     Message message = findById(id);
     repository.delete(message);
-    notifier.notifyDeleted(message.getChannel().getId(),
-        payloadMapper.toDto(message, PayloadDeletedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toDeletedEvent(message));
   }
 
   private Message findById(UUID id) {

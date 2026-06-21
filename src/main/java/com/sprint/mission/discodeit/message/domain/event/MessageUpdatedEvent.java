@@ -9,14 +9,14 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 @Getter
-@Accessors(fluent = true)
 @Builder
-public final class MessageCreatedEvent extends DomainEvent {
+@Accessors(fluent = true)
+public class MessageUpdatedEvent extends DomainEvent {
 
   private final UUID id;
-  private final Instant createdAt;
-  private final UUID authorId;
+  private final Instant updatedAt;
   private final UUID channelId;
   private final String content;
   private final List<UUID> attachmentIds;
+  private final String attachmentStatus;
 }
