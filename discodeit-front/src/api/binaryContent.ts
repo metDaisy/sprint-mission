@@ -8,7 +8,7 @@ export const getBinaryContent = async (attachmentId: string): Promise<BinaryCont
 
 export const getBinaryContents = async (attachmentIds: string[]): Promise<BinaryContentDto[]> => {
   const response = await client.get<BinaryContentDto[]>('/binaryContents', {
-    params: { binaryContentIds: attachmentIds }
+    params: { ids: attachmentIds.join(',') }
   });
   return response.data;
 };
@@ -31,3 +31,4 @@ export const genBinaryContentUrl = (binaryContentId: string): string => {
   const baseUrl = getBaseUrl();
   return `${baseUrl}/binaryContents/${binaryContentId}/download`;
 }
+
