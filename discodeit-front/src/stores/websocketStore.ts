@@ -15,7 +15,7 @@ interface WebSocketState {
   subscriptions: Map<string, StompSubscription>;
   connect: () => Promise<void>;
   disconnect: () => void;
-  subscribe: (destination: string, callback: (message: any) => void) => void;
+  subscribe: (destination: string, callback: (payload: any, type?: string) => void) => void;
   unsubscribe: (destination: string) => void;
   send: (destination: string, body: any) => void;
 }
@@ -88,7 +88,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     }
   },
 
-  subscribe: (destination: string, callback: (message: any) => void) => {
+  subscribe: (destination: string, callback: (payload: any, type?: string) => void) => {
     const { stompClient, isConnected, subscriptions } = get();
 
     if (subscriptions.has(destination) || !isConnected || stompClient == null) {
@@ -97,7 +97,8 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
 
     const subscription: StompSubscription = stompClient.subscribe(destination, (message) => {
       const payload = JSON.parse(message.body);
-      callback(payload);
+      const type = message.headers ? message.headers['type'] : undefined;
+      callback(payload, type);
     });
 
     subscriptions.set(destination, subscription)

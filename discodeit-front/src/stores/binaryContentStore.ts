@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import {downloadBinaryContent, getBinaryContent} from '../api/binaryContent';
+import {downloadBinaryContent, getBinaryContent, getBinaryContents} from '../api/binaryContent';
 import {BinaryContentDto, BinaryContentStatus} from "@/types/api.ts";
 
 export interface BinaryContentInfo {
@@ -14,6 +14,7 @@ export interface BinaryContentInfo {
 interface BinaryContentStore {
   binaryContents: Record<string, BinaryContentInfo>;
   fetchBinaryContent: (id: string) => Promise<BinaryContentInfo | null>;
+  fetchBinaryContents: (ids: string[]) => Promise<void>;
   updateBinaryContentStatus: (updated: BinaryContentDto) => Promise<void>;
   clearBinaryContent: (id: string) => void;
   clearBinaryContents: (ids: string[]) => void;
@@ -23,9 +24,10 @@ interface BinaryContentStore {
 const useBinaryContentStore = create<BinaryContentStore>((set, get) => ({
   binaryContents: {},
   fetchBinaryContent: async (id) => {
-    // 이미 가져온 정보가 있다면 재사용
-    if (get().binaryContents[id]) {
-      return get().binaryContents[id];
+    // 이미 가져온 정보가 성공 상태라면 재사용
+    const existing = get().binaryContents[id];
+    if (existing && existing.status === BinaryContentStatus.SUCCESS) {
+      return existing;
     }
 
     try {
@@ -58,6 +60,45 @@ const useBinaryContentStore = create<BinaryContentStore>((set, get) => ({
     } catch (error) {
       console.error('첨부파일 정보 조회 실패:', error);
       return null;
+    }
+  },
+  fetchBinaryContents: async (ids) => {
+    const missingIds = ids.filter(id => {
+      const existing = get().binaryContents[id];
+      return !existing || existing.status !== BinaryContentStatus.SUCCESS;
+    });
+    if (missingIds.length === 0) return;
+
+    try {
+      const contents = await getBinaryContents(missingIds);
+      const newInfos: Record<string, BinaryContentInfo> = {};
+
+      await Promise.all(contents.map(async (content) => {
+        const info: BinaryContentInfo = {
+          contentType: content.contentType,
+          fileName: content.fileName,
+          size: content.size,
+          status: content.status,
+        };
+
+        if (content.status === BinaryContentStatus.SUCCESS) {
+          const downloadResult = await downloadBinaryContent(content.id);
+          const imageObjectURL = URL.createObjectURL(downloadResult.blob);
+          info.url = imageObjectURL;
+          info.revokeUrl = () => URL.revokeObjectURL(imageObjectURL);
+        }
+
+        newInfos[content.id] = info;
+      }));
+
+      set((state) => ({
+        binaryContents: {
+          ...state.binaryContents,
+          ...newInfos
+        }
+      }));
+    } catch (error) {
+      console.error('다중 첨부파일 정보 조회 실패:', error);
     }
   },
   clearBinaryContent: (id) => {
@@ -128,14 +169,14 @@ const useBinaryContentStore = create<BinaryContentStore>((set, get) => ({
         })
       } );
 
-    } else if (status === BinaryContentStatus.FAIL) {
+    } else if (updated.status === BinaryContentStatus.FAILED) {
       console.log(`${updated.id} 상태가 FAIL로 변경됨`);
       set((state) => ({
         binaryContents: {
           ...state.binaryContents,
           [updated.id]: {
             ...updated,
-            status: BinaryContentStatus.FAIL
+            status: BinaryContentStatus.FAILED
           }
         }
       }));

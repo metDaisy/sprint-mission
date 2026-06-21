@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { getMessages, createMessage as apiCreateMessage, updateMessage as apiUpdateMessage, deleteMessage as apiDeleteMessage } from '../api/message';
 import useReadStatusStore from './readStatusStore';
 import { MessageDto, MessageCreateRequest, Pageable } from '../types/api';
+import useBinaryContentStore from './binaryContentStore';
 
 
 interface CursorPagination {
@@ -22,6 +23,8 @@ interface MessageStore {
   deleteMessage: (messageId: string) => Promise<void>;
   isCreating: boolean;
   addNewMessage: (newMessage: MessageDto) => void;
+  updateMessageLocally: (messageId: string, payload: any) => void;
+  deleteMessageLocally: (messageId: string) => void;
   clear: () => void;
 }
 
@@ -133,6 +136,36 @@ const useMessageStore = create<MessageStore>((set, get) => ({
       throw error;
     }
   },
+  updateMessageLocally: (messageId, payload) => {
+    const updateMsg = (msg: any) => {
+      if (msg.id !== messageId) return msg;
+      let newAttachments = msg.attachments;
+      if (payload.attachmentIds && payload.attachmentStatus) {
+        if (payload.attachmentStatus === 'SUCCESS') {
+          useBinaryContentStore.getState().fetchBinaryContents(payload.attachmentIds);
+        }
+        newAttachments = msg.attachments.map((att: any) => 
+          payload.attachmentIds.includes(att.id) ? { ...att, status: payload.attachmentStatus } : att
+        );
+      }
+      return {
+        ...msg,
+        content: payload.content !== null && payload.content !== undefined ? payload.content : msg.content,
+        attachments: newAttachments
+      };
+    };
+    set((state) => ({
+      messages: state.messages.map(updateMsg),
+      newMessages: state.newMessages.map(updateMsg)
+    }));
+  },
+  deleteMessageLocally: (messageId) => {
+    set((state) => ({
+      messages: state.messages.filter(msg => msg.id !== messageId),
+      newMessages: state.newMessages.filter(msg => msg.id !== messageId)
+    }));
+  },
+
   deleteMessage: async (messageId) => {
     try {
       await apiDeleteMessage(messageId); // 빈 내용으로 메시지 삭제
