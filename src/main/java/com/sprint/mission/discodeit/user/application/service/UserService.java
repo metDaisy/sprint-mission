@@ -1,21 +1,14 @@
 package com.sprint.mission.discodeit.user.application.service;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadUpdatedMarker;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
-import com.sprint.mission.discodeit.user.application.mapper.UserPayloadMapper;
+import com.sprint.mission.discodeit.user.application.mapper.UserDomainMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
-import com.sprint.mission.discodeit.user.domain.event.UserCreatedEvent;
-import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserRoleUpdateEvent;
-import com.sprint.mission.discodeit.user.domain.event.UserUpdatedEvent;
 import com.sprint.mission.discodeit.user.domain.exception.UserErrorCode;
 import com.sprint.mission.discodeit.user.domain.exception.UserException;
-import com.sprint.mission.discodeit.user.domain.provider.UserNotifier;
 import com.sprint.mission.discodeit.user.domain.provider.UserProfileResolver;
 import com.sprint.mission.discodeit.user.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.user.presentation.dto.request.RoleUpdateRequest;
@@ -29,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -39,8 +31,7 @@ public class UserService {
   private final UserRepository repository;
   private final UserProfileResolver profileProvider;
   private final ApplicationEventPublisher eventPublisher;
-  private final UserNotifier notifier;
-  private final UserPayloadMapper payloadMapper;
+  private final UserDomainMapper domainMapper;
 
   @ServiceLogAround
   @Transactional(readOnly = true)
@@ -64,8 +55,7 @@ public class UserService {
         .role(UserRole.USER)
         .build();
     repository.save(user);
-    eventPublisher.publishEvent(new UserCreatedEvent(user.getId(), request.getPassword()));
-    notifier.notifyCreated(payloadMapper.toDto(user, PayloadCreatedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toCreatedEvent(user, request.getPassword()));
     return user;
   }
 
@@ -78,19 +68,15 @@ public class UserService {
       BinaryContent profile = profileProvider.getOrThrow(request.getProfileId());
       user.updateProfile(profile);
     }
-    if (StringUtils.hasText(request.getPassword())) {
-      eventPublisher.publishEvent(new UserUpdatedEvent(id, request.getPassword()));
-    }
-    notifier.notifyUpdated(payloadMapper.toDto(user, PayloadUpdatedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toUpdatedEvent(user, request.getPassword()));
     return user;
   }
 
   @ServiceLogAround
   public void delete(UUID id) {
     User user = findById(id);
-    eventPublisher.publishEvent(new UserDeletedEvent(id));
     repository.delete(user);
-    notifier.notifyDeleted(payloadMapper.toDto(user, PayloadDeletedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toDeletedEvent(user));
   }
 
   @ServiceLogAround
