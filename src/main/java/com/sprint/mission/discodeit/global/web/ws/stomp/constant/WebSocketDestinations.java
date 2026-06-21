@@ -9,10 +9,9 @@ public final class WebSocketDestinations {
 
   public static final String PUB_MESSAGE = "/channels/{id}/messages";
 
-  public static final String SUB_MESSAGE = WebSocketConstants.SUB_PREFIX + "/channels/{id}";
-  public static final String SUB_USER = WebSocketConstants.SUB_PREFIX + "/users";
+  public static final String SUB_MESSAGE = WebSocketConstants.SUB_PREFIX + "/channels/{id}/messages";
+  public static final String SUB_ALL_USER = WebSocketConstants.SUB_PREFIX + "/users";
   public static final String SUB_NOTIFICATION = WebSocketConstants.SUB_PREFIX + "/users/{id}/notifications";
-  public static final String SUB_CHANNEL = WebSocketConstants.SUB_PREFIX + "/channels";
-  public static final String SUB_BINARY_CONTENT = WebSocketConstants.SUB_PREFIX + "/binary-contents";
-  public static final String SUB_CHANNEL_BINARY_CONTENT = WebSocketConstants.SUB_PREFIX + "/channels/{id}/binary-contents";
+  public static final String SUB_PUBLIC_CHANNEL = WebSocketConstants.SUB_PREFIX + "/channels";
+  public static final String SUB_PRIVATE_CHANNEL = WebSocketConstants.SUB_PREFIX + "/users/{id}/channels";
 }

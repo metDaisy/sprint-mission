@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.infra.storage.event;
 
-import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
 import com.sprint.mission.discodeit.binarycontent.domain.provider.BinaryContentStorage;
 import java.util.List;
@@ -18,7 +18,7 @@ public class StorageEventHandler {
 
   @Async("fileUploadExecutor")
   @TransactionalEventListener
-  public void handleFileUpload(FileUploadEvent event) {
+  public void handleFileUpload(BinaryContentCreatedEvent event) {
     List<FileUploadResult> results = binaryContentStorage.putAll(event.data());
     resultHandler.handleSuccess(results);
     resultHandler.handleFailures(results);
