@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.readstatus.infra.event;
+package com.sprint.mission.discodeit.readstatus.application.handler;
 
 import com.sprint.mission.discodeit.channel.domain.event.ReadStatusCreatedEvent;
 import com.sprint.mission.discodeit.readstatus.application.service.ReadStatusService;
