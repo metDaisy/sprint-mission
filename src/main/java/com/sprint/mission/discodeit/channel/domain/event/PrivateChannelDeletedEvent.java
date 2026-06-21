@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.channel.domain.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sprint.mission.discodeit.common.event.DomainEvent;
 import java.util.List;
 import java.util.UUID;
@@ -10,9 +11,9 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(fluent = true)
 @RequiredArgsConstructor
-public final class ReadStatusCreatedEvent extends DomainEvent {
+public class PrivateChannelDeletedEvent extends DomainEvent {
 
-  private final UUID channelId;
+  private final UUID id;
+  @JsonIgnore
   private final List<UUID> participantIds;
-  private final boolean notificationEnabled;
 }

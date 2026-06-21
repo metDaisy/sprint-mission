@@ -1,12 +1,11 @@
 package com.sprint.mission.discodeit.channel.application.service;
 
 import com.sprint.mission.discodeit.channel.application.mapper.ChannelDomainMapper;
-import com.sprint.mission.discodeit.channel.application.mapper.ChannelPayloadMapper;
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.event.ReadStatusCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
-import com.sprint.mission.discodeit.channel.domain.provider.ChannelNotifier;
 import com.sprint.mission.discodeit.channel.domain.provider.ChannelUserResolver;
 import com.sprint.mission.discodeit.channel.domain.repository.ChannelQueryRepository;
 import com.sprint.mission.discodeit.channel.domain.repository.ChannelRepository;
@@ -14,9 +13,6 @@ import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDet
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadCreatedMarker;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadDeletedMarker;
-import com.sprint.mission.discodeit.common.payload.marker.PayloadUpdatedMarker;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.global.log.ServiceLogAround;
 import com.sprint.mission.discodeit.user.domain.entity.User;
@@ -37,14 +33,12 @@ public class ChannelService {
   private final ChannelDomainMapper domainMapper;
   private final ApplicationEventPublisher eventPublisher;
   private final ChannelUserResolver userProvider;
-  private final ChannelNotifier notifier;
-  private final ChannelPayloadMapper payloadMapper;
 
   @ServiceLogAround
   public Channel createPublic(PublicChannelCreateRequest request) {
     Channel channel = domainMapper.toEntityFrom(request);
     repository.save(channel);
-    notifier.notifyCreated(payloadMapper.toDto(channel, PayloadCreatedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toCreatedEvent(channel));
     return channel;
   }
 
@@ -52,10 +46,11 @@ public class ChannelService {
   public ChannelDetailDto createPrivate(PrivateChannelCreateRequest request) {
     Channel channel = domainMapper.toEntityFrom(request);
     repository.save(channel);
-    List<User> participants = userProvider.getOrThrow(request.getParticipantIds());
+    List<UUID> participantIds = request.getParticipantIds();
+    List<User> participants = userProvider.getOrThrow(participantIds);
     eventPublisher.publishEvent(
-        new ReadStatusCreatedEvent(channel.getId(), request.getParticipantIds(), true));
-    notifier.notifyCreated(payloadMapper.toCreated(channel, participants));
+        new ReadStatusCreatedEvent(channel.getId(), participantIds, true));
+    eventPublisher.publishEvent(domainMapper.toCreatedEvent(channel, participantIds));
     return new ChannelDetailDto(channel, null, participants);
   }
 
@@ -76,24 +71,24 @@ public class ChannelService {
     ChannelDetailDto channelDetail = findByIdWithDetail(id);
     Channel channel = channelDetail.channel();
     domainMapper.partialUpdate(request, channel);
-    notifier.notifyUpdated(payloadMapper.toDto(channel, PayloadUpdatedMarker.class));
+    eventPublisher.publishEvent(domainMapper.toUpdatedEvent(channel));
     return channelDetail;
   }
 
   @ServiceLogAround
   public void delete(UUID id) {
-    Channel channel = findById(id);
+    ChannelDetailDto detailDto = findByIdWithDetail(id);
+    Channel channel = detailDto.channel();
     repository.delete(channel);
-    notifier.notifyDeleted(payloadMapper.toDto(channel, PayloadDeletedMarker.class));
+    if (channel.getType().equals(ChannelType.PUBLIC)) {
+      eventPublisher.publishEvent(domainMapper.toDeletedEvent(channel));
+      return;
+    }
+    eventPublisher.publishEvent(domainMapper.toDeletedEvent(channel, detailDto.participants()));
   }
 
   private ChannelDetailDto findByIdWithDetail(UUID id) {
     return DomainServiceSupport.getOrThrow(id, queryRepository::findChannelDetailById,
-        value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
-  }
-
-  private Channel findById(UUID id) {
-    return DomainServiceSupport.getOrThrow(id, repository::findById,
         value -> new ChannelException(ChannelErrorCode.CHANNELID_NOT_FOUND, value));
   }
 }
