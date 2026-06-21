@@ -37,7 +37,7 @@ public class NotificationEventHandler {
   @Async("notificationWorker")
   @TransactionalEventListener
   public void on(MessageCreatedEvent event) {
-    String username = userResolver.getUsername(event.getUserId());
+    String username = userResolver.getUsername(event.getAuthorId());
     String channelName = channelResolver.getChannelName(event.getChannelId());
     List<UUID> receiverIds
         = readStatusResolver.findUserIdsByChannelIdAndNotificationEnabledIsTrue(event.getChannelId());

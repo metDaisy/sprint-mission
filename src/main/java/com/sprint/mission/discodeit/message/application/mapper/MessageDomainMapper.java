@@ -16,7 +16,7 @@ public interface MessageDomainMapper {
 
   void partialUpdate(MessageUpdateRequest request, @MappingTarget Message entity);
 
-  @Mapping(target = "userId", source = "author.id")
+  @Mapping(target = "authorId", source = "author.id")
   @Mapping(target = "channelId", source = "channel.id")
   @Mapping(target = "attachmentIds", source = "attachments", qualifiedByName = "extractIds")
   MessageCreatedEvent toCreatedEvent(Message message);

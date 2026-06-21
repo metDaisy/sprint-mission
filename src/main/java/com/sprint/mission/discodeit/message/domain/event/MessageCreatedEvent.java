@@ -13,7 +13,7 @@ public final class MessageCreatedEvent extends DomainEvent {
 
   private final UUID id;
   private final Instant createdAt;
-  private final UUID userId;
+  private final UUID authorId;
   private final UUID channelId;
   private final String content;
   private final List<UUID> attachmentIds;
