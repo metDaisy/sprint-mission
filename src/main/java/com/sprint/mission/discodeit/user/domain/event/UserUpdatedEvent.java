@@ -5,11 +5,9 @@ import com.sprint.mission.discodeit.common.event.DomainEvent;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.Accessors;
 
-@Builder
 @Getter
-@Accessors(fluent = true)
+@Builder
 public final class UserUpdatedEvent extends DomainEvent {
 
   private final UUID id;

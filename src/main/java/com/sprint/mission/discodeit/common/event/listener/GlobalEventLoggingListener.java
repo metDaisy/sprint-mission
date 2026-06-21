@@ -12,6 +12,6 @@ public class GlobalEventLoggingListener {
   @EventListener
   public void handleDomainEvent(DomainEvent event) {
     log.info("[Event Published] type: {}, eventId: {}, correlationId: {}",
-        event.eventType(), event.eventId(), event.correlationId());
+        event.getEventType(), event.getEventId(), event.getCorrelationId());
   }
 }

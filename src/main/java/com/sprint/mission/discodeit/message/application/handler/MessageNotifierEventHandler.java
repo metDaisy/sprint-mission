@@ -12,6 +12,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -25,26 +26,26 @@ public class MessageNotifierEventHandler {
   @Async("stompWorker")
   @TransactionalEventListener
   public void handleCreated(MessageCreatedEvent event) {
-    notifier.notifyCreated(event.channelId(), event);
+    notifier.notifyCreated(event.getChannelId(), event);
   }
 
   @Async("stompWorker")
   @TransactionalEventListener
   public void handleUpdated(MessageUpdatedEvent event) {
-    notifier.notifyUpdated(event.channelId(), event);
+    notifier.notifyUpdated(event.getChannelId(), event);
   }
 
   @Async("stompWorker")
   @TransactionalEventListener
   public void handleDeleted(MessageDeletedEvent event) {
-    notifier.notifyDeleted(event.channelId(), event);
+    notifier.notifyDeleted(event.getChannelId(), event);
   }
 
   @Async("stompWorker")
   @TransactionalEventListener
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
   public void handleAttachmentUpdatedEvent(BinaryContentUpdatedEvent event) {
-    List<Message> messages = repository.findMessagesByAttachmentIds(event.ids());
+    List<Message> messages = repository.findMessagesByAttachmentIds(event.getIds());
     if (messages.isEmpty()) {
       return;
     }
@@ -53,8 +54,8 @@ public class MessageNotifierEventHandler {
     notifier.notifyUpdated(channelId,
         MessageUpdatedEvent.builder()
             .id(message.getId())
-            .attachmentIds(event.ids())
-            .attachmentStatus(event.status().toString())
+            .attachmentIds(event.getIds())
+            .attachmentStatus(event.getStatus().toString())
             .build());
   }
 }

@@ -3,12 +3,10 @@ package com.sprint.mission.discodeit.common.event;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.experimental.Accessors;
 import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
 @Getter
-@Accessors(fluent = true)
 public abstract class DomainEvent {
 
   private final UUID eventId;

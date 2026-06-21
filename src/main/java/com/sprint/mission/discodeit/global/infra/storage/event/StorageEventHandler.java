@@ -19,7 +19,7 @@ public class StorageEventHandler {
   @Async("fileUploadExecutor")
   @TransactionalEventListener
   public void handleFileUpload(BinaryContentCreatedEvent event) {
-    List<FileUploadResult> results = binaryContentStorage.putAll(event.data());
+    List<FileUploadResult> results = binaryContentStorage.putAll(event.getData());
     resultHandler.handleSuccess(results);
     resultHandler.handleFailures(results);
   }

@@ -17,18 +17,18 @@ public class UserEventHandler {
 
   @EventListener
   public void handleUserCreatedEvent(UserCreatedEvent event) {
-    service.create(event.id(), event.password());
+    service.create(event.getId(), event.getPassword());
   }
 
   @EventListener
   public void handleUserUpdatedEvent(UserUpdatedEvent event) {
-    if (StringUtils.hasText(event.password())) {
-      service.update(event.id(), event.password());
+    if (StringUtils.hasText(event.getPassword())) {
+      service.update(event.getId(), event.getPassword());
     }
   }
 
   @EventListener
   public void handleUserDeletedEvent(UserDeletedEvent event) {
-    service.deleteByUserId(event.id());
+    service.deleteByUserId(event.getId());
   }
 }

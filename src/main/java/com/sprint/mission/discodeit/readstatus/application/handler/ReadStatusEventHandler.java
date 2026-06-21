@@ -14,6 +14,6 @@ public class ReadStatusEventHandler {
 
   @EventListener
   public void handleReadStatusCreatedEvent(ReadStatusCreatedEvent event) {
-    service.create(event.channelId(), event.participantIds(), event.notificationEnabled());
+    service.create(event.getChannelId(), event.getParticipantIds(), event.isNotificationEnabled());
   }
 }

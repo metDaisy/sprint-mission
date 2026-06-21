@@ -27,7 +27,7 @@ public class ChannelNotifierEventHandler {
   @Async("stompWorker")
   @TransactionalEventListener
   public void handleCreated(PrivateChannelCreatedEvent event) {
-    for (UUID participantId : event.participantIds()) {
+    for (UUID participantId : event.getParticipantIds()) {
       notifier.notifyCreated(participantId, event);
     }
   }
@@ -47,7 +47,7 @@ public class ChannelNotifierEventHandler {
   @Async("stompWorker")
   @TransactionalEventListener
   public void handleDeleted(PrivateChannelDeletedEvent event) {
-    for (UUID participantId : event.participantIds()) {
+    for (UUID participantId : event.getParticipantIds()) {
       notifier.notifyDeleted(participantId, event);
     }
   }

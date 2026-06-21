@@ -30,19 +30,19 @@ public class NotificationEventHandler {
   @Async("notificationWorker")
   @TransactionalEventListener
   public void on(UserRoleUpdateEvent event) {
-    String message = ROLE_UPDATE_MESSAGE_TEMPLATE.formatted(event.oldRole(), event.newRole());
-    service.create(List.of(event.id()), ROLE_UPDATE_TITLE, message);
+    String message = ROLE_UPDATE_MESSAGE_TEMPLATE.formatted(event.getOldRole(), event.getNewRole());
+    service.create(List.of(event.getId()), ROLE_UPDATE_TITLE, message);
   }
 
   @Async("notificationWorker")
   @TransactionalEventListener
   public void on(MessageCreatedEvent event) {
-    String username = userResolver.getUsername(event.authorId());
-    String channelName = channelResolver.getChannelName(event.channelId());
+    String username = userResolver.getUsername(event.getUserId());
+    String channelName = channelResolver.getChannelName(event.getChannelId());
     List<UUID> receiverIds
-        = readStatusResolver.findUserIdsByChannelIdAndNotificationEnabledIsTrue(event.channelId());
+        = readStatusResolver.findUserIdsByChannelIdAndNotificationEnabledIsTrue(event.getChannelId());
     String title = MESSAGE_CREATED_TITLE_TEMPLATE.formatted(username, channelName);
-    service.create(receiverIds, title, event.content());
+    service.create(receiverIds, title, event.getContent());
   }
 
   @Async("notificationWorker")
@@ -51,7 +51,7 @@ public class NotificationEventHandler {
     String title = "file upload failed";
     String messageTemplate = "Trace Id: %s\nBinaryContent Id: %s\nError: %s";
     String traceId = MDC.get("traceId");
-    List<String> messages = event.failures().entrySet().stream()
+    List<String> messages = event.getFailures().entrySet().stream()
         .map(failure -> messageTemplate.formatted(traceId, failure.getKey(), failure.getValue()))
         .toList();
     service.sendToAdmin(title, messages);

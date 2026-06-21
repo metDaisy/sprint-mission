@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.Accessors;
 
 @Getter
 @Builder
-@Accessors(fluent = true)
 public class MessageUpdatedEvent extends DomainEvent {
 
   private final UUID id;

@@ -6,16 +6,14 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.Accessors;
 
 @Getter
-@Accessors(fluent = true)
 @Builder
 public final class MessageCreatedEvent extends DomainEvent {
 
   private final UUID id;
   private final Instant createdAt;
-  private final UUID authorId;
+  private final UUID userId;
   private final UUID channelId;
   private final String content;
   private final List<UUID> attachmentIds;

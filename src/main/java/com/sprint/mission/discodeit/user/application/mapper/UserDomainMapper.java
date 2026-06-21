@@ -13,7 +13,7 @@ public interface UserDomainMapper {
 
   UserCreatedEvent toCreatedEvent(User user, String password);
 
-  @Mapping(target = "profileId", source = "profile.id")
+  @Mapping(target = "profileId", source = "user.profile.id")
   UserUpdatedEvent toUpdatedEvent(User user, String password);
 
   UserDeletedEvent toDeletedEvent(User user);

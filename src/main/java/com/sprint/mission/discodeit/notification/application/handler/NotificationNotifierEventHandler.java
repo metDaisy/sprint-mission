@@ -17,12 +17,12 @@ public class NotificationNotifierEventHandler {
   @Async("stompWorker")
   @TransactionalEventListener
   public void handleCreated(NotificationCreatedEventWrapper wrapper) {
-    wrapper.events().forEach(event -> notifier.notifyCreated(event.receiverId(), event));
+    wrapper.events().forEach(event -> notifier.notifyCreated(event.getReceiverId(), event));
   }
 
   @Async("stompWorker")
   @TransactionalEventListener
   public void handleDeleted(NotificationDeletedEvent event) {
-    notifier.notifyDeleted(event.receiverId(), event);
+    notifier.notifyDeleted(event.getReceiverId(), event);
   }
 }
