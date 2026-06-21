@@ -3,7 +3,7 @@ import {useEffect} from "react";
 
 interface Props {
   destination: string,
-  subscribeCallback: (message: any) => void,
+  subscribeCallback: (payload: any, type?: string) => void,
 }
 
 function WebSocket({destination, subscribeCallback}: Props) {

@@ -3,7 +3,7 @@ import defaultProfile from '@/assets/default_profile.png';
 import useBinaryContentStore, {BinaryContentInfo} from '@/stores/binaryContentStore';
 import useMessageStore from '@/stores/messageStore';
 import useAuthStore from '@/stores/authStore';
-import {BinaryContentDto, ChannelDto, MessageDto} from '@/types/api';
+import {BinaryContentDto, BinaryContentStatus, ChannelDto, MessageDto} from '@/types/api';
 import {useCallback, useEffect, useState} from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {Avatar} from '@/styles/common.ts';
@@ -57,13 +57,14 @@ function MessageList({channel}: MessageListProps): JSX.Element {
     deleteMessage,
     newMessages,
     addNewMessage,
+    updateMessageLocally,
+    deleteMessageLocally,
     clear: clearMessages
   } = useMessageStore();
   const {
     binaryContents,
-    fetchBinaryContent,
-    clearBinaryContents,
-    updateBinaryContentStatus
+    fetchBinaryContents,
+    clearBinaryContents
   } = useBinaryContentStore();
   const {currentUser} = useAuthStore();
   const {users} = useUserListStore();
@@ -71,35 +72,47 @@ function MessageList({channel}: MessageListProps): JSX.Element {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState<string>('');
 
-  const handleReceiveWebSocketMessage = useCallback((payload: any) => {
-    // 1. authorId(userId)로 작성자 찾기 (채널 참여자 우선, 없으면 전체 유저 목록에서)
-    const authorId = payload.userId;
-    let author = channel.participants?.find(p => p.id === authorId)
-        || users.find(u => u.id === authorId);
-    // 정 못 찾았을 경우의 예외 처리 (Fallback)
-    if (!author) {
-      author = {
-        id: authorId,
-        username: '알 수 없음!!!',
-        email: '',
-        online: false,
-        role: 'USER' as any
-      };
-    }
-    // 2. MessageDto 형식으로 조립
-    const newMessage: MessageDto = {
-      id: payload.id,
-      createdAt: payload.createdAt,
-      updatedAt: payload.createdAt, // 생성 시점이니 업데이트 시간도 동일하게 세팅
-      content: payload.content,
-      channelId: channel.id,
-      author: author,
-      // 프론트엔드는 id만 있어도 attachment 처리가 되도록 짜여져 있습니다.
-      attachments: payload.attachmentIds?.map((id: string) => ({ id } as BinaryContentDto)) || []
+  const handleReceiveWebSocketMessage = useCallback((payload: any, type: string = 'CREATED') => {
+    const handlers: Record<string, () => void> = {
+      'CREATED': () => {
+        const authorId = payload.authorId;
+        let author = channel.participants?.find(p => p.id === authorId)
+            || users.find(u => u.id === authorId);
+        if (!author) {
+          author = {
+            id: authorId,
+            username: '알 수 없음',
+            email: '',
+            online: false,
+            role: 'USER' as any
+          };
+        }
+        const newMessage: MessageDto = {
+          id: payload.id,
+          createdAt: payload.createdAt,
+          updatedAt: payload.createdAt,
+          content: payload.content,
+          channelId: channel.id,
+          author: author,
+          attachments: payload.attachmentIds?.map((id: string) => ({ id } as BinaryContentDto)) || []
+        };
+        addNewMessage(newMessage);
+      },
+      'UPDATED': () => {
+        updateMessageLocally(payload.id, payload);
+      },
+      'DELETED': () => {
+        deleteMessageLocally(payload.id);
+      }
     };
-    // 3. 변환된 메시지를 스토어에 추가
-    addNewMessage(newMessage);
-  }, [channel, users, addNewMessage]);
+
+    const handler = handlers[type];
+    if (handler) {
+      handler();
+    } else {
+      console.warn('알 수 없는 메시지 타입입니다:', type);
+    }
+  }, [channel, users, addNewMessage, updateMessageLocally, deleteMessageLocally]);
 
   useEffect(() => {
     if (channel?.id) {
@@ -115,18 +128,18 @@ function MessageList({channel}: MessageListProps): JSX.Element {
   }, [channel?.id, fetchMessages, clearMessages]);
 
   useEffect(() => {
+    const missingIds: string[] = [];
     [...messages, ...newMessages].forEach(message => {
       message.attachments?.forEach(attachment => {
         if (!binaryContents[attachment.id]) {
-          fetchBinaryContent(attachment.id);
+          missingIds.push(attachment.id);
         }
       });
     });
-  }, [messages, newMessages, fetchBinaryContent]);
-
-  const handleBinaryContentUpdate = useCallback((updatedBinaryContent: BinaryContentDto) => {
-    updateBinaryContentStatus(updatedBinaryContent);
-  }, [updateBinaryContentStatus]);
+    if (missingIds.length > 0) {
+      fetchBinaryContents(missingIds);
+    }
+  }, [messages, newMessages, fetchBinaryContents]);
 
   useEffect(() => {
     const handleClickOutside = () => {
@@ -195,7 +208,7 @@ function MessageList({channel}: MessageListProps): JSX.Element {
       const isImage = attachment.contentType.startsWith('image/');
       const status = attachment.status; // binaryContents에서 가져온 최신 상태 사용
       // 업로드 실패한 파일 처리
-      if (status === 'FAIL') {
+      if (status === BinaryContentStatus.FAILED) {
         return (
             <AttachmentList key={_attachment.id}>
               <FileItem
@@ -467,12 +480,8 @@ function MessageList({channel}: MessageListProps): JSX.Element {
             destination={WS_DESTINATIONS.SUB_MESSAGE(channel.id)}
             subscribeCallback={handleReceiveWebSocketMessage}
         />
-        <WebSocket
-            destination={WS_DESTINATIONS.SUB_BINARY_CONTENT}
-            subscribeCallback={handleBinaryContentUpdate}
-        />
       </MessageListWrapper>
   );
 }
 
-export default MessageList; 
+export default MessageList;
