@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.binarycontent.application.service;
 
 import com.sprint.mission.discodeit.binarycontent.application.mapper.BinaryContentDomainMapper;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
-import com.sprint.mission.discodeit.binarycontent.domain.event.FileUploadEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentErrorCode;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentException;
 import com.sprint.mission.discodeit.binarycontent.domain.repository.BinaryContentRepository;
@@ -31,7 +31,7 @@ public class BinaryContentService {
   public List<BinaryContent> create(List<FileUploadRequest> request) {
     List<BinaryContent> entities = domainMapper.toEntityFrom(request);
     repository.saveAll(entities);
-    publishFileUploadEvent(entities, request);
+    publishBinaryContentCreatedEvent(entities, request);
     return entities;
   }
 
@@ -55,13 +55,13 @@ public class BinaryContentService {
             value));
   }
 
-  private void publishFileUploadEvent(List<BinaryContent> entities,
+  private void publishBinaryContentCreatedEvent(List<BinaryContent> entities,
       List<FileUploadRequest> request) {
     Map<UUID, byte[]> data = new HashMap<>();
     for (int i = 0; i < entities.size(); i++) {
       data.put(entities.get(i).getId(), request.get(i).bytes());
     }
-    eventPublisher.publishEvent(new FileUploadEvent(data));
+    eventPublisher.publishEvent(new BinaryContentCreatedEvent(data));
   }
 
   private BinaryContent findById(UUID id) {
