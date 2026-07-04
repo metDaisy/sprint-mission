@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStat
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
 import com.sprint.mission.discodeit.readstatus.application.service.ReadStatusService;
+import com.sprint.mission.discodeit.readstatus.presentation.mapper.ReadStatusApiMapper;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -25,23 +26,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReadStatusController {
 
   private final ReadStatusService readStatusService;
+  private final ReadStatusApiMapper mapper;
 
   @GetMapping
   public ResponseEntity<List<ReadStatusResponse>> find(@RequestParam UUID userId) {
-    return ResponseEntity.status(HttpStatus.OK).body(readStatusService.findAllByUserId(userId));
+    return ResponseEntity.status(HttpStatus.OK).body(mapper.toDto(readStatusService.findAllByUserId(userId)));
   }
 
   @PostMapping
   public ResponseEntity<ReadStatusResponse> create(
       @RequestBody @Valid ReadStatusCreateRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(readStatusService.create(request));
+    return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDto(readStatusService.create(request)));
   }
 
-  @PatchMapping(value = "/{readStatusId}")
-  public ResponseEntity<ReadStatusResponse> update(@PathVariable UUID readStatusId,
+  @PatchMapping(value = "/{id}")
+  public ResponseEntity<ReadStatusResponse> update(@PathVariable UUID id,
       @RequestBody @Valid ReadStatusUpdateRequest request) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(readStatusService.update(readStatusId, request));
+        .body(mapper.toDto(readStatusService.update(id, request)));
   }
 
 }

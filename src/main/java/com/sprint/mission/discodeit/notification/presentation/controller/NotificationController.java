@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.notification.presentation.controller;
 
 import com.sprint.mission.discodeit.notification.application.service.NotificationService;
 import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
+import com.sprint.mission.discodeit.notification.presentation.mapper.NotificationApiMapper;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
@@ -20,12 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 class NotificationController {
 
   private final NotificationService service;
+  private final NotificationApiMapper mapper;
 
   @GetMapping
   public ResponseEntity<List<NotificationDto>> find(Principal principal) {
     UUID userId = UUID.fromString(principal.getName());
     return ResponseEntity.status(HttpStatus.OK)
-        .body(service.find(userId));
+        .body(mapper.toDto(service.find(userId)));
   }
 
   @DeleteMapping("/{id}")

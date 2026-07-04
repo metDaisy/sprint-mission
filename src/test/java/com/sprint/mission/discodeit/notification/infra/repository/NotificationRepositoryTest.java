@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.notification.domain.entity.Notification;
 import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import com.sprint.mission.discodeit.user.domain.entity.constant.UserRole;
-import com.sprint.mission.discodeit.user.infra.repository.UserRepository;
+import com.sprint.mission.discodeit.user.infra.repository.UserJpaRepository;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 class NotificationRepositoryTest extends BaseRepositoryTest {
 
   @Autowired
-  private NotificationRepository notificationRepository;
+  private NotificationJpaRepository notificationRepository;
 
   @Autowired
-  private UserRepository userRepository;
+  private UserJpaRepository userJpaRepository;
 
   @Test
   @DisplayName("findAllByReceiver_Id - 수신자 ID로 알림 목록을 엔티티 그래프(receiver 포함)와 함께 정상 조회한다.")
@@ -28,7 +28,7 @@ class NotificationRepositoryTest extends BaseRepositoryTest {
         .email("test@example.com")
         .role(UserRole.USER)
         .build();
-    userRepository.save(user);
+    userJpaRepository.save(user);
 
     Notification noti1 = Notification.builder()
         .receiver(user)

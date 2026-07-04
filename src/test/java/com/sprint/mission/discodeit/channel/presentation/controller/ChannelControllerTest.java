@@ -15,11 +15,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.channel.application.service.ChannelService;
+import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
+import com.sprint.mission.discodeit.channel.infra.repository.qdsl.dto.ChannelDetailDto;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.presentation.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.support.mapper.GlobalApiMapperTestConfig;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -29,12 +31,14 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ChannelController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(GlobalApiMapperTestConfig.class)
 class ChannelControllerTest {
 
   @Autowired
@@ -50,12 +54,12 @@ class ChannelControllerTest {
   @DisplayName("createPublic - 정상 요청 시 201 Created를 반환하고 올바른 값이 매핑된다.")
   void create_public_success() throws Exception {
     PublicChannelCreateRequest request = new PublicChannelCreateRequest("General", "Description");
-    ChannelResponse response = new ChannelResponse(UUID.randomUUID(), ChannelType.PUBLIC, "General",
-        "Description", List.of(), Instant.now());
+    Channel channel = Channel.builder().name("General").description("Description")
+        .type(ChannelType.PUBLIC).build();
 
-    given(channelService.createPublic(any(PublicChannelCreateRequest.class))).willReturn(response);
+    given(channelService.createPublic(any(PublicChannelCreateRequest.class))).willReturn(channel);
 
-    mockMvc.perform(post("/channels/public")
+    mockMvc.perform(post("/api/channels/public")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
@@ -75,7 +79,7 @@ class ChannelControllerTest {
   void create_public_fail_validation() throws Exception {
     PublicChannelCreateRequest request = new PublicChannelCreateRequest("", "Description");
 
-    mockMvc.perform(post("/channels/public")
+    mockMvc.perform(post("/api/channels/public")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest())
@@ -89,13 +93,12 @@ class ChannelControllerTest {
     UUID participantId2 = UUID.randomUUID();
     PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(
         List.of(participantId1, participantId2));
-    ChannelResponse response = new ChannelResponse(UUID.randomUUID(), ChannelType.PRIVATE, null,
-        null, List.of(), Instant.now());
+    Channel channel = Channel.builder().type(ChannelType.PRIVATE).build();
+    ChannelDetailDto dto = new ChannelDetailDto(channel, Instant.now(), List.of());
 
-    given(channelService.createPrivate(any(PrivateChannelCreateRequest.class))).willReturn(
-        response);
+    given(channelService.createPrivate(any(PrivateChannelCreateRequest.class))).willReturn(dto);
 
-    mockMvc.perform(post("/channels/private")
+    mockMvc.perform(post("/api/channels/private")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
@@ -114,7 +117,7 @@ class ChannelControllerTest {
   void create_private_fail_validation() throws Exception {
     PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(List.of());
 
-    mockMvc.perform(post("/channels/private")
+    mockMvc.perform(post("/api/channels/private")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest())
@@ -125,12 +128,13 @@ class ChannelControllerTest {
   @DisplayName("findByUserId - 정상 조회 시 200 OK를 반환한다.")
   void findByUserId_success() throws Exception {
     UUID userId = UUID.randomUUID();
-    ChannelResponse response = new ChannelResponse(UUID.randomUUID(), ChannelType.PUBLIC, "General",
-        "Description", List.of(), Instant.now());
+    Channel channel = Channel.builder().name("General").description("Description")
+        .type(ChannelType.PUBLIC).build();
+    ChannelDetailDto dto = new ChannelDetailDto(channel, Instant.now(), List.of());
 
-    given(channelService.findAllByUserId(userId)).willReturn(List.of(response));
+    given(channelService.findAllByUserId(userId)).willReturn(List.of(dto));
 
-    mockMvc.perform(get("/channels")
+    mockMvc.perform(get("/api/channels")
             .param("userId", userId.toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].name").value("General"))
@@ -143,13 +147,14 @@ class ChannelControllerTest {
     UUID channelId = UUID.randomUUID();
     PublicChannelUpdateRequest request = new PublicChannelUpdateRequest("Updated",
         "Updated Description");
-    ChannelResponse response = new ChannelResponse(channelId, ChannelType.PUBLIC, "Updated",
-        "Updated Description", List.of(), Instant.now());
+    Channel channel = Channel.builder().name("Updated").description("Updated Description")
+        .type(ChannelType.PUBLIC).build();
+    ChannelDetailDto dto = new ChannelDetailDto(channel, Instant.now(), List.of());
 
     given(channelService.update(eq(channelId), any(PublicChannelUpdateRequest.class))).willReturn(
-        response);
+        dto);
 
-    mockMvc.perform(patch("/channels/{id}", channelId)
+    mockMvc.perform(patch("/api/channels/{id}", channelId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -168,31 +173,33 @@ class ChannelControllerTest {
   void update_partial_success() throws Exception {
     UUID channelId = UUID.randomUUID();
     PublicChannelUpdateRequest request = new PublicChannelUpdateRequest("UpdatedName", null);
-    ChannelResponse response = new ChannelResponse(channelId, ChannelType.PUBLIC, "UpdatedName",
-        "Original Description", List.of(), Instant.now());
+    Channel channel = Channel.builder().name("UpdatedName").description("Original Description")
+        .type(ChannelType.PUBLIC).build();
+    ChannelDetailDto dto = new ChannelDetailDto(channel, Instant.now(), List.of());
 
     given(channelService.update(eq(channelId), any(PublicChannelUpdateRequest.class))).willReturn(
-        response);
+        dto);
 
-    mockMvc.perform(patch("/channels/{id}", channelId)
+    mockMvc.perform(patch("/api/channels/{id}", channelId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("UpdatedName"))
         .andDo(print());
-        
-    ArgumentCaptor<PublicChannelUpdateRequest> captor = ArgumentCaptor.forClass(PublicChannelUpdateRequest.class);
+
+    ArgumentCaptor<PublicChannelUpdateRequest> captor = ArgumentCaptor.forClass(
+        PublicChannelUpdateRequest.class);
     verify(channelService).update(eq(channelId), captor.capture());
     assertThat(captor.getValue().getName()).isEqualTo("UpdatedName");
     assertThat(captor.getValue().getDescription()).isNull();
   }
 
   @Test
-  @DisplayName("delete - 유저 삭제 시 204 NO_CONTENT를 반환한다.")
+  @DisplayName("delete - 채널 삭제 시 204 NO_CONTENT를 반환한다.")
   void delete_success() throws Exception {
     UUID channelId = UUID.randomUUID();
 
-    mockMvc.perform(delete("/channels/{id}", channelId))
+    mockMvc.perform(delete("/api/channels/{id}", channelId))
         .andExpect(status().isNoContent())
         .andDo(print());
 

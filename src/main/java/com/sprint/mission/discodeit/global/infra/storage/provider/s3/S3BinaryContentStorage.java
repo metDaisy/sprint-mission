@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Component
-@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
+@ConditionalOnProperty(name = "app.storage.type", havingValue = "s3")
 public class S3BinaryContentStorage extends AbstractBinaryContentStorage {
 
   private final Duration s3ActiveDuration;
@@ -39,7 +39,7 @@ public class S3BinaryContentStorage extends AbstractBinaryContentStorage {
 
   public S3BinaryContentStorage(
       @Qualifier("fileUploadWorker") Executor fileUploadWorker,
-      @Value("${discodeit.storage.s3.internal-path}") String internalPath,
+      @Value("${app.storage.s3.internal-path}") String internalPath,
       AwsProperties properties,
       S3Client s3Client,
       S3Presigner s3Presigner) {

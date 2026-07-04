@@ -50,9 +50,8 @@ class UserTest {
     @DisplayName("updateUsername - 새로운 이름을 입력하면 username이 변경되고 true를 반환한다.")
     void updateUsername_success() {
         User user = User.builder().username("old").email("test@test.com").role(UserRole.USER).build();
-        boolean isChanged = user.updateUsername("new");
+        user.updateUsername("new", value -> {});
 
-        assertThat(isChanged).isTrue();
         assertThat(user.getUsername()).isEqualTo("new");
     }
 
@@ -60,9 +59,8 @@ class UserTest {
     @DisplayName("updateUsername - 기존과 동일한 이름을 입력하면 변경되지 않고 false를 반환한다.")
     void updateUsername_sameValue() {
         User user = User.builder().username("same").email("test@test.com").role(UserRole.USER).build();
-        boolean isChanged = user.updateUsername("same");
+        user.updateUsername("same", value -> {});
 
-        assertThat(isChanged).isFalse();
         assertThat(user.getUsername()).isEqualTo("same");
     }
 
@@ -72,9 +70,8 @@ class UserTest {
         User user = User.builder().username("test").email("test@test.com").role(UserRole.USER).build();
         BinaryContent newProfile = mock(BinaryContent.class);
         
-        boolean isChanged = user.updateProfile(newProfile);
+        user.updateProfile(newProfile);
 
-        assertThat(isChanged).isTrue();
         assertThat(user.getProfile()).isEqualTo(newProfile);
     }
 }

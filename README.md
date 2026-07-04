@@ -5,6 +5,10 @@ Discode clone coding
 [![codecov](https://codecov.io/github/metDaisy/sprint-mission/graph/badge.svg?token=2QWY52ZBXP)](https://codecov.io/github/metDaisy/sprint-mission)
 
 ---
+- mission-12
+  - websocket 과 sse 를 활용한 실시간 통신
+  - nginx를 활용한 배포 아키텍쳐 구성
+
 - mission-11
   - async, 파일 업로드 분리
 

@@ -3,24 +3,22 @@ package com.sprint.mission.discodeit.readstatus.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
+import com.sprint.mission.discodeit.readstatus.application.mapper.ReadStatusDomainMapper;
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorCode;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusException;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusChannelResolver;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusUserResolver;
-import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.readstatus.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
-import com.sprint.mission.discodeit.readstatus.presentation.mapper.ReadStatusMapper;
+import com.sprint.mission.discodeit.support.mapper.DomainMapperContainer;
 import com.sprint.mission.discodeit.user.domain.entity.User;
-import com.sprint.mission.discodeit.support.mapper.MapperContainer;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +41,8 @@ class ReadStatusServiceTest {
   @Mock
   private ReadStatusChannelResolver channelProvider;
   @Spy
-  private ReadStatusMapper readStatusMapper = MapperContainer.get(ReadStatusMapper.class);
+  private ReadStatusDomainMapper readStatusMapper = DomainMapperContainer.get(
+      ReadStatusDomainMapper.class);
 
   @InjectMocks
   private ReadStatusService readStatusService;
@@ -53,14 +52,12 @@ class ReadStatusServiceTest {
   void findAllByUserId_success() {
     UUID userId = UUID.randomUUID();
     ReadStatus readStatus = mock(ReadStatus.class);
-    ReadStatusResponse response = mock(ReadStatusResponse.class);
 
-    given(readStatusRepository.findAllByUserId(userId)).willReturn(List.of(readStatus));
-    given(readStatusMapper.toDto(List.of(readStatus))).willReturn(List.of(response));
+    given(readStatusRepository.findAllByUser_Id(userId)).willReturn(List.of(readStatus));
 
-    List<ReadStatusResponse> result = readStatusService.findAllByUserId(userId);
+    List<ReadStatus> result = readStatusService.findAllByUserId(userId);
 
-    assertThat(result).containsExactly(response);
+    assertThat(result).containsExactly(readStatus);
   }
 
   @Test
@@ -69,18 +66,17 @@ class ReadStatusServiceTest {
     UUID userId = UUID.randomUUID();
     UUID channelId = UUID.randomUUID();
     ReadStatusCreateRequest request = new ReadStatusCreateRequest(userId, channelId, Instant.now());
-    ReadStatusResponse response = mock(ReadStatusResponse.class);
+
     User user = mock(User.class);
     Channel channel = mock(Channel.class);
 
     given(readStatusRepository.existsByChannel_IdAndUser_Id(channelId, userId)).willReturn(false);
     given(userProvider.getProxyOrThrow(userId)).willReturn(user);
     given(channelProvider.getProxyOrThrow(channelId)).willReturn(channel);
-    given(readStatusMapper.toDto(any(ReadStatus.class))).willReturn(response);
 
-    ReadStatusResponse result = readStatusService.create(request);
+    ReadStatus result = readStatusService.create(request);
 
-    assertThat(result).isEqualTo(response);
+    assertThat(result).isNotNull();
     verify(readStatusRepository).save(any(ReadStatus.class));
   }
 
@@ -107,7 +103,8 @@ class ReadStatusServiceTest {
     List<User> users = List.of(mock(User.class), mock(User.class));
     List<ReadStatus> statuses = List.of(mock(ReadStatus.class), mock(ReadStatus.class));
 
-    given(readStatusRepository.countByChannel_IdAndUser_IdIn(channelId, participantIds)).willReturn(0L);
+    given(readStatusRepository.countByChannel_IdAndUser_IdIn(channelId, participantIds)).willReturn(
+        0L);
     given(channelProvider.getProxy(channelId)).willReturn(channel);
     given(userProvider.getProxy(participantIds)).willReturn(users);
     given(readStatusMapper.toEntityFrom(channel, users, true)).willReturn(statuses);
@@ -123,7 +120,8 @@ class ReadStatusServiceTest {
     UUID channelId = UUID.randomUUID();
     List<UUID> participantIds = List.of(UUID.randomUUID(), UUID.randomUUID());
 
-    given(readStatusRepository.countByChannel_IdAndUser_IdIn(channelId, participantIds)).willReturn(1L);
+    given(readStatusRepository.countByChannel_IdAndUser_IdIn(channelId, participantIds)).willReturn(
+        1L);
 
     assertThatThrownBy(() -> readStatusService.create(channelId, participantIds, true))
         .isInstanceOf(ReadStatusException.class)
@@ -135,14 +133,12 @@ class ReadStatusServiceTest {
   void find_success() {
     UUID id = UUID.randomUUID();
     ReadStatus status = mock(ReadStatus.class);
-    ReadStatusResponse response = mock(ReadStatusResponse.class);
 
     given(readStatusRepository.findById(id)).willReturn(Optional.of(status));
-    given(readStatusMapper.toDto(status)).willReturn(response);
 
-    ReadStatusResponse result = readStatusService.find(id);
+    ReadStatus result = readStatusService.find(id);
 
-    assertThat(result).isEqualTo(response);
+    assertThat(result).isNotNull();
   }
 
   @Test
@@ -151,14 +147,12 @@ class ReadStatusServiceTest {
     UUID id = UUID.randomUUID();
     ReadStatusUpdateRequest request = mock(ReadStatusUpdateRequest.class);
     ReadStatus status = mock(ReadStatus.class);
-    ReadStatusResponse response = mock(ReadStatusResponse.class);
 
     given(readStatusRepository.findById(id)).willReturn(Optional.of(status));
-    given(readStatusMapper.toDto(status)).willReturn(response);
 
-    ReadStatusResponse result = readStatusService.update(id, request);
+    ReadStatus result = readStatusService.update(id, request);
 
-    assertThat(result).isEqualTo(response);
+    assertThat(result).isNotNull();
     verify(readStatusMapper).partialUpdate(request, status);
   }
 

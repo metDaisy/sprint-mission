@@ -17,6 +17,12 @@ export default defineConfig({
         changeOrigin: true,  // 백엔드 서버의 CORS 정책을 우회
         secure: false,       // HTTPS가 아닌 경우 필요
         // rewrite: (path) => path.replace(/^\/api/, '') // URL 재작성 가능
+      },
+      '/ws': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
       }
     }
   }

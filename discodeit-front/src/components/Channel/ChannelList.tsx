@@ -16,11 +16,13 @@ import {
     FoldIcon,
     StyledChannelList
 } from './styles';
+import WebSocket from '@/components/WebSocket/WebSocket';
+import { WS_DESTINATIONS } from '@/constants/websocket';
 
 interface ChannelListProps {
   currentUser: UserDto;
   activeChannel: ChannelDto | null;
-  onChannelSelect: (channel: ChannelDto) => void;
+  onChannelSelect: (channel: ChannelDto | null) => void;
 }
 
 interface FoldedSections {
@@ -46,8 +48,8 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
 
   const channels = useChannelStore((state) => state.channels);
   const fetchChannels = useChannelStore((state) => state.fetchChannels);
-  const startPolling = useChannelStore((state) => state.startPolling);
-  const stopPolling = useChannelStore((state) => state.stopPolling);
+  const replaceChannel = useChannelStore((state) => state.replaceChannel);
+  const removeChannel = useChannelStore((state) => state.removeChannel);
 
   const fetchReadStatuses = useReadStatusStore((state) => state.fetchReadStatuses);
   const updateReadStatus = useReadStatusStore((state) => state.updateReadStatus);
@@ -57,13 +59,52 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
     if (currentUser) {
       fetchChannels(currentUser.id);
       fetchReadStatuses();
-      startPolling(currentUser.id);
-
-      return () => {
-        stopPolling();
-      };
     }
-  }, [currentUser, fetchChannels, fetchReadStatuses, startPolling, stopPolling]);
+  }, [currentUser, fetchChannels, fetchReadStatuses]);
+
+  const handleChannelEvent = React.useCallback((message: any) => {
+    const { type, data } = message;
+
+    const eventHandlers: Record<string, () => void> = {
+      'channels.created': () => {
+        replaceChannel(data as ChannelDto);
+        if (activeChannel?.id === data.id) {
+          onChannelSelect(data as ChannelDto);
+        }
+      },
+      'channels.updated': () => {
+        replaceChannel(data as ChannelDto);
+        if (activeChannel?.id === data.id) {
+          onChannelSelect(data as ChannelDto);
+        }
+      },
+      'channels.deleted': () => {
+        removeChannel((data as ChannelDto).id);
+        if (activeChannel?.id === data.id) {
+          onChannelSelect(null);
+        }
+      }
+    };
+
+    const handler = eventHandlers[type];
+    
+    if (handler) {
+      handler();
+    } else if (data && data.id) {
+      replaceChannel(data as ChannelDto);
+    }
+  }, [replaceChannel, removeChannel, activeChannel, onChannelSelect]);
+
+  useEffect(() => {
+    if (activeChannel) {
+      const newActiveChannel = channels.find(channel => channel.id === activeChannel.id);
+      if (newActiveChannel) {
+        onChannelSelect(newActiveChannel);
+      } else {
+        onChannelSelect(null);
+      }
+    }
+  }, [channels]);
 
   const toggleSection = (sectionName: 'PUBLIC' | 'PRIVATE') => {
     setFoldedSections(prev => ({
@@ -115,6 +156,10 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
 
   return (
     <StyledChannelList>
+      <WebSocket 
+          destination={WS_DESTINATIONS.SUB_PUBLIC_CHANNEL}
+          subscribeCallback={handleChannelEvent} 
+      />
       <ChannelHeader />
       <ChannelScroll>
         <ChannelSection>

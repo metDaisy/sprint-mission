@@ -106,7 +106,7 @@ export interface BinaryContentDto {
 export enum BinaryContentStatus {
   PROCESSING= 'PROCESSING',
   SUCCESS= 'SUCCESS',
-  FAIL= 'FAIL',
+  FAILED= 'FAILED',
   DELETED = 'DELETED',
 }
 

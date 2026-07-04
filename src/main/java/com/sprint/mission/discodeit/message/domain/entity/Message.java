@@ -13,9 +13,9 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,7 +46,7 @@ public class Message extends BaseUpdatableEntity {
       joinColumns = @JoinColumn(name = "message_id"),
       inverseJoinColumns = @JoinColumn(name = "attachment_id")
   )
-  private Set<BinaryContent> attachments = new LinkedHashSet<>();
+  private List<BinaryContent> attachments = new ArrayList<>();
 
   @Builder
   public Message(String content,
@@ -56,7 +56,8 @@ public class Message extends BaseUpdatableEntity {
     this.content = content;
     this.channel = channel;
     this.author = author;
-    this.attachments.addAll(attachments);
+    if (attachments != null) {
+      this.attachments.addAll(attachments);
+    }
   }
-
 }

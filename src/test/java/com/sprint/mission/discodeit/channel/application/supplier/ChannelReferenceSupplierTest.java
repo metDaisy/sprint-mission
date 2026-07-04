@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.channel.domain.entity.constant.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelErrorCode;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelException;
-import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
+import com.sprint.mission.discodeit.common.jpa.repository.EntityReferenceJpaRepository;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 class ChannelReferenceSupplierTest {
 
   @Mock
-  private DomainRepository<Channel> repository;
+  private EntityReferenceJpaRepository<Channel> repository;
 
   @InjectMocks
   private ChannelReferenceSupplier supplier;

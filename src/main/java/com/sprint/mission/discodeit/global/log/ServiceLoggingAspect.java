@@ -12,7 +12,7 @@ import org.springframework.util.StopWatch;
 @Component
 public class ServiceLoggingAspect {
 
-  @Around("@annotation(com.sprint.mission.discodeit.global.log.ServiceLogAround)")
+  @Around("@annotation(ServiceLogAround)")
   public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
     String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
     String methodName = joinPoint.getSignature().toShortString();

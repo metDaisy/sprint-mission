@@ -19,11 +19,18 @@ public abstract class BaseUpdatableEntity extends BaseEntity {
   @LastModifiedDate
   private Instant updatedAt;
 
-  protected <T> boolean update(T oldValue, T newValue, Consumer<T> action) {
+  protected <T> boolean shouldUpdate(T oldValue, T newValue, Consumer<T> validator) {
     if (newValue == null || Objects.equals(oldValue, newValue)) {
       return false;
     }
-    action.accept(newValue);
+    validator.accept(newValue);
     return true;
+  }
+
+  protected <T> void updateIfChanged(T oldValue, T newValue, Consumer<T> action) {
+    if (newValue == null || Objects.equals(oldValue, newValue)) {
+      return;
+    }
+    action.accept(newValue);
   }
 }

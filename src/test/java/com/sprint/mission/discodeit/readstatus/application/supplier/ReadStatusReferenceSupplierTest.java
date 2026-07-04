@@ -1,16 +1,12 @@
 package com.sprint.mission.discodeit.readstatus.application.supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
+import com.sprint.mission.discodeit.common.jpa.repository.EntityReferenceJpaRepository;
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
-import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorCode;
-import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReadStatusReferenceSupplierTest {
 
   @Mock
-  private DomainRepository<ReadStatus> repository;
+  private EntityReferenceJpaRepository<ReadStatus> repository;
 
   @InjectMocks
   private ReadStatusReferenceSupplier supplier;

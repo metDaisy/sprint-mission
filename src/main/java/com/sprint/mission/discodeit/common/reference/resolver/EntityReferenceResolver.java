@@ -9,4 +9,8 @@ public interface EntityReferenceResolver<T> {
   T getProxyOrThrow(UUID id);
 
   List<T> getProxyOrThrow(Collection<UUID> ids);
+
+  T getOrThrow(UUID id);
+
+  List<T> getOrThrow(Collection<UUID> ids);
 }

@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.auth.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -11,7 +10,7 @@ import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
 import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;
 import com.sprint.mission.discodeit.auth.domain.provider.AuthUserResolver;
-import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialJpaRepository;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class UserCredentialServiceTest {
 
   @Mock
-  private UserCredentialRepository repository;
+  private UserCredentialJpaRepository repository;
 
   @Mock
   private PasswordEncoder passwordEncoder;
@@ -41,7 +40,7 @@ class UserCredentialServiceTest {
 
   @Test
   @DisplayName("create - 유저 크레덴셜을 정상 생성한다.")
-  void create() {
+  void create_success() {
     UUID userId = UUID.randomUUID();
     User mockUser = mock(User.class);
     given(userProvider.getProxy(userId)).willReturn(mockUser);
@@ -52,14 +51,14 @@ class UserCredentialServiceTest {
     ArgumentCaptor<UserCredential> captor = ArgumentCaptor.forClass(UserCredential.class);
     verify(repository).save(captor.capture());
     UserCredential saved = captor.getValue();
-    
+
     assertThat(saved.getUser()).isEqualTo(mockUser);
     assertThat(saved.getPassword()).isEqualTo("encodedPassword");
   }
 
   @Test
   @DisplayName("update - 유저 크레덴셜을 정상 업데이트한다.")
-  void update() {
+  void update_success() {
     UUID userId = UUID.randomUUID();
     UserCredential credential = mock(UserCredential.class);
 
@@ -80,6 +79,7 @@ class UserCredentialServiceTest {
 
     assertThatThrownBy(() -> service.update(userId, "new-password"))
         .isInstanceOf(AuthException.class)
-        .hasFieldOrPropertyWithValue("errorCode", UserCredentialErrorCode.USER_CREDENTIAL_NOT_FOUND);
+        .hasFieldOrPropertyWithValue("errorCode",
+            UserCredentialErrorCode.USER_CREDENTIAL_NOT_FOUND);
   }
 }

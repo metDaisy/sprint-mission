@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.auth.domain.exception.JWTErrorCode;
 import com.sprint.mission.discodeit.auth.domain.provider.AuthUserResolver;
 import com.sprint.mission.discodeit.auth.domain.provider.JwtRegistry;
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtLoginResponse;
-import com.sprint.mission.discodeit.auth.presentation.mapper.AuthMapper;
+import com.sprint.mission.discodeit.auth.presentation.mapper.AuthApiMapper;
 import com.sprint.mission.discodeit.global.security.jwt.JwtProperties;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.user.domain.entity.User;
@@ -25,7 +25,7 @@ public class JwtTokenService {
   private final JwtProperties jwtProperties;
   private final JwtTokenProvider jwtTokenProvider;
   private final JwtRegistry jwtRegistry;
-  private final AuthMapper mapper;
+  private final AuthApiMapper mapper; // todo: domain mapper
   private final AuthUserResolver userResolver;
 
   public JwtLoginResponse reissue(String refreshToken) {

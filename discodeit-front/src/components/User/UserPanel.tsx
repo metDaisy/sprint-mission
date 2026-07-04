@@ -28,7 +28,7 @@ function UserPanel({ user }: UserPanelProps): JSX.Element {
             src={user.profile?.id ? binaryContents[user.profile.id]?.url : defaultProfile} 
             alt={user.username} 
           />
-          <StatusDot $online={true} />
+          <StatusDot $online={user.online} />
         </UserAvatarContainer>
         <UserInfo>
           <UserName>{user.username}</UserName>

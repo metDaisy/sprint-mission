@@ -2,16 +2,15 @@ package com.sprint.mission.discodeit.readstatus.application.service;
 
 import com.sprint.mission.discodeit.channel.domain.entity.Channel;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
+import com.sprint.mission.discodeit.readstatus.application.mapper.ReadStatusDomainMapper;
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorCode;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusException;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusChannelResolver;
 import com.sprint.mission.discodeit.readstatus.domain.provider.ReadStatusUserResolver;
-import com.sprint.mission.discodeit.readstatus.infra.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.readstatus.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.readstatus.presentation.dto.response.ReadStatusResponse;
-import com.sprint.mission.discodeit.readstatus.presentation.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.Map;
@@ -26,44 +25,39 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReadStatusService {
 
   private final ReadStatusRepository repository;
-  private final ReadStatusMapper mapper;
   private final ReadStatusUserResolver userProvider;
   private final ReadStatusChannelResolver channelProvider;
+  private final ReadStatusDomainMapper mapper;
 
   @Transactional(readOnly = true)
-  public List<ReadStatusResponse> findAllByUserId(UUID userId) {
-    return mapper.toDto(repository.findAllByUserId(userId));
+  public List<ReadStatus> findAllByUserId(UUID userId) {
+    return repository.findAllByUser_Id(userId);
   }
 
-  public ReadStatusResponse create(ReadStatusCreateRequest request) {
+  public ReadStatus create(ReadStatusCreateRequest request) {
     verifyCreatable(request.getChannelId(), request.getUserId());
 
     User user = userProvider.getProxyOrThrow(request.getUserId());
     Channel channel = channelProvider.getProxyOrThrow(request.getChannelId());
-    ReadStatus status = ReadStatus.builder()
-        .user(user)
-        .channel(channel)
-        .lastReadAt(request.getLastReadAt())
-        .notificationEnabled(false)
-        .build();
+    ReadStatus status = mapper.toEntity(request, user, channel);
     repository.save(status);
-    return mapper.toDto(status);
+    return status;
   }
 
   @Transactional(readOnly = true)
-  public ReadStatusResponse find(UUID id) {
-    return mapper.toDto(findById(id));
+  public ReadStatus find(UUID id) {
+    return findById(id);
   }
 
-  public ReadStatusResponse update(UUID id, ReadStatusUpdateRequest request) {
+  public ReadStatus update(UUID id, ReadStatusUpdateRequest request) {
     ReadStatus status = findById(id);
     mapper.partialUpdate(request, status);
-    return mapper.toDto(status);
+    return status;
   }
 
   public void delete(UUID id) {
-    DomainServiceSupport.deleteOrThrow(id, repository,
-        value -> new ReadStatusException(ReadStatusErrorCode.READSTATUSID_NOT_FOUND, value));
+    ReadStatus status = findById(id);
+    repository.delete(status);
   }
 
   public void create(UUID channelId,

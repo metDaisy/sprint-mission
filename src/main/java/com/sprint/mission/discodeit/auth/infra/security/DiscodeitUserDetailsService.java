@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.auth.infra.security;
 import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
 import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;
-import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialJpaRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DiscodeitUserDetailsService implements UserDetailsService {
 
-  private final UserCredentialRepository repository;
+  private final UserCredentialJpaRepository repository;
 
   @Override
   @Transactional(readOnly = true)

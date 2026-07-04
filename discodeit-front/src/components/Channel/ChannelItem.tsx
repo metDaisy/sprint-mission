@@ -62,7 +62,6 @@ export function ChannelItem({ channel, isActive, onClick, hasUnread }: ChannelIt
 
   const handleEditSuccess = (updatedChannel: ChannelDto) => {
     setIsEditModalOpen(false);
-    // The channel will be updated through the store's polling mechanism
     console.log('Channel updated successfully:', updatedChannel);
   };
 

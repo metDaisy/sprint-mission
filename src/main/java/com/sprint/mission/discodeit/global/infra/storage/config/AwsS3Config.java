@@ -12,9 +12,12 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 @RequiredArgsConstructor
 @Configuration
 @EnableConfigurationProperties(AwsProperties.class)
+@ConditionalOnProperty(name = "app.storage.type", havingValue = "s3")
 public class AwsS3Config {
 
   @Delegate

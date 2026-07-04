@@ -1,6 +1,6 @@
 import {create} from 'zustand';
-import {downloadBinaryContent, getBinaryContent} from '../api/binaryContent';
-import {BinaryContentStatus} from "@/types/api.ts";
+import {downloadBinaryContent, getBinaryContent, getBinaryContents} from '../api/binaryContent';
+import {BinaryContentDto, BinaryContentStatus} from "@/types/api.ts";
 
 export interface BinaryContentInfo {
   url?: string;
@@ -13,25 +13,21 @@ export interface BinaryContentInfo {
 
 interface BinaryContentStore {
   binaryContents: Record<string, BinaryContentInfo>;
-  pollingIds: Set<string>;
   fetchBinaryContent: (id: string) => Promise<BinaryContentInfo | null>;
-  startPolling: (id: string) => void;
-  stopPolling: (id: string) => void;
-  clearAllPolling: () => void;
+  fetchBinaryContents: (ids: string[]) => Promise<void>;
+  updateBinaryContentStatus: (updated: BinaryContentDto) => Promise<void>;
   clearBinaryContent: (id: string) => void;
   clearBinaryContents: (ids: string[]) => void;
   clearAllBinaryContents: () => void;
 }
 
-let pollingIntervals: Record<string, NodeJS.Timeout> = {};
-
 const useBinaryContentStore = create<BinaryContentStore>((set, get) => ({
   binaryContents: {},
-  pollingIds: new Set<string>(),
   fetchBinaryContent: async (id) => {
-    // 이미 가져온 정보가 있다면 재사용
-    if (get().binaryContents[id]) {
-      return get().binaryContents[id];
+    // 이미 가져온 정보가 성공 상태라면 재사용
+    const existing = get().binaryContents[id];
+    if (existing && existing.status === BinaryContentStatus.SUCCESS) {
+      return existing;
     }
 
     try {
@@ -66,83 +62,44 @@ const useBinaryContentStore = create<BinaryContentStore>((set, get) => ({
       return null;
     }
   },
-  startPolling: (id) => {
-    // 이미 polling 중이면 중복 시작하지 않음
-    if (pollingIntervals[id]) {
-      return;
-    }
+  fetchBinaryContents: async (ids) => {
+    const missingIds = ids.filter(id => {
+      const existing = get().binaryContents[id];
+      return !existing || existing.status !== BinaryContentStatus.SUCCESS;
+    });
+    if (missingIds.length === 0) return;
 
-    const pollingInterval = setInterval(async () => {
-      try {
-        const binaryContent = await getBinaryContent(id);
-        const { status } = binaryContent;
+    try {
+      const contents = await getBinaryContents(missingIds);
+      const newInfos: Record<string, BinaryContentInfo> = {};
 
-        if (status === BinaryContentStatus.SUCCESS) {
-          console.log(`Polling: ${id} 상태가 SUCCESS로 변경됨`);
-          // 성공 상태가 되면 실제 파일 다운로드
-          const downloadResult = await downloadBinaryContent(id);
+      await Promise.all(contents.map(async (content) => {
+        const info: BinaryContentInfo = {
+          contentType: content.contentType,
+          fileName: content.fileName,
+          size: content.size,
+          status: content.status,
+        };
+
+        if (content.status === BinaryContentStatus.SUCCESS) {
+          const downloadResult = await downloadBinaryContent(content.id);
           const imageObjectURL = URL.createObjectURL(downloadResult.blob);
-
-          set((state) => ({
-            binaryContents: {
-              ...state.binaryContents,
-              [id]: {
-                ...state.binaryContents[id],
-                url: imageObjectURL,
-                status: BinaryContentStatus.SUCCESS,
-                revokeUrl: () => URL.revokeObjectURL(imageObjectURL)
-              }
-            }
-          }));
-
-          // polling 중지
-          get().stopPolling(id);
-        } else if (status === BinaryContentStatus.FAIL) {
-          console.log(`Polling: ${id} 상태가 FAIL로 변경됨`);
-          // 실패 상태가 되면 상태만 업데이트하고 polling 중지
-          set((state) => ({
-            binaryContents: {
-              ...state.binaryContents,
-              [id]: {
-                ...state.binaryContents[id],
-                status: BinaryContentStatus.FAIL
-              }
-            }
-          }));
-
-          get().stopPolling(id);
-        } else {
-          console.log(`Polling: ${id} 상태가 여전히 PROCESSING임`);
+          info.url = imageObjectURL;
+          info.revokeUrl = () => URL.revokeObjectURL(imageObjectURL);
         }
-      } catch (error) {
-        console.error('polling 중 오류:', error);
-        get().stopPolling(id);
-      }
-    }, 2000); // 2초마다 체크
 
-    pollingIntervals[id] = pollingInterval;
-    set((state) => ({
-      pollingIds: new Set([...state.pollingIds, id])
-    }));
-  },
-  stopPolling: (id) => {
-    if (pollingIntervals[id]) {
-      clearInterval(pollingIntervals[id]);
-      delete pollingIntervals[id];
+        newInfos[content.id] = info;
+      }));
+
+      set((state) => ({
+        binaryContents: {
+          ...state.binaryContents,
+          ...newInfos
+        }
+      }));
+    } catch (error) {
+      console.error('다중 첨부파일 정보 조회 실패:', error);
     }
-
-    set((state) => {
-      const newPollingIds = new Set(state.pollingIds);
-      newPollingIds.delete(id);
-      return { pollingIds: newPollingIds };
-    });
-  },
-  clearAllPolling: () => {
-    Object.values(pollingIntervals).forEach(interval => {
-      clearInterval(interval);
-    });
-    pollingIntervals = {};
-    set({ pollingIds: new Set() });
   },
   clearBinaryContent: (id) => {
     const { binaryContents } = get();
@@ -189,6 +146,44 @@ const useBinaryContentStore = create<BinaryContentStore>((set, get) => ({
       }
     });
     set({ binaryContents: {} });
+  },
+  updateBinaryContentStatus: async (updated: BinaryContentDto) => {
+    if (updated.status === BinaryContentStatus.SUCCESS) {
+      console.log(`${updated.id} 상태가 SUCCESS로 변경됨`);
+      // 성공 상태가 되면 실제 파일 다운로드
+      const downloadResult = await downloadBinaryContent(updated.id);
+      const imageObjectURL = URL.createObjectURL(downloadResult.blob);
+
+      set((state) => {
+
+        return ({
+          binaryContents: {
+            ...state.binaryContents,
+            [updated.id]: {
+              ...updated,
+              url: imageObjectURL,
+              status: BinaryContentStatus.SUCCESS,
+              revokeUrl: () => URL.revokeObjectURL(imageObjectURL)
+            }
+          }
+        })
+      } );
+
+    } else if (updated.status === BinaryContentStatus.FAILED) {
+      console.log(`${updated.id} 상태가 FAIL로 변경됨`);
+      set((state) => ({
+        binaryContents: {
+          ...state.binaryContents,
+          [updated.id]: {
+            ...updated,
+            status: BinaryContentStatus.FAILED
+          }
+        }
+      }));
+
+    } else {
+      console.log(`${updated.id} 상태가 여전히 PROCESSING임`);
+    }
   }
 }));
 

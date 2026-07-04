@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.auth.domain.entity.UserCredential;
 import com.sprint.mission.discodeit.auth.domain.exception.AuthException;
 import com.sprint.mission.discodeit.auth.domain.exception.UserCredentialErrorCode;
 import com.sprint.mission.discodeit.auth.domain.provider.AuthUserResolver;
-import com.sprint.mission.discodeit.auth.infra.repository.UserCredentialRepository;
+import com.sprint.mission.discodeit.auth.domain.repository.UserCredentialRepository;
 import com.sprint.mission.discodeit.common.support.DomainServiceSupport;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +38,9 @@ public class UserCredentialService {
     return DomainServiceSupport.getOrThrow(id, repository::findByUser_Id,
         value -> new AuthException(
             UserCredentialErrorCode.USER_CREDENTIAL_NOT_FOUND, "userId", value));
+  }
+
+  public void deleteByUserId(UUID userId) {
+    repository.findByUser_Id(userId).ifPresent(repository::delete);
   }
 }

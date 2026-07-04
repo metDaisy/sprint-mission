@@ -9,7 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.notification.application.service.NotificationService;
-import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
+import com.sprint.mission.discodeit.notification.domain.entity.Notification;
+import com.sprint.mission.discodeit.support.mapper.GlobalApiMapperTestConfig;
+import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -17,12 +19,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(NotificationController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(GlobalApiMapperTestConfig.class)
 class NotificationControllerTest {
 
   @Autowired
@@ -36,15 +40,20 @@ class NotificationControllerTest {
 
   @Test
   @DisplayName("find - 사용자의 알림 목록을 정상 조회한다.")
-  void find() throws Exception {
+  void find_success() throws Exception {
     UUID userId = UUID.randomUUID();
     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
         userId.toString(), null, List.of());
 
-    NotificationDto dto = new NotificationDto(UUID.randomUUID(), java.time.Instant.now(), userId, "title", "content");
-    given(service.find(userId)).willReturn(List.of(dto));
+    User user = User.builder().username("test").email("test@test.com")
+        .role(com.sprint.mission.discodeit.user.domain.entity.constant.UserRole.USER).build();
+    org.springframework.test.util.ReflectionTestUtils.setField(user, "id", userId);
+    Notification noti = Notification.builder().receiver(user).title("title").content("content")
+        .build();
 
-    mockMvc.perform(get("/notifications")
+    given(service.find(userId)).willReturn(List.of(noti));
+
+    mockMvc.perform(get("/api/notifications")
             .principal(authentication))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].title").value("title"))
@@ -58,7 +67,7 @@ class NotificationControllerTest {
 
     willDoNothing().given(service).delete(id);
 
-    mockMvc.perform(delete("/notifications/{id}", id))
+    mockMvc.perform(delete("/api/notifications/{id}", id))
         .andExpect(status().isNoContent());
   }
 }

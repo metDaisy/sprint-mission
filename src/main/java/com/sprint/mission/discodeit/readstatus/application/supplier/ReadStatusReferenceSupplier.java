@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.readstatus.application.supplier;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.jpa.repository.DomainRepository;
+import com.sprint.mission.discodeit.common.jpa.repository.EntityReferenceJpaRepository;
 import com.sprint.mission.discodeit.common.reference.supplier.AbstractEntityReferenceSupplier;
 import com.sprint.mission.discodeit.readstatus.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusErrorCode;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReadStatusReferenceSupplier extends AbstractEntityReferenceSupplier<ReadStatus> {
 
   public ReadStatusReferenceSupplier(
-      DomainRepository<ReadStatus> repository) {
+      EntityReferenceJpaRepository<ReadStatus> repository) {
     super(repository);
   }
 

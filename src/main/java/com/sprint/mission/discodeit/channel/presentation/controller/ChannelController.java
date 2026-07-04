@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.channel.presentation.dto.request.PrivateChan
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.channel.presentation.mapper.ChannelApiMapper;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -27,25 +28,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChannelController {
 
   private final ChannelService channelService;
+  private final ChannelApiMapper mapper;
 
   @PostMapping(value = "/public")
   public ResponseEntity<ChannelResponse> create(
       @RequestBody @Valid PublicChannelCreateRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(channelService.createPublic(request));
+        .body(mapper.toDto(channelService.createPublic(request)));
   }
 
   @PostMapping(value = "/private")
   public ResponseEntity<ChannelResponse> create(
       @RequestBody @Valid PrivateChannelCreateRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(channelService.createPrivate(request));
+        .body(mapper.toDto(channelService.createPrivate(request)));
   }
 
   @GetMapping
   public ResponseEntity<List<ChannelResponse>> findByUserId(@RequestParam UUID userId) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(channelService.findAllByUserId(userId));
+        .body(mapper.toDto(channelService.findAllByUserId(userId)));
   }
 
   @PatchMapping(value = "/{id}")
@@ -53,7 +55,7 @@ public class ChannelController {
       @PathVariable UUID id,
       @RequestBody PublicChannelUpdateRequest request) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(channelService.update(id, request));
+        .body(mapper.toDto(channelService.update(id, request)));
   }
 
   @DeleteMapping(value = "/{id}")

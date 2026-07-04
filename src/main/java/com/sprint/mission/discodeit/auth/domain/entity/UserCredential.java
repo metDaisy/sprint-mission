@@ -32,7 +32,7 @@ public class UserCredential extends BaseUpdatableEntity {
     this.password = password;
   }
 
-  public boolean updatePassword(String password) {
-    return update(this.password, password, value -> this.password = value);
+  public void updatePassword(String password) {
+    updateIfChanged(this.password, password, value -> this.password = value);
   }
 }

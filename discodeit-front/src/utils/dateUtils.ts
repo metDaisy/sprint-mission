@@ -5,7 +5,7 @@
  * @returns 포맷팅된 날짜 문자열
  */
 export function formatDate(date: Date, format: string = 'yyyy-MM-dd HH:mm:ss'): string {
-  if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+  if (!date || isNaN(date.getTime())) {
     return '';
   }
 

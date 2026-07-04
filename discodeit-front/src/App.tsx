@@ -11,10 +11,14 @@ import {theme} from './styles/theme';
 import {eventEmitter, EventEmitterArgs} from './utils/eventEmitter';
 import useAuthStore from './stores/authStore';
 
+import {useWebSocketStore} from "@/stores/websocketStore.ts";
+
 function App(): JSX.Element {
   const {logout, fetchCsrfToken, refreshToken} = useAuthStore();
   const {fetchUsers} = useUserListStore();
   const [activeChannel, setActiveChannel] = useState<ChannelDto | null>(null);
+
+  const {connect: connectWs, disconnect: disconnectWs} = useWebSocketStore();
 
   // 에러 상태 관리
   const [error, setError] = useState<any>(null);
@@ -25,6 +29,18 @@ function App(): JSX.Element {
 
   const {currentUser} = useAuthStore();
   const isInitialized = useRef(false);
+
+
+  useEffect(() => {
+    if (currentUser) {
+      connectWs();
+    } else {
+      disconnectWs();
+    }
+    return () => {
+      disconnectWs();
+    };
+  }, [currentUser, connectWs, disconnectWs]);
 
   useEffect(() => {
     if (isInitialized.current) return;
@@ -78,26 +94,12 @@ function App(): JSX.Element {
     };
   }, [logout]);
 
-  // 사용자 상태 업데이트 폴링
-  useEffect(() => {
-    if (currentUser) {
-      // 사용자 목록을 1분마다 새로고침
-      const fetchInterval = setInterval(() => {
-        fetchUsers();
-      }, 60000);
-
-      return () => {
-        clearInterval(fetchInterval);
-      };
-    }
-
-    return undefined;
-  }, [currentUser, fetchUsers]);
-
   const closeErrorModal = () => {
     setIsErrorModalOpen(false);
     setError(null);
   };
+
+
 
   // 로딩 중일 때 로딩 화면 표시
   if (isLoading) {

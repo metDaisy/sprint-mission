@@ -5,7 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import com.sprint.mission.discodeit.common.reference.supplier.EntityReferenceSupplier;
-import com.sprint.mission.discodeit.user.application.supplier.UsernameReferenceSupplier;
+import com.sprint.mission.discodeit.user.application.supplier.UserQueryReferenceSupplier;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +22,7 @@ class NotificationUserAdapterTest {
   private EntityReferenceSupplier<User> service;
 
   @Mock
-  private UsernameReferenceSupplier usernameReferenceSupplier;
+  private UserQueryReferenceSupplier userQueryReferenceSupplier;
 
   @InjectMocks
   private NotificationUserAdapter adapter;
@@ -44,7 +44,7 @@ class NotificationUserAdapterTest {
   @DisplayName("getProxyByUsername - 유저네임으로 유저 프록시를 반환한다.")
   void getProxyByUsername() {
     User user = mock(User.class);
-    given(usernameReferenceSupplier.getProxyByUsername("admin")).willReturn(user);
+    given(userQueryReferenceSupplier.getProxyByUsername("admin")).willReturn(user);
 
     User result = adapter.getProxyByUsername("admin");
 

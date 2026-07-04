@@ -10,10 +10,7 @@ import com.sprint.mission.discodeit.notification.domain.entity.Notification;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationErrorCode;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationException;
 import com.sprint.mission.discodeit.notification.domain.provider.NotificationUserResolver;
-import com.sprint.mission.discodeit.notification.infra.repository.NotificationRepository;
-import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
-import com.sprint.mission.discodeit.notification.presentation.mapper.NotificationMapper;
-import com.sprint.mission.discodeit.support.mapper.MapperContainer;
+import com.sprint.mission.discodeit.notification.domain.repository.NotificationRepository;
 import com.sprint.mission.discodeit.user.domain.entity.User;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +23,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.sprint.mission.discodeit.notification.application.mapper.NotificationDomainMapper;
+import com.sprint.mission.discodeit.notification.application.mapper.NotificationPayloadMapper;
+import com.sprint.mission.discodeit.notification.domain.provider.NotificationNotifier;
+import com.sprint.mission.discodeit.support.mapper.DomainMapperContainer;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -37,7 +38,13 @@ class NotificationServiceTest {
   private NotificationUserResolver userResolver;
 
   @Spy
-  private NotificationMapper mapper = MapperContainer.get(NotificationMapper.class);
+  private NotificationDomainMapper mapper = DomainMapperContainer.get(NotificationDomainMapper.class);
+
+  @Spy
+  private NotificationPayloadMapper payloadMapper = DomainMapperContainer.get(NotificationPayloadMapper.class);
+
+  @Mock
+  private NotificationNotifier notifier;
 
   @InjectMocks
   private NotificationService service;
@@ -45,7 +52,7 @@ class NotificationServiceTest {
 
   @Test
   @DisplayName("create - 알림을 정상 생성한다.")
-  void create() {
+  void create_success() {
     UUID receiverId = UUID.randomUUID();
     User user = mock(User.class);
     given(userResolver.getProxyOrThrow(List.of(receiverId))).willReturn(List.of(user));
@@ -64,7 +71,7 @@ class NotificationServiceTest {
 
   @Test
   @DisplayName("find - 사용자 ID로 알림 목록을 반환한다.")
-  void find() {
+  void find_success() {
     UUID receiverId = UUID.randomUUID();
     User user = mock(User.class);
     Notification noti = Notification.builder()
@@ -75,18 +82,21 @@ class NotificationServiceTest {
 
     given(repository.findAllByReceiver_Id(receiverId)).willReturn(List.of(noti));
 
-    List<NotificationDto> result = service.find(receiverId);
+    List<Notification> result = service.find(receiverId);
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).title()).isEqualTo("title1");
-    assertThat(result.get(0).content()).isEqualTo("content1");
+    assertThat(result.get(0).getTitle()).isEqualTo("title1");
+    assertThat(result.get(0).getContent()).isEqualTo("content1");
   }
 
   @Test
   @DisplayName("delete - 특정 알림을 정상 삭제한다.")
-  void delete() {
+  void delete_success() {
     UUID id = UUID.randomUUID();
     Notification noti = mock(Notification.class);
+    User user = mock(User.class);
+    given(noti.getReceiver()).willReturn(user);
+    given(user.getId()).willReturn(UUID.randomUUID());
     given(repository.findById(id)).willReturn(Optional.of(noti));
 
     service.delete(id);
@@ -107,7 +117,7 @@ class NotificationServiceTest {
 
   @Test
   @DisplayName("sendToAdmin - 어드민에게 메시지를 전송한다.")
-  void sendToAdmin() {
+  void sendToAdmin_success() {
     User admin = mock(User.class);
     given(userResolver.getProxyByUsername("admin")).willReturn(admin);
 

@@ -26,4 +26,17 @@ public abstract class AbstractEntityReferenceResolver<T> implements EntityRefere
     service.existsOrThrow(id);
     return service.getProxy(id);
   }
+
+  @Override
+  public T getOrThrow(UUID id) {
+    return service.getOrThrow(id);
+  }
+
+  @Override
+  public List<T> getOrThrow(Collection<UUID> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return service.getOrThrow(ids);
+  }
 }

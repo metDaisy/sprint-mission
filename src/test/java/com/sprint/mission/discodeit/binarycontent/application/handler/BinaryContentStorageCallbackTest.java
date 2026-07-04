@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.constant.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.event.UploadFailedNotificationEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.provider.FileUploadResult;
-import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.binarycontent.infra.repository.BinaryContentJpaRepository;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +25,7 @@ import org.springframework.context.ApplicationEventPublisher;
 class BinaryContentStorageCallbackTest {
 
   @Mock
-  private BinaryContentRepository repository;
+  private BinaryContentJpaRepository repository;
 
   @Mock
   private ApplicationEventPublisher eventPublisher;

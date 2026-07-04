@@ -4,10 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sprint.mission.discodeit.binarycontent.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.entity.constant.BinaryContentStatus;
+import com.sprint.mission.discodeit.binarycontent.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.support.base.BaseRepositoryTest;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ class BinaryContentRepositoryTest extends BaseRepositoryTest {
     ensureQueryCount(1);
 
     clear();
-    BinaryContent updated = repository.findById(content.getId()).get();
+    BinaryContent updated = repository.findById(content.getId()).orElseThrow();
     assertThat(updated.getStatus()).isEqualTo(BinaryContentStatus.SUCCESS);
   }
 
@@ -49,7 +48,7 @@ class BinaryContentRepositoryTest extends BaseRepositoryTest {
     repository.save(content);
     flushAndClear();
     clear();
-    
+
     repository.updateStatus(List.of(content.getId()), BinaryContentStatus.SUCCESS);
     clear();
 
